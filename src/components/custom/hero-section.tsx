@@ -1,13 +1,14 @@
 import { FC } from "react";
 import { Button } from "../ui";
-import { PlayIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import { PlayIcon } from "@radix-ui/react-icons";
+import { BookingCard } from "./booking-card";
 
 export const HeroSection: FC = () => {
   return (
-    <section className="relative flex h-full w-full flex-col-reverse gap-5 lg:flex-row lg:px-5">
+    <section className="relative flex h-full w-full flex-col gap-5 lg:flex-row lg:ps-5">
       {/* left side */}
-      <div className="absolute top-0 flex h-full w-full flex-col items-center justify-center px-2 lg:px-0 text-white lg:relative lg:h-auto lg:w-1/2 lg:items-start lg:text-slate-900">
+      <div className="absolute top-0 flex h-full w-full flex-col items-center justify-center px-2 text-white lg:relative lg:h-auto lg:w-1/2 lg:items-start lg:px-0 lg:text-slate-900">
         <h2 className="mb-10 text-xl">The Villa Hotel</h2>
         <h1 className="max-w-xl text-center text-5xl font-medium lg:max-w-lg lg:text-start lg:text-6xl">
           Hotel for Every Moment rich in emotion.
@@ -26,17 +27,17 @@ export const HeroSection: FC = () => {
         </div>
       </div>
       {/* right side */}
-      <div className="-z-10 h-full w-full overflow-hidden bg-slate-900 lg:w-1/2 lg:rounded-xl">
+      <div className="-z-10 w-full overflow-hidden bg-slate-900 lg:w-1/2 lg:rounded-xl">
         <Image
           src="/images/img_19.jpg"
           alt="hero"
-          className="h-auto max-h-[45rem] w-full object-cover opacity-30 lg:rounded-xl lg:opacity-100"
+          className="h-full max-h-[45rem] w-full object-cover opacity-30 lg:rounded-xl lg:opacity-100"
           width={500}
-          height={0}
+          height={300}
         />
       </div>
-			{/* bookings */}
-			<div className=""></div>
+      {/* bookings */}
+      <BookingCard />
     </section>
   );
 };
