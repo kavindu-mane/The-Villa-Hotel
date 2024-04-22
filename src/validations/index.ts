@@ -24,4 +24,31 @@ export const BookingSchema = z.object({
     .refine((val) => val >= 1 && val <= 10, {
       message: "Persons must be between 1 and 10",
     }),
+  date: z
+    .object(
+      {
+        from: z.date(),
+        to: z.date(),
+      },
+      { required_error: "Dates are required" },
+    )
+    .refine((date) => {
+      return !!date.from;
+    }, "Check-in date is required")
+    .refine((date) => {
+      return !!date.to;
+    }, "Check-out date is required")
+    .refine((date) => {
+      return date.from < date.to;
+    })
+    .refine((date) => {
+      const today = new Date();
+      return date.from >= today && date.to >= today;
+    }, "Dates must be greater than or equal to today")
+    .refine((date) => {
+      const lastDay = new Date();
+      // 1 months from now
+      lastDay.setMonth(lastDay.getMonth() + 1);
+      return date.to <= lastDay;
+    }, "Dates must be less than or equal to 1 months from now"),
 });

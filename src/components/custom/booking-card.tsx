@@ -11,6 +11,7 @@ import {
   FormMessage,
   FormControl,
 } from "../ui/form";
+import { format } from "date-fns";
 import { z } from "zod";
 import {
   Select,
@@ -23,6 +24,10 @@ import { BsBuildingsFill } from "react-icons/bs";
 import { IoPerson } from "react-icons/io5";
 import { BookingSchema } from "@/validations";
 import { Button } from "..";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { Calendar } from "../ui/calendar";
 
 export const BookingCard: FC = () => {
   // room types
@@ -34,6 +39,10 @@ export const BookingCard: FC = () => {
     defaultValues: {
       room_type: "standard",
       persons: 1,
+      date: {
+        from: new Date(),
+        to: new Date(),
+      },
     },
   });
 
@@ -47,14 +56,14 @@ export const BookingCard: FC = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full flex-wrap items-end justify-center gap-3"
+          className="mx-5 flex flex-wrap items-end justify-center gap-3 rounded-lg bg-white px-2 py-8 lg:gap-8 lg:rounded-none"
         >
           {/* room type */}
           <FormField
             control={form.control}
             name="room_type"
             render={({ field }) => (
-              <FormItem className="w-full max-w-[12rem]">
+              <FormItem className="w-full max-w-sm lg:max-w-xs">
                 <FormLabel className="flex items-center gap-2">
                   <BsBuildingsFill /> Room Type
                 </FormLabel>
@@ -89,7 +98,7 @@ export const BookingCard: FC = () => {
             control={form.control}
             name="persons"
             render={({ field }) => (
-              <FormItem className="w-full max-w-[12rem]">
+              <FormItem className="w-full max-w-sm lg:max-w-xs">
                 <FormLabel className="flex items-center gap-2">
                   <IoPerson /> Person
                 </FormLabel>
@@ -114,7 +123,60 @@ export const BookingCard: FC = () => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+
+          {/* check in and out */}
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem className="flex w-full max-w-sm flex-col lg:max-w-xs">
+                <FormLabel>Check In and Out</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground",
+                        )}
+                      >
+                        {field.value.from ? (
+                          field.value.to ? (
+                            <>
+                              {format(field.value.from, "LLL dd, y")} -{" "}
+                              {format(field.value.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(field.value.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={{ from: field.value.from!, to: field.value.to }}
+                      defaultMonth={field.value.from}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date() || date > new Date("2024-05-01")
+                      }
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="h-10 w-full max-w-sm lg:max-w-xs">
+            Submit
+          </Button>
         </form>
       </Form>
     </div>
