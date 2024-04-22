@@ -58,7 +58,7 @@ export const RoomsDetails: FC = () => {
 
   return (
     <section
-      className="-my-[7rem] flex h-screen min-h-[35rem] w-screen flex-col justify-between bg-cover bg-fixed bg-center px-3 "
+      className="z-0 -my-[7rem] flex h-screen min-h-[35rem] w-screen flex-col justify-between bg-cover bg-fixed bg-center px-3 "
       style={{ backgroundImage: "url(/images/img_15.jpg)" }}
     >
       <div className="-mx-3 h-[20vh] w-screen bg-white" />
@@ -98,10 +98,12 @@ export const RoomsDetails: FC = () => {
                     width={300}
                     className="pointer-events-none flex h-[87%] w-full rounded-sm object-cover"
                   />
-                  <h2 className="absolute right-5 top-7 rounded-s-full bg-emerald-600 ps-4 pe-2 py-1 text-lg font-medium text-white">
+                  <h2 className="absolute right-5 top-7 rounded-s-full bg-emerald-600 py-1 pe-2 ps-4 text-lg font-medium text-white">
                     {card.title}
                   </h2>
-                  <p className="pt-1 text-slate-900 font-medium">{card.description}</p>
+                  <p className="pt-1 font-medium text-slate-900">
+                    {card.description}
+                  </p>
                 </div>
               </div>
             ))}

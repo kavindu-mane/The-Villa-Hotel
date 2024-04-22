@@ -1,4 +1,10 @@
-import { Facilities, HeroSection, RoomsDetails } from "@/components";
+import {
+  Facilities,
+  Footer,
+  HeroSection,
+  RoomsDetails,
+  Testimonies,
+} from "@/components";
 
 export default function Home() {
   return (
@@ -9,6 +15,8 @@ export default function Home() {
       <Facilities />
       {/* rooms details */}
       <RoomsDetails />
+      {/* testimonies */}
+      <Testimonies />
     </main>
   );
 }
