@@ -31,13 +31,15 @@ export const HeroSection: FC = () => {
         <Image
           src="/images/img_19.jpg"
           alt="hero"
-          className="h-full max-h-[45rem] w-full object-cover opacity-30 lg:rounded-xl lg:opacity-100"
+          className="h-full max-h-[55rem] min-h-[55rem] w-full object-cover opacity-30 lg:rounded-xl lg:opacity-100"
           width={500}
           height={300}
         />
       </div>
       {/* bookings */}
-      <BookingCard />
+      <div className="absolute bottom-10 w-full">
+        <BookingCard />
+      </div>
     </section>
   );
 };
