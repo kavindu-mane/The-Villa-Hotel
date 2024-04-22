@@ -58,10 +58,10 @@ export const RoomsDetails: FC = () => {
 
   return (
     <section
-      className="z-0 -my-[7rem] flex h-screen min-h-[35rem] w-screen flex-col justify-between bg-cover bg-fixed bg-center px-3 "
+      className="z-0 -my-[12rem] flex h-screen min-h-[35rem] w-screen flex-col justify-between bg-cover bg-fixed bg-center px-3 "
       style={{ backgroundImage: "url(/images/img_15.jpg)" }}
     >
-      <div className="-mx-3 h-[20vh] w-screen bg-white" />
+      <div className="-mx-3 h-[20vh] w-screen bg-gray-50" />
       <div className="-mx-3 flex h-[60vh] min-h-[35rem] flex-col items-center justify-center space-y-2 bg-slate-950/70 px-2">
         {/* heading */}
         <h1 className="border-b-4 pb-3 text-3xl font-medium text-white">
@@ -77,6 +77,7 @@ export const RoomsDetails: FC = () => {
           <motion.div
             ref={childRef}
             drag
+            dragElastic={{ top: 0, bottom: 0 }}
             dragConstraints={{
               top: 0,
               left: isOverflow ? getGrabWidth() * -1 : 0,
@@ -110,7 +111,7 @@ export const RoomsDetails: FC = () => {
           </motion.div>
         </div>
       </div>
-      <div className="-mx-3 h-[20vh] w-screen bg-white" />
+      <div className="-mx-3 h-[20vh] w-screen bg-gray-50" />
     </section>
   );
 };
