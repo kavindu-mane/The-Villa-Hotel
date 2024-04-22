@@ -1,9 +1,12 @@
-import { HeroSection } from "@/components";
+import { Facilities, HeroSection } from "@/components";
 
 export default function Home() {
-	return (
-		<main className="flex min-h-screen flex-col items-center justify-between">
-			<HeroSection />
-		</main>
-	);
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between">
+      {/* hero section */}
+      <HeroSection />
+      {/* facilities */}
+      <Facilities />
+    </main>
+  );
 }

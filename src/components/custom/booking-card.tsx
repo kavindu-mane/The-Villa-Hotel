@@ -21,17 +21,24 @@ import {
   SelectValue,
 } from "../ui/select";
 import { BsBuildingsFill } from "react-icons/bs";
-import { IoPerson } from "react-icons/io5";
+import { IoPerson, IoCalendarSharp } from "react-icons/io5";
+import { CalendarIcon } from "@radix-ui/react-icons";
 import { BookingSchema } from "@/validations";
 import { Button } from "..";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "@radix-ui/react-icons";
 import { Calendar } from "../ui/calendar";
 
 export const BookingCard: FC = () => {
   // room types
   const roomTypes = ["standard", "deluxe", "superior"];
+
+  // get 1 months from now
+  const oneMonthFromNow = () => {
+    const lastDay = new Date();
+    lastDay.setMonth(lastDay.getMonth() + 1);
+    return lastDay;
+  };
 
   // form hook
   const form = useForm<z.infer<typeof BookingSchema>>({
@@ -56,7 +63,7 @@ export const BookingCard: FC = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="mx-5 flex flex-wrap items-end justify-center gap-3 rounded-lg bg-white px-2 py-8 lg:gap-8 lg:rounded-none"
+          className="mx-5 flex flex-wrap items-end justify-center gap-3 rounded-lg bg-white px-2 py-8 lg:mx-0 lg:gap-8 lg:rounded-none"
         >
           {/* room type */}
           <FormField
@@ -130,7 +137,9 @@ export const BookingCard: FC = () => {
             name="date"
             render={({ field }) => (
               <FormItem className="flex w-full max-w-sm flex-col lg:max-w-xs">
-                <FormLabel>Check In and Out</FormLabel>
+                <FormLabel className="flex items-center gap-2">
+                  <IoCalendarSharp /> Check In and Out
+                </FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -164,7 +173,7 @@ export const BookingCard: FC = () => {
                       defaultMonth={field.value.from}
                       onSelect={field.onChange}
                       disabled={(date) =>
-                        date < new Date() || date > new Date("2024-05-01")
+                        date < new Date() || date > oneMonthFromNow()
                       }
                       numberOfMonths={2}
                     />
@@ -175,7 +184,7 @@ export const BookingCard: FC = () => {
             )}
           />
           <Button type="submit" className="h-10 w-full max-w-sm lg:max-w-xs">
-            Submit
+            Book Now
           </Button>
         </form>
       </Form>
