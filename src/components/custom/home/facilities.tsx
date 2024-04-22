@@ -4,6 +4,7 @@ import { IoFastFood } from "react-icons/io5";
 import { HiLightBulb } from "react-icons/hi";
 import { GiDoubleFish } from "react-icons/gi";
 import { LuAirVent } from "react-icons/lu";
+import { BsCalendarRangeFill } from "react-icons/bs";
 import { MdEmojiFoodBeverage, MdLocalLaundryService } from "react-icons/md";
 
 export const Facilities: FC = () => {
@@ -41,10 +42,14 @@ export const Facilities: FC = () => {
       icon: <LuAirVent className="text-4xl" />,
       title: "A/C",
     },
+    {
+      icon: <BsCalendarRangeFill className="text-4xl" />,
+      title: "Tour Arrangement",
+    },
   ];
 
   return (
-    <section className="w-full bg-white px-5 pt-14 text-center">
+    <section className="w-full z-10 bg-white px-5 pt-14 text-center">
       {/* title */}
       <h2 className="text-3xl">Our Facilities</h2>
       {/* description */}

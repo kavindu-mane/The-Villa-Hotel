@@ -25,7 +25,7 @@ export const NavigationBar: FC = () => {
   ];
 
   return (
-    <nav className="relative flex w-full items-center justify-between px-5 py-5 lg:px-0">
+    <nav className="relative flex w-full items-center justify-between px-5 py-5 lg:px-5">
       <div className="text-2xl">
         <Link href={"/"}>
           <Brand />
