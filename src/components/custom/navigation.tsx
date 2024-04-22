@@ -1,12 +1,13 @@
 "use client";
 
 import { FC, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "../ui";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { RiCloseLine, RiMenu3Line } from "react-icons/ri";
 import { navigationAnimation } from "@/animations";
+import { Brand } from "./brand";
 
 export const NavigationBar: FC = () => {
   // get current page URL
@@ -24,15 +25,21 @@ export const NavigationBar: FC = () => {
   ];
 
   return (
-    <nav className="relative flex w-full items-center justify-between p-5">
-      <h1>The Villa Hotel</h1>
+    <nav className="relative flex w-full items-center justify-between px-5 py-5 lg:px-0">
+      <div className="text-2xl">
+        <Link href={"/"}>
+          <Brand />
+        </Link>
+      </div>
       <ul className="hidden gap-x-5 md:flex">
         {links.map((link, index) => (
           <li
             key={index}
             className={`${pathname.startsWith(link.href) ? "text-primary" : ""}`}
           >
-            <Link href={link.href}>{link.label}</Link>
+            <Link className="hover:text-emerald-600" href={link.href}>
+              {link.label}
+            </Link>
           </li>
         ))}
       </ul>
@@ -40,7 +47,9 @@ export const NavigationBar: FC = () => {
       {/* buttons */}
       <div className="flex justify-between gap-x-3">
         <Button>
-          <Link href={"/login"} className="w-20">Login</Link>
+          <Link href={"/login"} className="w-20">
+            Login
+          </Link>
         </Button>
 
         {/* navigation sider button for small devices */}
