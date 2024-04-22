@@ -1,31 +1,33 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../globals.css";
-import { NavigationBar } from "@/components";
+import { Footer, NavigationBar } from "@/components";
 
 const poppins = Poppins({
-	subsets: ["latin"],
-	weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-	title: "The Villa Hotel",
-	description: "The Villa Hotel is a luxury hotel located in the heart of the city.",
+  title: "The Villa Hotel",
+  description:
+    "The Villa Hotel is a luxury hotel located in the heart of the city.",
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="en">
-			<body className={`${poppins.className} flex justify-center`}>
-				<div className="max-w-screen-2xl w-full">
-					<NavigationBar />
-					{children}
-				</div>
-			</body>
-		</html>
-	);
+  return (
+    <html lang="en">
+      <body className={`${poppins.className} flex flex-col items-center`}>
+        <div className="w-full max-w-screen-2xl">
+          <NavigationBar />
+          {children}
+        </div>
+        <Footer />
+      </body>
+    </html>
+  );
 }
