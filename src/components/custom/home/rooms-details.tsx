@@ -3,6 +3,7 @@
 import { FC, RefObject, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { roomDetails } from "@/constants";
 
 export const RoomsDetails: FC = () => {
   const [isOverflow, setIsOverflow] = useState(false);
@@ -29,32 +30,22 @@ export const RoomsDetails: FC = () => {
     return (child - parent) / 2 + 50;
   };
 
+  // grab width handler use effect
   useEffect(() => {
-    setIsOverflow(isOverflowing(parentRef, childRef));
-  }, []);
+    const handleResize = () => {
+      setIsOverflow(isOverflowing(parentRef, childRef));
+      getGrabWidth();
+    };
 
-  // card details
-  const cardDetails = [
-    {
-      title: "Standard Room",
-      description: "A/C , Balcony, Free Wi-Fi , Garden View , Shower ",
-      price: "$150",
-      image: "/images/img_23.jpg",
-    },
-    {
-      title: "Deluxe Room",
-      description:
-        "A/C , Balcony, Free Wi-Fi , Garden View , Shower , Sea View",
-      price: "$200",
-      image: "/images/img_17.jpg",
-    },
-    {
-      title: "Superior Room",
-      description: "A/C , Free Wi-Fi , Garden View , Shower , Sea View",
-      price: "$300",
-      image: "/images/img_18.jpg",
-    },
-  ];
+    // Run once to set initial state
+    handleResize();
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Clean up event listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <section
@@ -72,7 +63,7 @@ export const RoomsDetails: FC = () => {
         {/* card area */}
         <div
           ref={parentRef}
-          className="relative flex w-full cursor-grab items-center justify-center overflow-x-hidden active:cursor-grabbing"
+          className={`relative flex w-full cursor-grab items-center ${!isOverflow ? "justify-center" : "justify-start"} overflow-x-hidden active:cursor-grabbing`}
         >
           <motion.div
             ref={childRef}
@@ -86,7 +77,7 @@ export const RoomsDetails: FC = () => {
             }}
             className="flex gap-x-10"
           >
-            {cardDetails.map((card, index) => (
+            {roomDetails.map((card, index) => (
               <div
                 key={index}
                 className="flex flex-col items-center justify-center space-y-2"
