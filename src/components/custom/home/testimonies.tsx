@@ -10,10 +10,10 @@ import { FaStar, FaQuoteLeft, FaQuoteRight } from "react-icons/fa";
 export const Testimonies: FC = () => {
   const [isOverflow, setIsOverflow] = useState(false);
   const [grabWidth, setGrabWidth] = useState(0);
+  const [btnClicked, setBtnClicked] = useState(false);
   // refs
   const parentRef = useRef<HTMLDivElement>(null);
   const childRef = useRef<HTMLDivElement>(null);
-  const [btnClicked, setBtnClicked] = useState(false);
 
   const position = useMotionValue(0);
 
