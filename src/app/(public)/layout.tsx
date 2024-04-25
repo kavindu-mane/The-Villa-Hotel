@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../globals.css";
 import { Footer, NavigationBar } from "@/components";
+import { Toaster } from "@/components/ui/toaster";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({
         <div className="w-full max-w-screen-2xl">
           <NavigationBar />
           {children}
+          <Toaster />
         </div>
         <Footer />
       </body>

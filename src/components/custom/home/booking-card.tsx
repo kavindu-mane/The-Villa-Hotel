@@ -63,7 +63,7 @@ export const BookingCard: FC = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="mx-5 flex flex-wrap items-end justify-center gap-3 rounded-lg bg-white px-2 py-8 lg:mx-0 lg:gap-8 lg:rounded-none"
+          className="flex flex-wrap items-end justify-center gap-3 rounded-lg bg-white px-2 py-8 lg:gap-8 lg:rounded-none"
         >
           {/* room type */}
           <FormField
