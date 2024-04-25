@@ -1,19 +1,29 @@
 "use client";
 
 import { FC, useState } from "react";
-import { Button } from "../ui";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { RiCloseLine, RiMenu3Line } from "react-icons/ri";
+import { RiCloseLine, RiMenu3Line, RiCloseFill } from "react-icons/ri";
 import { navigationAnimation } from "@/animations";
 import { Brand } from "./brand";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { Login } from "./login";
+import { Register } from "./register";
+import { Button } from "..";
 
 export const NavigationBar: FC = () => {
   // get current page URL
   const pathname = usePathname();
   // use state for navigation sidebar
   const [isOpen, setIsOpen] = useState(false);
+  // check auth status login or not
+  const [isLogin, setIsLogin] = useState(true);
 
   // navigation link object array
   const links = [
@@ -25,7 +35,7 @@ export const NavigationBar: FC = () => {
   ];
 
   return (
-    <nav className="relative flex w-full items-center justify-between px-5 py-5 lg:px-5">
+    <nav className="relative flex w-full items-center justify-between px-2 py-5 lg:px-5">
       <div className="text-2xl">
         <Link href={"/"}>
           <Brand />
@@ -45,12 +55,36 @@ export const NavigationBar: FC = () => {
       </ul>
 
       {/* buttons */}
-      <div className="flex justify-between gap-x-3">
-        <Button>
-          <Link href={"/login"} className="w-20">
+      <div className="flex items-center justify-between gap-x-1">
+        <AlertDialog>
+          <AlertDialogTrigger className="h-8 w-20 rounded-md bg-primary text-white lg:h-9 lg:w-28">
             Login
-          </Link>
-        </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="">
+            <AlertDialogCancel className="absolute end-3 top-2 h-8 w-8 rounded-full p-1">
+              <RiCloseFill className="h-6 w-6 text-slate-900" />
+            </AlertDialogCancel>
+            {/* login */}
+            {isLogin && <Login />}
+
+            {/* register */}
+            {!isLogin && <Register />}
+
+            {/* change display text based on login and register */}
+            <div className="mt-4 flex items-center justify-center gap-x-1.5 text-sm">
+              {isLogin && <span>Don&apos;t</span>}
+              {!isLogin && <span>Already</span>}
+              have an account?
+              <Button
+                variant={"ghost"}
+                className="w-fit p-0 underline hover:bg-transparent"
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "Register" : "Login"}
+              </Button>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* navigation sider button for small devices */}
         <button

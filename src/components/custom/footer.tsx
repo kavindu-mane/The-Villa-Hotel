@@ -55,7 +55,7 @@ export const Footer: FC = () => {
     <section className="relative mt-10 flex w-full flex-col items-center bg-primary px-5 py-10 text-white">
       {/* footer items */}
       <div className="z-[1] flex w-full max-w-screen-2xl flex-wrap">
-        <div className="flex w-full flex-col p-5 md:w-1/2 xl:w-1/4">
+        <div className="flex w-full flex-col p-5 px-0 sm:px-5 md:w-1/2 xl:w-1/4">
           {/* brand */}
           <h2
             className={cn(
@@ -72,9 +72,10 @@ export const Footer: FC = () => {
             hotel is known for its luxurious rooms and excellent services.
           </p>
         </div>
-        <div className="flex w-full flex-col p-5 md:w-1/2 xl:w-1/4">
+
+        <div className="flex w-full flex-col p-5 px-0 sm:px-5 md:w-1/2 xl:w-1/4">
           <h2 className="text-lg font-medium">Quick Links</h2>
-          <div className="mt-8 flex flex-col gap-y-5">
+          <div className="mt-8 flex flex-col gap-y-3">
             {quickLinks.map((link) => (
               <Link
                 key={link.name}
@@ -86,9 +87,10 @@ export const Footer: FC = () => {
             ))}
           </div>
         </div>
-        <div className="flex w-full flex-col p-5 md:w-1/2 xl:w-1/4">
+
+        <div className="flex w-full flex-col p-5 px-0 sm:px-5 md:w-1/2 xl:w-1/4">
           <h2 className="text-lg font-medium">Social Media</h2>
-          <div className="mt-8 flex flex-col gap-y-5">
+          <div className="mt-8 flex flex-col gap-y-3">
             {socialLinks.map((link) => (
               <Link
                 key={link.name}
@@ -100,9 +102,10 @@ export const Footer: FC = () => {
             ))}
           </div>
         </div>
-        <div className="flex w-full flex-col p-5 md:w-1/2 xl:w-1/4">
+
+        <div className="flex w-full flex-col p-5 px-0 sm:px-5 md:w-1/2 xl:w-1/4">
           <h2 className="text-lg font-medium">News Letter</h2>
-          <div className="mt-8 flex flex-col gap-y-5">
+          <div className="mt-8 flex flex-col gap-y-3">
             <p className="">
               Kindly subscribe to our newsletter to get the latest deals on our
               rooms and vacation discount.

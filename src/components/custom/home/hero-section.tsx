@@ -49,7 +49,7 @@ export const HeroSection: FC = () => {
         />
       </div>
       {/* bookings */}
-      <div className="absolute bottom-10 end-5 start-5">
+      <div className="absolute bottom-10 end-1 start-1 md:end-5 md:start-5">
         <BookingCard />
       </div>
     </section>
