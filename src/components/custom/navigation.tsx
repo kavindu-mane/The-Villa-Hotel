@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import React, { FC, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -17,7 +17,9 @@ import { Login } from "./auth/login";
 import { Register } from "./auth/register";
 import { Button } from "..";
 
-export const NavigationBar: FC = () => {
+export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
+  children,
+}) => {
   // get current page URL
   const pathname = usePathname();
   // use state for navigation sidebar
@@ -58,45 +60,52 @@ export const NavigationBar: FC = () => {
 
       {/* buttons */}
       <div className="flex items-center justify-between gap-x-1">
-        <AlertDialog open={isAuthOpen}>
-          <AlertDialogTrigger
-            onClick={() => setIsAuthOpen(true)}
-            className="h-8 w-20 rounded-md bg-primary text-white lg:h-9 lg:w-28"
-          >
-            Login
-          </AlertDialogTrigger>
-          <AlertDialogContent className="">
-            <AlertDialogCancel
-              onClick={() => setIsAuthOpen(false)}
-              className="absolute end-3 top-2 h-8 w-8 rounded-full p-1"
+        {children ? (
+          children
+        ) : (
+          <AlertDialog open={isAuthOpen}>
+            <AlertDialogTrigger
+              onClick={() => setIsAuthOpen(true)}
+              className="h-8 w-20 rounded-md bg-primary text-white lg:h-9 lg:w-28"
             >
-              <RiCloseFill className="h-6 w-6 text-slate-900" />
-            </AlertDialogCancel>
-            {/* login */}
-            {isLogin && <Login setIsAuthOpen={setIsAuthOpen} />}
-
-            {/* register */}
-            {!isLogin && (
-              <Register setIsAuthOpen={setIsAuthOpen} setIsLogin={setIsLogin} />
-            )}
-
-            {/* change display text based on login and register */}
-            <div className="mt-4 flex items-center justify-center gap-x-1.5 text-sm">
-              {isLogin && <span>Don&apos;t</span>}
-              {!isLogin && <span>Already</span>}
-              have an account?
-              <Button
-                variant={"ghost"}
-                className="w-fit p-0 underline hover:bg-transparent"
-                onClick={() => setIsLogin(!isLogin)}
+              Login
+            </AlertDialogTrigger>
+            <AlertDialogContent className="">
+              <AlertDialogCancel
+                onClick={() => setIsAuthOpen(false)}
+                className="absolute end-3 top-2 h-8 w-8 rounded-full p-1"
               >
-                {isLogin ? "Register" : "Login"}
-              </Button>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
+                <RiCloseFill className="h-6 w-6 text-slate-900" />
+              </AlertDialogCancel>
+              {/* login */}
+              {isLogin && <Login setIsAuthOpen={setIsAuthOpen} />}
 
-        {/* navigation sider button for small devices */}
+              {/* register */}
+              {!isLogin && (
+                <Register
+                  setIsAuthOpen={setIsAuthOpen}
+                  setIsLogin={setIsLogin}
+                />
+              )}
+
+              {/* change display text based on login and register */}
+              <div className="mt-4 flex items-center justify-center gap-x-1.5 text-sm">
+                {isLogin && <span>Don&apos;t</span>}
+                {!isLogin && <span>Already</span>}
+                have an account?
+                <Button
+                  variant={"ghost"}
+                  className="w-fit p-0 underline hover:bg-transparent"
+                  onClick={() => setIsLogin(!isLogin)}
+                >
+                  {isLogin ? "Register" : "Login"}
+                </Button>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        {/* navigation slider button for small devices */}
         <button
           className="block rounded-full hover:bg-secondary md:hidden"
           onClick={() => setIsOpen(!isOpen)}

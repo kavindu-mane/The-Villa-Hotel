@@ -53,11 +53,17 @@ export const Login: FC<{ setIsAuthOpen: (value: boolean) => void }> = ({
     setErrors(errorDefault);
     startTransition(() => {
       login(data).then((data) => {
-        if (data.errors) {
+        if (data?.errors) {
           setErrors(transferZodErrors(data.errors).error);
+        } else if (data?.error) {
+          toast({
+            description: data?.error,
+            variant: "destructive",
+            className: "rounded-lg text-white",
+          });
         } else {
           toast({
-            description: data.success,
+            description: data?.success || "Login successful!",
             className: "bg-primary rounded-lg text-white",
           });
           setIsAuthOpen(false);
