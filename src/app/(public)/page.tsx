@@ -1,6 +1,5 @@
 import {
   Facilities,
-  Footer,
   HeroSection,
   RoomsDetails,
   Testimonies,

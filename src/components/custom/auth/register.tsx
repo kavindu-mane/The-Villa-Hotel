@@ -1,13 +1,12 @@
 "use client";
 
-import { errorTypes } from "@/types";
-import { FC, useState } from "react";
+import { errorTypes } from "../../../types";
+import { FC, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { useToast } from "../ui/use-toast";
-import { RegisterFormSchema } from "@/validations";
+import { useToast } from "../../ui/use-toast";
+import { RegisterFormSchema } from "../../../validations";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { transferZodErrors } from "@/utils";
+import { transferZodErrors } from "../../../utils";
 import { FcGoogle } from "react-icons/fc";
 import { z } from "zod";
 import {
@@ -19,7 +18,8 @@ import {
   FormMessage,
   Input,
   Button,
-} from "../ui";
+} from "../../ui";
+import { register } from "@/actions/register";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -30,13 +30,16 @@ const errorDefault: errorTypes = {
   message: "",
 };
 
-export const Register: FC = () => {
+export const Register: FC<{
+  setIsAuthOpen: (value: boolean) => void;
+  setIsLogin: (value: boolean) => void;
+}> = ({ setIsAuthOpen, setIsLogin }) => {
   // error state
   const [errors, setErrors] = useState(errorDefault);
-  // loading state
-  const [, setLoading] = useState(false);
   // toast hook
   const { toast } = useToast();
+  // transition hook
+  const [isPending, startTransition] = useTransition();
 
   // form hook
   const form = useForm<z.infer<typeof RegisterFormSchema>>({
@@ -51,40 +54,27 @@ export const Register: FC = () => {
 
   // form submit handler
   const onSubmit = async (data: z.infer<typeof RegisterFormSchema>) => {
-    setLoading(true);
     setErrors(errorDefault);
-    await axios
-      .post("/register", data)
-      .then((res) => {
-        if (res.status === 201) {
-          toast({
-            title: "Account created successfully",
-            description: "",
-            className: "bg-green-500 text-white",
-          });
-        }
-      })
-      .catch((err) => {
-        if (err?.response?.status === 400) {
-          // if any validation error occurred
-          setErrors(transferZodErrors(err.response.data).error);
+    startTransition(() => {
+      register(data).then((data) => {
+        if (data.errors) {
+          setErrors(transferZodErrors(data.errors).error);
         } else {
-          setErrors((prev) => ({
-            ...prev,
-            message: err?.response?.data.message || err.message || err,
-          }));
+          toast({
+            description: data.success,
+            className: "bg-primary rounded-lg text-white",
+          });
+          setIsAuthOpen(false);
+          setIsLogin(true);
         }
-      })
-      .finally(() => {
-        setLoading(false);
-        form.reset();
       });
+    });
   };
 
   return (
     <div className="">
       <div className="mb-10 grid gap-2 text-center">
-        <h1 className="text-3xl font-bold">Register</h1>
+        <h1 className="mb-5  text-3xl font-medium">Register</h1>
         <p className="text-balance text-sm text-muted-foreground">
           Enter your information to create an account
         </p>
@@ -172,11 +162,12 @@ export const Register: FC = () => {
 
           {/*common error message */}
           <FormMessage>{errors?.message}</FormMessage>
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={isPending}>
             Create an account
           </Button>
           <Button
             variant="outline"
+            disabled={isPending}
             className="flex w-full items-center justify-center gap-x-2"
           >
             <FcGoogle className="h-6 w-6" />

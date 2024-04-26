@@ -2,12 +2,9 @@
 
 import { errorTypes } from "@/types";
 import { LoginFormSchema } from "@/validations";
-import { FC, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { FC, useState, useTransition } from "react";
 import { z } from "zod";
-import axios from "axios";
 import Link from "next/link";
-import { transferZodErrors } from "@/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FcGoogle } from "react-icons/fc";
@@ -20,7 +17,10 @@ import {
   FormLabel,
   FormMessage,
   Input,
-} from "..";
+} from "../..";
+import { login } from "@/actions/login";
+import { useToast } from "@/components/ui/use-toast";
+import { transferZodErrors } from "@/utils";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -29,13 +29,15 @@ const errorDefault: errorTypes = {
   message: "",
 };
 
-export const Login: FC = () => {
+export const Login: FC<{ setIsAuthOpen: (value: boolean) => void }> = ({
+  setIsAuthOpen,
+}) => {
   // error state
   const [errors, setErrors] = useState(errorDefault);
-  // loading state
-  const [loading, setLoading] = useState(false);
   // toast hook
   const { toast } = useToast();
+  // transition hook
+  const [isPending, startTransition] = useTransition();
 
   // form hook
   const form = useForm<z.infer<typeof LoginFormSchema>>({
@@ -48,39 +50,26 @@ export const Login: FC = () => {
 
   // form submit handler
   const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
-    setLoading(true);
     setErrors(errorDefault);
-    await axios
-      .post("/login", data)
-      .then((res) => {
-        if (res.status === 200) {
-          toast({
-            title: "Login successful",
-            description: "",
-            className: "bg-green-500 text-white",
-          });
-        }
-      })
-      .catch((err) => {
-        if (err?.response?.status === 400) {
-          // if any validation error occurred
-          setErrors(transferZodErrors(err.response.data).error);
+    startTransition(() => {
+      login(data).then((data) => {
+        if (data.errors) {
+          setErrors(transferZodErrors(data.errors).error);
         } else {
-          setErrors((prev) => ({
-            ...prev,
-            message: err?.response?.data.message || err.message || err,
-          }));
+          toast({
+            description: data.success,
+            className: "bg-primary rounded-lg text-white",
+          });
+          setIsAuthOpen(false);
         }
-      })
-      .finally(() => {
-        setLoading(false);
-        form.reset();
       });
+    });
   };
+
   return (
     <div className="">
       <div className="mb-10 grid gap-2 text-center">
-        <h1 className="text-3xl font-bold">Login</h1>
+        <h1 className="mb-5 text-3xl font-medium">Login</h1>
         <p className="text-balance text-sm text-muted-foreground">
           Enter your email and password below to login to your account
         </p>
@@ -139,12 +128,13 @@ export const Login: FC = () => {
           {/*common error message */}
           <FormMessage>{errors?.message}</FormMessage>
 
-          <Button disabled={loading} type="submit" className="w-full">
+          <Button disabled={isPending} type="submit" className="w-full">
             Login
           </Button>
 
           <Button
             variant="outline"
+            disabled={isPending}
             className="flex w-full items-center justify-center gap-x-2"
           >
             <FcGoogle className="h-6 w-6" />

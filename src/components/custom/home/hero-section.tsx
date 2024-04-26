@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Button } from "../../ui";
+import { Button } from "@/components";
 import Image from "next/image";
 import { PlayIcon } from "@radix-ui/react-icons";
 import { BookingCard } from "./booking-card";

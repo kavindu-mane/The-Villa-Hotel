@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage, Button } from "@/components";
+import { Avatar, AvatarFallback, AvatarImage, Button } from "../..";
 import { testimonies } from "@/constants";
 import { motion, useMotionValue } from "framer-motion";
 import { FC, RefObject, useEffect, useRef, useState } from "react";
