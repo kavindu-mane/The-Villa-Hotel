@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { RiCloseLine, RiMenu3Line, RiCloseFill } from "react-icons/ri";
-import { navigationAnimation } from "@/animations";
+import { navigationAnimation } from "../../animations";
 import { Brand } from "./brand";
 import {
   AlertDialog,
@@ -13,8 +13,8 @@ import {
   AlertDialogContent,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { Login } from "./login";
-import { Register } from "./register";
+import { Login } from "./auth/login";
+import { Register } from "./auth/register";
 import { Button } from "..";
 
 export const NavigationBar: FC = () => {
@@ -24,6 +24,8 @@ export const NavigationBar: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   // check auth status login or not
   const [isLogin, setIsLogin] = useState(true);
+  // open status
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   // navigation link object array
   const links = [
@@ -56,19 +58,27 @@ export const NavigationBar: FC = () => {
 
       {/* buttons */}
       <div className="flex items-center justify-between gap-x-1">
-        <AlertDialog>
-          <AlertDialogTrigger className="h-8 w-20 rounded-md bg-primary text-white lg:h-9 lg:w-28">
+        <AlertDialog open={isAuthOpen}>
+          <AlertDialogTrigger
+            onClick={() => setIsAuthOpen(true)}
+            className="h-8 w-20 rounded-md bg-primary text-white lg:h-9 lg:w-28"
+          >
             Login
           </AlertDialogTrigger>
           <AlertDialogContent className="">
-            <AlertDialogCancel className="absolute end-3 top-2 h-8 w-8 rounded-full p-1">
+            <AlertDialogCancel
+              onClick={() => setIsAuthOpen(false)}
+              className="absolute end-3 top-2 h-8 w-8 rounded-full p-1"
+            >
               <RiCloseFill className="h-6 w-6 text-slate-900" />
             </AlertDialogCancel>
             {/* login */}
-            {isLogin && <Login />}
+            {isLogin && <Login setIsAuthOpen={setIsAuthOpen} />}
 
             {/* register */}
-            {!isLogin && <Register />}
+            {!isLogin && (
+              <Register setIsAuthOpen={setIsAuthOpen} setIsLogin={setIsLogin} />
+            )}
 
             {/* change display text based on login and register */}
             <div className="mt-4 flex items-center justify-center gap-x-1.5 text-sm">

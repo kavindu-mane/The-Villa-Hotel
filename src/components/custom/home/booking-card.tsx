@@ -10,7 +10,7 @@ import {
   FormLabel,
   FormMessage,
   FormControl,
-} from "../../ui/form";
+} from "@/components";
 import { format } from "date-fns";
 import { z } from "zod";
 import {
@@ -19,15 +19,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select";
+} from "@/components";
 import { BsBuildingsFill } from "react-icons/bs";
 import { IoPerson, IoCalendarSharp } from "react-icons/io5";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { BookingSchema } from "@/validations";
 import { Button } from "../..";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components";
 import { cn } from "@/lib/utils";
-import { Calendar } from "../../ui/calendar";
+import { Calendar } from "@/components";
 
 export const BookingCard: FC = () => {
   // room types
