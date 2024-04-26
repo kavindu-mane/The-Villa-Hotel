@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../globals.css";
-import { Footer, NavigationBar } from "@/components";
+import { Footer, NavigationWrapper } from "@/components";
 import { Toaster } from "@/components/ui/toaster";
 
 const poppins = Poppins({
@@ -15,16 +15,17 @@ export const metadata: Metadata = {
     "The Villa Hotel is a luxury hotel located in the heart of the city.",
 };
 
-export default function RootLayout({
+async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body className={`${poppins.className} flex flex-col items-center`}>
         <div className="w-full max-w-screen-2xl">
-          <NavigationBar />
+          <NavigationWrapper/>
           {children}
           <Toaster />
         </div>
@@ -33,3 +34,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+export default RootLayout;

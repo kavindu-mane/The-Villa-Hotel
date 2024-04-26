@@ -2,8 +2,9 @@
 
 import { RegisterFormSchema } from "@/validations";
 import { ZodIssue, ZodIssueCode, z } from "zod";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { getUserByEmail } from "./utils/user";
 
 export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
   const validatedFields = RegisterFormSchema.safeParse(values);
@@ -16,11 +17,7 @@ export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
 
   const { email, password, name } = values;
   const hashedPassword = await bcrypt.hash(password, 10);
-  const existingUser = await db.user.findUnique({
-    where: {
-      email,
-    },
-  });
+  const existingUser = await getUserByEmail(email);
 
   // if email already exists
   if (existingUser) {

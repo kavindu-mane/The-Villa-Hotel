@@ -3,3 +3,4 @@ export * from "./home";
 export * from "./brand";
 export * from "./footer";
 export * from "./auth";
+export * from "./navigation-wrapper"
