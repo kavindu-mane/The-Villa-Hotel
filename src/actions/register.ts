@@ -50,7 +50,7 @@ export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
 
     // create verification token
     const verificationToken = await getVerificationToken(email);
-    const url = `${process.env.DOMAIN}/api/auth/verify-email?token=${verificationToken.token}`;
+    const url = `${process.env.DOMAIN}/auth/verify-email?token=${verificationToken.token}`;
 
     const template = await setupVerificationEmailTemplate(url, name || "");
 
