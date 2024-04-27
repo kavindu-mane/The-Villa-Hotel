@@ -22,6 +22,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { transferZodErrors } from "@/utils";
 import { useSearchParams } from "next/navigation";
 import { BiError } from "react-icons/bi";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -33,8 +34,7 @@ const errorDefault: errorTypes = {
 export const Login: FC = () => {
   // error state
   const [errors, setErrors] = useState(errorDefault);
-  // toast hook
-  const { toast } = useToast();
+  const [success, setSuccess] = useState<string | undefined>(undefined);
   // transition hook
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
@@ -55,6 +55,7 @@ export const Login: FC = () => {
   // form submit handler
   const onSubmit = async (data: z.infer<typeof LoginFormSchema>) => {
     setErrors(errorDefault);
+    setSuccess(undefined);
     startTransition(() => {
       login(data).then((data) => {
         if (data?.errors) {
@@ -64,6 +65,8 @@ export const Login: FC = () => {
             ...errors,
             message: data?.error,
           });
+        } else {
+          setSuccess(data?.success);
         }
       });
     });
@@ -136,7 +139,22 @@ export const Login: FC = () => {
             </FormMessage>
           )}
 
-          <Button disabled={isPending} type="submit" className="w-full">
+          {/* success message */}
+          {success && (
+            <FormMessage className="flex items-end justify-center gap-x-2 rounded-lg bg-emerald-200/70 p-2 text-emerald-700">
+              {success}
+            </FormMessage>
+          )}
+
+          {/* submit button */}
+          <Button
+            disabled={isPending}
+            type="submit"
+            className="flex w-full items-center justify-center gap-x-3"
+          >
+            {isPending && (
+              <AiOutlineLoading3Quarters className="h-4 w-4 animate-spin text-white" />
+            )}
             Login
           </Button>
         </form>

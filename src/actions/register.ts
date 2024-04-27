@@ -4,7 +4,9 @@ import { RegisterFormSchema } from "@/validations";
 import { ZodIssue, ZodIssueCode, z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { getUserByEmail } from "./utils/user";
+import { getUserByEmail } from "@/actions/utils/user";
+import { getVerificationToken } from "@/lib/tokens";
+import { sendEmails, setupVerificationEmailTemplate } from "@/lib/email";
 
 export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
   try {
@@ -45,6 +47,24 @@ export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
         name,
       },
     });
+
+    // create verification token
+    const verificationToken = await getVerificationToken(email);
+    const url = `${process.env.DOMAIN}/api/auth/verify-email?token=${verificationToken.token}`;
+
+    const template = await setupVerificationEmailTemplate(url, name || "");
+
+    const isSend = await sendEmails({
+      to: email,
+      subject: "Verify your email",
+      body: template,
+    });
+
+    if (!isSend) {
+      return {
+        error: "Failed to send verification email!",
+      };
+    }
 
     return {
       success: "Verification email sent. Please check your inbox.",

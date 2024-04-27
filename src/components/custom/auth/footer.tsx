@@ -3,9 +3,9 @@
 import { Button } from "@/components";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FC } from "react";
+import { FC, Suspense } from "react";
 
-export const AuthFooter: FC = () => {
+function Footer() {
   const router = usePathname();
   const currentPath = router.split("/").pop();
 
@@ -23,5 +23,13 @@ export const AuthFooter: FC = () => {
         </Button>
       </Link>
     </div>
+  );
+}
+
+export const AuthFooter: FC = () => {
+  return (
+    <Suspense>
+      <Footer />
+    </Suspense>
   );
 };

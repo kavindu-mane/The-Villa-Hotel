@@ -1,5 +1,5 @@
 dev:
-	bun run dev
+	bun dev
 
 generate:
 	bunx prisma generate
