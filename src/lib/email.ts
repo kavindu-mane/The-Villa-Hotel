@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import * as handlebars from "handlebars";
 import { verificationEmailTemplate } from "@/templates/verification-email";
+import { resetPasswordEmailTemplate } from "@/templates/reset-password-email";
 
 export const sendEmails = async ({
   to,
@@ -49,5 +50,14 @@ export async function setupVerificationEmailTemplate(
 ) {
   const template = handlebars.compile(verificationEmailTemplate);
   const htmlBody = template({ verificationLink, userName });
+  return htmlBody;
+}
+
+export async function setupResetPasswordEmailTemplate(
+  resetLink: string,
+  userName: string,
+) {
+  const template = handlebars.compile(resetPasswordEmailTemplate);
+  const htmlBody = template({ resetLink, userName });
   return htmlBody;
 }
