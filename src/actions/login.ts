@@ -31,7 +31,7 @@ export const login = async (values: z.infer<typeof LoginFormSchema>) => {
     // create verification token
     const verificationToken = await getVerificationToken(existingUser.email);
 
-    const url = `${process.env.DOMAIN}/api/auth/verify-email?token=${verificationToken.token}`;
+    const url = `${process.env.DOMAIN}/auth/verify-email?token=${verificationToken.token}`;
 
     const template = await setupVerificationEmailTemplate(url , existingUser.name || "");
 

@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import "../globals.css";
-import { FcGoogle } from "react-icons/fc";
-import { AuthFooter, Button, GoogleAuth } from "@/components";
-import { signIn } from "next-auth/react";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,8 +26,6 @@ function RootLayout({
       >
         <div className="w-full max-w-screen-sm border border-border px-2 py-10 shadow-md md:px-5">
           {children}
-          <GoogleAuth />
-          <AuthFooter />
           <Toaster />
         </div>
       </body>
