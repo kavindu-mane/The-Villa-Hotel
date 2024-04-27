@@ -7,7 +7,7 @@ import { useToast } from "../../ui/use-toast";
 import { RegisterFormSchema } from "../../../validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { transferZodErrors } from "../../../utils";
-import { FcGoogle } from "react-icons/fc";
+import { BiError } from "react-icons/bi";
 import { z } from "zod";
 import {
   Form,
@@ -20,6 +20,7 @@ import {
   Button,
 } from "../../ui";
 import { register } from "@/actions/register";
+import { useSearchParams } from "next/navigation";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -40,6 +41,11 @@ export const Register: FC<{
   const { toast } = useToast();
   // transition hook
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Email already in use with different provider"
+      : "";
 
   // form hook
   const form = useForm<z.infer<typeof RegisterFormSchema>>({
@@ -59,9 +65,14 @@ export const Register: FC<{
       register(data).then((data) => {
         if (data.errors) {
           setErrors(transferZodErrors(data.errors).error);
+        } else if (data?.error) {
+          setErrors({
+            ...errors,
+            message: data?.error,
+          });
         } else {
           toast({
-            description: data.success,
+            description: data?.success,
             className: "bg-primary rounded-lg text-white",
           });
           setIsAuthOpen(false);
@@ -161,17 +172,14 @@ export const Register: FC<{
           />
 
           {/*common error message */}
-          <FormMessage>{errors?.message}</FormMessage>
+          {(errors?.message || urlError) && (
+            <FormMessage className="flex items-end justify-center gap-x-2 rounded-lg bg-red-200/70 p-2 text-red-500">
+              <BiError className="h-5 w-5" />
+              {errors?.message || urlError}
+            </FormMessage>
+          )}
           <Button type="submit" className="w-full" disabled={isPending}>
             Create an account
-          </Button>
-          <Button
-            variant="outline"
-            disabled={isPending}
-            className="flex w-full items-center justify-center gap-x-2"
-          >
-            <FcGoogle className="h-6 w-6" />
-            Sign up with Google
           </Button>
         </form>
       </Form>
