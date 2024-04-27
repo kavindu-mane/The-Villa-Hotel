@@ -19,7 +19,6 @@ export const RoomsDetails: FC = () => {
     const child = childRef.current;
 
     if (!parent || !child) return false;
-    console.log(child.offsetWidth, parent.offsetWidth);
     return child.offsetWidth > parent.offsetWidth;
   };
 

@@ -7,7 +7,6 @@ import { z } from "zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FcGoogle } from "react-icons/fc";
 import {
   Button,
   Form,
@@ -21,6 +20,8 @@ import {
 import { login } from "@/actions/login";
 import { useToast } from "@/components/ui/use-toast";
 import { transferZodErrors } from "@/utils";
+import { useSearchParams } from "next/navigation";
+import { BiError } from "react-icons/bi";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -29,15 +30,18 @@ const errorDefault: errorTypes = {
   message: "",
 };
 
-export const Login: FC<{ setIsAuthOpen: (value: boolean) => void }> = ({
-  setIsAuthOpen,
-}) => {
+export const Login: FC = () => {
   // error state
   const [errors, setErrors] = useState(errorDefault);
   // toast hook
   const { toast } = useToast();
   // transition hook
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "This email is already use with different provider"
+      : "";
 
   // form hook
   const form = useForm<z.infer<typeof LoginFormSchema>>({
@@ -56,17 +60,10 @@ export const Login: FC<{ setIsAuthOpen: (value: boolean) => void }> = ({
         if (data?.errors) {
           setErrors(transferZodErrors(data.errors).error);
         } else if (data?.error) {
-          toast({
-            description: data?.error,
-            variant: "destructive",
-            className: "rounded-lg text-white",
+          setErrors({
+            ...errors,
+            message: data?.error,
           });
-        } else {
-          toast({
-            description: data?.success || "Login successful!",
-            className: "bg-primary rounded-lg text-white",
-          });
-          setIsAuthOpen(false);
         }
       });
     });
@@ -132,19 +129,15 @@ export const Login: FC<{ setIsAuthOpen: (value: boolean) => void }> = ({
           />
 
           {/*common error message */}
-          <FormMessage>{errors?.message}</FormMessage>
+          {(errors?.message || urlError) && (
+            <FormMessage className="flex items-end justify-center gap-x-2 rounded-lg bg-red-200/70 p-2 text-red-500">
+              <BiError className="h-5 w-5" />
+              {errors?.message || urlError}
+            </FormMessage>
+          )}
 
           <Button disabled={isPending} type="submit" className="w-full">
             Login
-          </Button>
-
-          <Button
-            variant="outline"
-            disabled={isPending}
-            className="flex w-full items-center justify-center gap-x-2"
-          >
-            <FcGoogle className="h-6 w-6" />
-            Login with Google
           </Button>
         </form>
       </Form>

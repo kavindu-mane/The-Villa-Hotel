@@ -21,15 +21,12 @@ export const login = async (values: z.infer<typeof LoginFormSchema>) => {
       email,
       password,
     });
-    return {
-      success: "Login successful!",
-    };
   } catch (error) {
     // create custom issue for credential
     const issue: ZodIssue = {
       code: ZodIssueCode.custom,
-      message: "Invalid credentials!",
-      path: ["password"],
+      message: "Invalid email or password!",
+      path: ["message"],
     };
 
     if (error instanceof AuthError) {

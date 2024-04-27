@@ -6,3 +6,6 @@ generate:
 
 push:
 	bunx prisma db push
+
+studio:
+	bunx prisma studio
