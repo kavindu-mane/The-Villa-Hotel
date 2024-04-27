@@ -19,15 +19,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   callbacks: {
-    // async signIn({ user }) {
-    //   const existingUser = await getUserById(user.id || "");
+    async signIn({ user , account }) {
+      // Allow OAuth accounts with verification
+      if (account?.provider !== "credentials") {
+        return true;
+      }
+      
+      const existingUser = await getUserById(user.id || "");
 
-    //   if (!existingUser || !existingUser.emailVerified) {
-    //     return false;
-    //   }
+      if (!existingUser || !existingUser.emailVerified) {
+        return false;
+      }
 
-    //   return true;
-    // },
+      return true;
+    },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
