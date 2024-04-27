@@ -1,11 +1,12 @@
-export const publicRoutes = ["/"];
+export const publicRoutes = ["/", "/auth/verify-email"];
 
 export const privateRoutes = ["/dashboard"];
 
 export const authRoutes = [
   "/auth/login",
   "/auth/register",
-  "/auth/verify-email",
+  "/auth/forgot-password",
+  "/auth/reset-password",
 ];
 
 export const apiAuthPrefix = "/api/auth";
