@@ -1,11 +1,12 @@
 import { NewVerificationEmailForm } from "@/components";
+import { Suspense } from "react";
 
 const VerifyEmail = () => {
-  return <NewVerificationEmailForm />;
-
+  return (
+    <Suspense>
+      <NewVerificationEmailForm />
+    </Suspense>
+  );
 };
 
 export default VerifyEmail;
-
-
-
