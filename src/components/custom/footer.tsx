@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FC } from "react";
 import { Button } from "../ui";
 import Image from "next/image";
+import { CopyRight } from "./copyright";
 
 const dancingScript = Dancing_Script({
   subsets: ["latin"],
@@ -125,12 +126,7 @@ export const Footer: FC = () => {
       </div>
 
       {/* copy right */}
-      <div className="z-[1] mt-10 w-full border-t border-t-emerald-300 pt-5 text-center">
-        <p className="text-sm">
-          &copy; {new Date().getFullYear()} The Villa Hotel. All rights
-          reserved.
-        </p>
-      </div>
+     <CopyRight/>
 
       {/* waves pattern */}
       <Image

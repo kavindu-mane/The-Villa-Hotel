@@ -3,4 +3,7 @@ export * from "./home";
 export * from "./brand";
 export * from "./footer";
 export * from "./auth";
-export * from "./navigation-wrapper"
+export * from "./navigation-wrapper";
+export * from "./navigation-secondary";
+export * from "./copyright";
+export * from "./back-to-top";
