@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../globals.css";
-import { Footer, NavigationWrapper } from "@/components";
+import { BackToTop, Footer, NavigationWrapper } from "@/components";
 import { Toaster } from "@/components/ui/toaster";
+import { Suspense } from "react";
+import Loading from "./loading";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -20,16 +22,18 @@ async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en">
       <body className={`${poppins.className} flex flex-col items-center`}>
-        <div className="w-full max-w-screen-2xl">
-          <NavigationWrapper/>
-          {children}
-          <Toaster />
-        </div>
+        <Suspense fallback={<Loading />}>
+          <div className="w-full max-w-screen-2xl">
+            <NavigationWrapper />
+            {children}
+            <Toaster />
+          </div>
+        </Suspense>
         <Footer />
+        <BackToTop />
       </body>
     </html>
   );

@@ -21,7 +21,7 @@ export const NavigationWrapper = async () => {
       <NavigationBar>
         <DropdownMenu>
           <DropdownMenuTrigger className="rounded-full !outline-none !ring-0">
-            <Avatar className="cursor-pointer">
+            <Avatar className="cursor-pointer h-9 w-9">
               <AvatarImage
                 src={session.user?.image || ""}
                 alt={session.user?.email || ""}
