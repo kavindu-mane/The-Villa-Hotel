@@ -23,7 +23,7 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
     { href: "/explore", label: "Explore" },
     { href: "/rooms", label: "Rooms" },
     { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
+    { href: "/contact-us", label: "Contact" },
   ];
 
   return (
