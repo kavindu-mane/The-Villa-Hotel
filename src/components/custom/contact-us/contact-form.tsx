@@ -1,5 +1,6 @@
 "use client";
 
+import { contactUs } from "@/actions/contact-us";
 import {
   Button,
   Form,
@@ -49,18 +50,19 @@ export const ContactForm: FC = () => {
     setErrors(errorDefault);
     setSuccess(undefined);
     startTransition(() => {
-      //   login(data).then((data) => {
-      //     if (data?.errors) {
-      //       setErrors(transferZodErrors(data.errors).error);
-      //     } else if (data?.error) {
-      //       setErrors({
-      //         ...errors,
-      //         message: data?.error,
-      //       });
-      //     } else {
-      //       setSuccess(data?.success);
-      //     }
-      //   });
+      contactUs(data).then((data) => {
+        if (data?.errors) {
+          setErrors(transferZodErrors(data.errors).error);
+        } else if (data?.error) {
+          setErrors({
+            ...errors,
+            message: data?.error,
+          });
+        } else {
+          setSuccess(data?.success);
+          form.reset();
+        }
+      });
     });
   };
 
