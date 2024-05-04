@@ -92,6 +92,7 @@ export const RegisterFormSchema = z
     path: ["repeat_password"],
   });
 
+// form schema for reset password validation
 export const ResetPasswordSchema = z.object({
   email: z
     .string()
@@ -99,6 +100,7 @@ export const ResetPasswordSchema = z.object({
     .email("This is not a valid email."),
 });
 
+// form schema for new password validation
 export const NewPasswordSchema = z
   .object({
     password: z
@@ -116,3 +118,19 @@ export const NewPasswordSchema = z
     message: "Passwords do not match.",
     path: ["repeat_password"],
   });
+
+// form schema for contact us validation
+export const ContactUsSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: "Name field has to be filled." })
+    .max(50, { message: "Name should contain maximum 50 characters." }),
+  email: z
+    .string()
+    .min(1, { message: "Email field has to be filled." })
+    .email("This is not a valid email."),
+  message: z
+    .string()
+    .min(1, { message: "Message field has to be filled." })
+    .max(500, { message: "Message should contain maximum 500 characters." }),
+});

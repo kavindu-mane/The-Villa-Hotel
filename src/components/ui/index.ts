@@ -10,3 +10,4 @@ export * from "./toast";
 export * from "./toaster";
 export * from "./input";
 export * from "./dropdown-menu";
+export * from "./textarea"
