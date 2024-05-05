@@ -1,4 +1,11 @@
-export const publicRoutes = ["/", "/auth/verify-email" , "/contact-us"];
+export const publicRoutes = [
+  "/",
+  "/auth/verify-email",
+  "/contact-us",
+  "/restaurant/*",
+  "/customize",
+  "/rooms/*",
+];
 
 export const privateRoutes = ["/dashboard"];
 
