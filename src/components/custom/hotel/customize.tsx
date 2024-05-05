@@ -6,7 +6,7 @@ import { Canvas } from "@react-three/fiber";
 
 export const Customize: FC = () => {
   return (
-    <section className="">
+    <section className="h-screen">
       <Canvas>
         <color attach="background" args={["#213547"]} />
         <CustomizedRoom />
