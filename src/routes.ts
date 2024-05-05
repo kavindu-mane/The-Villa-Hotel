@@ -1,3 +1,4 @@
+// Define all routes here
 export const publicRoutes = [
   "/",
   "/auth/verify-email",
@@ -7,6 +8,7 @@ export const publicRoutes = [
   "/rooms/*",
 ];
 
+// Define all routes here
 export const privateRoutes = ["/dashboard"];
 
 export const authRoutes = [
@@ -16,6 +18,8 @@ export const authRoutes = [
   "/auth/reset-password",
 ];
 
+// Define all API routes here
 export const apiAuthPrefix = "/api/auth";
 
+// Define default login redirect
 export const DEFAULT_LOGIN_REDIRECT = "/";

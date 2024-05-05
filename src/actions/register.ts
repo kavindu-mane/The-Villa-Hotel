@@ -8,18 +8,27 @@ import { getUserByEmail } from "@/actions/utils/user";
 import { getVerificationToken } from "@/lib/tokens";
 import { sendEmails, setupVerificationEmailTemplate } from "@/lib/email";
 
+/**
+ * Server action for register form
+ */
+
 export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
   try {
+    // validate data in backend
     const validatedFields = RegisterFormSchema.safeParse(values);
 
+    // check if validation failed and return errors
     if (!validatedFields.success) {
       return {
         errors: validatedFields.error.errors,
       };
     }
 
+    // destructure data from validated fields
     const { email, password, name } = values;
+    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+    // check if email exists
     const existingUser = await getUserByEmail(email);
 
     // if email already exists
@@ -50,26 +59,32 @@ export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
 
     // create verification token
     const verificationToken = await getVerificationToken(email);
+    // generate new verification url
     const url = `${process.env.DOMAIN}/auth/verify-email?token=${verificationToken.token}`;
 
+    // setup email template
     const template = await setupVerificationEmailTemplate(url, name || "");
 
+    // send email
     const isSend = await sendEmails({
       to: email,
       subject: "Verify your email",
       body: template,
     });
 
+    // if email not sent
     if (!isSend) {
       return {
         error: "Failed to send verification email!",
       };
     }
 
+    // if no error return success
     return {
       success: "Verification email sent. Please check your inbox.",
     };
   } catch (error) {
+    // if error return error
     return {
       error: "Something went wrong!",
     };

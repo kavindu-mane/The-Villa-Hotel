@@ -8,18 +8,26 @@ import {
 } from "@/routes";
 const { auth } = NextAuth(authConfig);
 
+// Middleware to check if user is authenticated
 export default auth((req) => {
+  // Get the response object
   const { nextUrl } = req;
+  // Check if user is authenticated
   const isLoggedIn = !!req.auth;
 
+  // Check if the route is an API route
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  // Check if the route is a public route
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  // Check if the route is an auth route
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
+  // Redirect user if not authenticated
   if (isApiAuthRoute) {
     return;
   }
 
+  // Redirect user if not authenticated
   if (isAuthRoute) {
     if (isLoggedIn) {
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
@@ -27,6 +35,7 @@ export default auth((req) => {
     return;
   }
 
+  // Redirect user if not authenticated
   if (!isLoggedIn && !isPublicRoute) {
     return Response.redirect(new URL("/auth/login", nextUrl));
   }
