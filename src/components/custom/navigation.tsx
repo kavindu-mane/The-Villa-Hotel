@@ -13,7 +13,7 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
   children,
 }) => {
   // get current page URL
-  const pathname = usePathname();
+  const pathname = "/" + usePathname().split("/")[1];
   // use state for navigation sidebar
   const [isOpen, setIsOpen] = useState(false);
 
@@ -37,7 +37,7 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
         {links.map((link, index) => (
           <li
             key={index}
-            className={`${pathname.startsWith(link.href) ? "text-primary" : ""}`}
+            className={`${pathname === link.href ? "text-primary" : ""}`}
           >
             <Link className="hover:text-emerald-600" href={link.href}>
               {link.label}

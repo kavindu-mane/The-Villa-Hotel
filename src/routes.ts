@@ -3,9 +3,9 @@ export const publicRoutes = [
   "/",
   "/auth/verify-email",
   "/contact-us",
-  "/restaurant/*",
+  "/restaurant",
   "/customize",
-  "/rooms/*",
+  "/rooms",
 ];
 
 // Define all routes here

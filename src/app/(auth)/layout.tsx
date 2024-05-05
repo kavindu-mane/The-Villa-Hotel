@@ -29,14 +29,14 @@ function RootLayout({
         className={`${poppins.className} flex h-auto min-h-screen flex-col items-center justify-center`}
       >
         <Suspense fallback={<Loading />}>
-          <div className="flex h-auto min-h-screen w-full flex-col items-center justify-between gap-y-5">
+          <main className="flex h-auto min-h-screen w-full flex-col items-center justify-between gap-y-5">
             <NavigationBarSecondary />
             <div className="w-full max-w-xl border border-border bg-white px-2 py-10 shadow-md md:px-5">
               {children}
               <Toaster />
             </div>
             <CopyRight className="border-none pb-3 text-gray-800" />
-          </div>
+          </main>
         </Suspense>
         {/* waves pattern */}
         <Image
