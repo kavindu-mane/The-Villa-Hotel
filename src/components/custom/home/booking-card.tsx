@@ -28,17 +28,11 @@ import { Button } from "../..";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components";
+import { oneMonthFromNow, tomorrow } from "@/utils";
 
 export const BookingCard: FC = () => {
   // room types
   const roomTypes = ["standard", "deluxe", "superior"];
-
-  // get 1 months from now
-  const oneMonthFromNow = () => {
-    const lastDay = new Date();
-    lastDay.setMonth(lastDay.getMonth() + 1);
-    return lastDay;
-  };
 
   // form hook
   const form = useForm<z.infer<typeof BookingSchema>>({
@@ -47,8 +41,8 @@ export const BookingCard: FC = () => {
       room_type: "standard",
       persons: 1,
       date: {
-        from: new Date(),
-        to: new Date(),
+        from: tomorrow(),
+        to: tomorrow(),
       },
     },
   });
@@ -150,15 +144,11 @@ export const BookingCard: FC = () => {
                           !field.value && "text-muted-foreground",
                         )}
                       >
-                        {field.value.from ? (
-                          field.value.to ? (
-                            <>
-                              {format(field.value.from, "LLL dd, y")} -{" "}
-                              {format(field.value.to, "LLL dd, y")}
-                            </>
-                          ) : (
-                            format(field.value.from, "LLL dd, y")
-                          )
+                        {field.value.from && field.value.to ? (
+                          <>
+                            {format(field.value.from, "LLL dd, y")} -{" "}
+                            {format(field.value.to, "LLL dd, y")}
+                          </>
                         ) : (
                           <span>Pick a date</span>
                         )}
