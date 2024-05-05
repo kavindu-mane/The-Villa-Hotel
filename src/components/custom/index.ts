@@ -7,6 +7,7 @@ export * from "./navigation-wrapper";
 export * from "./navigation-secondary";
 export * from "./copyright";
 export * from "./back-to-top";
+export * from "./heading";
 export * from "./contact-us";
 // export * from "./restaurant";
-// export * from "./hotel";
+export * from "./hotel";

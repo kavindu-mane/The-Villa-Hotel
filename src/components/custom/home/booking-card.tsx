@@ -29,27 +29,34 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components";
 import { oneMonthFromNow, tomorrow } from "@/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const BookingCard: FC = () => {
   // room types
   const roomTypes = ["standard", "deluxe", "superior"];
+  // router hook
+  const router = useRouter();
+  // get use search params
+  const searchParams = useSearchParams();
 
   // form hook
   const form = useForm<z.infer<typeof BookingSchema>>({
     resolver: zodResolver(BookingSchema),
     defaultValues: {
-      room_type: "standard",
-      persons: 1,
+      room_type: searchParams.get("room_type") || "standard",
+      persons: Number(searchParams.get("persons")) || 1,
       date: {
-        from: tomorrow(),
-        to: tomorrow(),
+        from: new Date(searchParams.get("from") || tomorrow()),
+        to: new Date(searchParams.get("to") || tomorrow()),
       },
     },
   });
 
   // submit handler
   function onSubmit(data: z.infer<typeof BookingSchema>) {
-    console.log(data);
+    router.push(
+      `/rooms?room_type=${data.room_type}&persons=${data.persons}&from=${format(data.date.from, "yyyy-MM-dd")}&to=${format(data.date.to, "yyyy-MM-dd")}`,
+    );
   }
 
   return (

@@ -7,7 +7,7 @@ import {
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between">
+    <section className="flex min-h-screen flex-col items-center justify-between">
       {/* hero section */}
       <HeroSection />
       {/* facilities */}
@@ -16,6 +16,6 @@ export default function Home() {
       <RoomsDetails />
       {/* testimonies */}
       <Testimonies />
-    </main>
+    </section>
   );
 }

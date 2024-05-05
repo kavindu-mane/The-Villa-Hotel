@@ -1,9 +1,7 @@
+import { Rooms } from "@/components";
+
 const RoomsPage = () => {
-  return (
-    <main className="flex flex-col items-center">
-      <p className="">Rooms</p>
-    </main>
-  );
+  return <Rooms />;
 };
 
 export default RoomsPage;

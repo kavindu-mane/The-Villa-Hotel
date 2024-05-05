@@ -26,11 +26,11 @@ async function RootLayout({
     <html lang="en">
       <body className={`${poppins.className} flex flex-col items-center`}>
         <Suspense fallback={<Loading />}>
-          <div className="w-full max-w-screen-2xl">
+          <main className="w-full max-w-screen-2xl">
             <NavigationWrapper />
             {children}
             <Toaster />
-          </div>
+          </main>
         </Suspense>
         <Footer />
         <BackToTop />
