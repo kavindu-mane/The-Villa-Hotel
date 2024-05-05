@@ -9,3 +9,9 @@ push:
 
 studio:
 	bunx prisma studio
+
+start:
+	bun run start
+
+build:
+	bun run build

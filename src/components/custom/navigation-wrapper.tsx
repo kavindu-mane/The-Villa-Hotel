@@ -10,8 +10,10 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui";
+import Link from "next/link";
 
 export const NavigationWrapper = async () => {
   const session = await auth();
@@ -21,7 +23,7 @@ export const NavigationWrapper = async () => {
       <NavigationBar>
         <DropdownMenu>
           <DropdownMenuTrigger className="rounded-full !outline-none !ring-0">
-            <Avatar className="cursor-pointer h-9 w-9">
+            <Avatar className="h-9 w-9 cursor-pointer">
               <AvatarImage
                 src={session.user?.image || ""}
                 alt={session.user?.email || ""}
@@ -30,11 +32,25 @@ export const NavigationWrapper = async () => {
                 {session.user.name?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <DropdownMenuContent className="w-48">
+            <DropdownMenuContent className="me-1 w-48">
               <DropdownMenuGroup>
+                <DropdownMenuItem className="flex w-full flex-col">
+                  <p className="w-full overflow-hidden text-ellipsis font-medium">
+                    {session.user?.name}
+                  </p>
+                  <p className="w-full overflow-hidden text-ellipsis text-xs text-gray-500">
+                    {session.user?.email}
+                  </p>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link href="/dashboard" className="w-full">
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <form
-                  className="w-full"
+                    className="w-full"
                     action={async () => {
                       "use server";
                       await signOut();
