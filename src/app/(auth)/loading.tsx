@@ -1,10 +1,10 @@
 import React from "react";
-import { ScaleLoader } from "react-spinners";
+import { Writer } from "react-magic-spinners";
 
 const Loading = () => {
   return (
     <section className="flex h-screen w-full items-center justify-center">
-      <ScaleLoader color="#36d7b7" />
+      <Writer text="The Villa Hotel" />
     </section>
   );
 };
