@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { Button } from "@/components";
 import Image from "next/image";
-import { PlayIcon } from "@radix-ui/react-icons";
 import { BookingCard } from "./booking-card";
 import { Dancing_Script } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -35,10 +34,11 @@ export const HeroSection: FC = () => {
           <Link href="/restaurant">
             <Button className="h-10 rounded-full px-10">Restaurant</Button>
           </Link>
-          <Button className="flex gap-x-2 bg-transparent shadow-none hover:bg-transparent lg:text-slate-900">
-            <PlayIcon className="h-10 w-10 rounded-full bg-white px-2.5 text-slate-700 lg:bg-slate-700 lg:text-white" />
-            Take a Tour
-          </Button>
+          <Link href="/customize">
+            <Button className="h-10 rounded-full bg-gradient-to-r from-fuchsia-600 to-cyan-700 px-5 hover:from-cyan-700 hover:to-fuchsia-500">
+              Customized Room
+            </Button>
+          </Link>
         </div>
       </div>
       {/* right side */}

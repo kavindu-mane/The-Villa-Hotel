@@ -1,9 +1,7 @@
+import { Customize } from "@/components";
+
 const CustomizePage = () => {
-  return (
-    <main className="flex flex-col items-center">
-      <p className="">Customize your stay</p>
-    </main>
-  );
+  return <Customize />;
 };
 
 export default CustomizePage;
