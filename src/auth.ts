@@ -11,6 +11,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/login",
   },
   events: {
+    // Link OAuth accounts with verification
     async linkAccount({ user }) {
       await db.user.update({
         where: { id: user.id },
@@ -33,6 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
+    // Add user id and role to session
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
@@ -43,6 +45,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
+    // Add role to JWT
     async jwt({ token }) {
       if (!token?.sub) {
         return token;

@@ -4,6 +4,8 @@ import { verificationEmailTemplate } from "@/templates/verification-email";
 import { resetPasswordEmailTemplate } from "@/templates/reset-password-email";
 import { contactUsEmailTemplate } from "@/templates/contact-us-email";
 
+
+
 export const sendEmails = async ({
   to,
   subject,
@@ -15,8 +17,10 @@ export const sendEmails = async ({
   body: string;
   replyTo?: string;
 }) => {
+  // get email credentials from env
   const { MAIL_PASSWORD, MAIL_USERNAME } = process.env;
 
+  // create transporter
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -26,10 +30,12 @@ export const sendEmails = async ({
   });
 
   try {
+    // verify transporter
     const transportResult = await transporter.verify();
     if (!transportResult) {
       return false;
     }
+    // send email
     const sendEmail = await transporter.sendMail({
       from: `The Villa Hotel <${MAIL_USERNAME}>`,
       sender: MAIL_USERNAME,
@@ -38,16 +44,19 @@ export const sendEmails = async ({
       subject,
       html: body,
     });
+    // if email sent
     if (sendEmail) {
       return true;
     }
     return false;
   } catch (e) {
+    // if error
     console.log(e);
     return false;
   }
 };
 
+// setup email templates with handlebars for verification
 export async function setupVerificationEmailTemplate(
   verificationLink: string,
   userName: string,
@@ -57,6 +66,7 @@ export async function setupVerificationEmailTemplate(
   return htmlBody;
 }
 
+// setup email templates with handlebars for reset password
 export async function setupResetPasswordEmailTemplate(
   resetLink: string,
   userName: string,
@@ -66,6 +76,7 @@ export async function setupResetPasswordEmailTemplate(
   return htmlBody;
 }
 
+// setup email templates with handlebars for contact us
 export async function setupContactUsEmail(
   name: string,
   email: string,
