@@ -14,10 +14,8 @@ export const BookingSchema = z.object({
         };
       }
     }),
-  persons: z
-    .string()
-    .min(1, { message: "Persons field has to be filled." })
-    .transform((val) => parseInt(val, 10))
+  persons: z.coerce
+    .number()
     .refine((val) => !isNaN(val), {
       message: "Persons must be a number",
     })
@@ -39,12 +37,12 @@ export const BookingSchema = z.object({
       return !!date.to;
     }, "Check-out date is required")
     .refine((date) => {
-      return date.from < date.to;
+      return date.from <= date.to;
     })
     .refine((date) => {
       const today = new Date();
-      return date.from >= today && date.to >= today;
-    }, "Dates must be greater than or equal to today")
+      return date.from > today && date.to > today;
+    }, "Dates must be greater than or equal to tomorrow")
     .refine((date) => {
       const lastDay = new Date();
       // 1 months from now

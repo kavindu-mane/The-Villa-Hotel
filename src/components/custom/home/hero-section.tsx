@@ -5,6 +5,7 @@ import { PlayIcon } from "@radix-ui/react-icons";
 import { BookingCard } from "./booking-card";
 import { Dancing_Script } from "next/font/google";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const dancingScript = Dancing_Script({
   subsets: ["latin"],
@@ -31,7 +32,9 @@ export const HeroSection: FC = () => {
 
         {/* buttons */}
         <div className="mt-5 flex items-center gap-x-4">
-          <Button className="h-10 rounded-full px-10">Book Now</Button>
+          <Link href="/restaurant">
+            <Button className="h-10 rounded-full px-10">Restaurant</Button>
+          </Link>
           <Button className="flex gap-x-2 bg-transparent shadow-none hover:bg-transparent lg:text-slate-900">
             <PlayIcon className="h-10 w-10 rounded-full bg-white px-2.5 text-slate-700 lg:bg-slate-700 lg:text-white" />
             Take a Tour
