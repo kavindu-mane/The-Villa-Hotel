@@ -34,9 +34,9 @@ export const HeroSection: FC = () => {
           <Link href="/restaurant">
             <Button className="h-10 rounded-full px-10">Restaurant</Button>
           </Link>
-          <Link href="/customize">
-            <Button className="h-10 rounded-full bg-gradient-to-r from-fuchsia-600 to-cyan-700 px-5 hover:from-cyan-700 hover:to-fuchsia-500">
-              Customized Room
+          <Link href="/tour">
+            <Button className="h-10 rounded-full bg-gradient-to-r from-fuchsia-600 to-cyan-700 px-10 hover:from-cyan-700 hover:to-fuchsia-500">
+              Take a Tour
             </Button>
           </Link>
         </div>
