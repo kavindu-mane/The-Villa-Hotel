@@ -1,3 +1,3 @@
 export * from "./rooms"
-export * from "./customize"
-export * from "./customize-room-3d"
+export * from "./rooms-location"
+export * from "./room-placement-3d"
