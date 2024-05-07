@@ -8,7 +8,7 @@ export const RoomsPlacement = () => {
     <PresentationControls
       speed={1.5}
       global
-      zoom={1.5}
+      zoom={0.4}
       polar={[0, Math.PI / 2]}
     >
       <Stage environment={"city"} intensity={0.3} shadows={false}>

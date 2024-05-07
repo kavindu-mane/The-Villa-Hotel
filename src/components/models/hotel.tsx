@@ -1,9 +1,10 @@
 "use client";
 
 import * as THREE from "three";
-import React from "react";
+import React, { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
+import { useFrame, useThree } from "@react-three/fiber";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -36,6 +37,7 @@ type GLTFResult = GLTF & {
     ["BALUSTER_-_001_Paint_-_Golden_Beige_0"]: THREE.Mesh;
     ["CI_Tools_Roof_Covering_-__Roof_-_Asphalt_Shingle_Gray_0"]: THREE.Mesh;
     ["CI_Tools_Roof_Covering_-__Roof_-_Asphalt_Shingle_Gray_Lighter_0"]: THREE.Mesh;
+    room_1: THREE.Mesh;
   };
   materials: {
     ["Wood_-_Walnut_Horizontal"]: THREE.MeshStandardMaterial;
@@ -70,15 +72,29 @@ type GLTFResult = GLTF & {
   };
 };
 
-type ContextType = Record<
-  string,
-  React.ForwardRefExoticComponent<JSX.IntrinsicElements["mesh"]>
->;
+const roomSetup = {
+  room_1: {
+    rotation_y: 2.3,
+    position_x:8,
+    zoom: 7,
+  },
+};
 
 export const HotelModel = (props: JSX.IntrinsicElements["group"]) => {
-  const { nodes, materials } = useGLTF("/models/hotel.glb") as GLTFResult;
+  const { nodes, materials } = useGLTF("/models/hotel2.glb") as GLTFResult;
+  const ref = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (ref.current) ref.current.rotation.y = 2.3;
+  });
+
+  useThree(({ camera }) => {
+    camera.position.x = 8;
+    camera.zoom = 7;
+  });
+
   return (
-    <group {...props} dispose={null}>
+    <group {...props} dispose={null} ref={ref}>
       <mesh
         geometry={
           nodes["Tree_Model_Detailed_24_-_FU_-_134_Wood_-_Walnut_Horizontal_0"]
@@ -307,8 +323,14 @@ export const HotelModel = (props: JSX.IntrinsicElements["group"]) => {
         rotation={[-Math.PI / 2, 0, -2.76]}
         scale={0.01}
       />
+      <mesh
+        geometry={nodes.room_1.geometry}
+        material={nodes.room_1.material}
+        position={[2.883, 1.659, 7.518]}
+        scale={[-0.038, -0.037, -0.01]}
+      />
     </group>
   );
 };
 
-useGLTF.preload("/models/hotel.glb");
+useGLTF.preload("/models/hotel2.glb");
