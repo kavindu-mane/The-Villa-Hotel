@@ -24,7 +24,7 @@ import { BiTime } from "react-icons/bi";
 import { IoCalendarSharp } from "react-icons/io5";
 import { format } from "date-fns";
 import { FC } from "react";
-import { FieldValues, SubmitHandler, UseFormReturn } from "react-hook-form";
+import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { errorTypes } from "@/types";
 import { ClipLoader } from "react-magic-spinners";
 import { cn } from "@/lib/utils";
