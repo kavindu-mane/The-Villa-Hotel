@@ -11,3 +11,10 @@ export const tomorrow = () => {
   tomorrow.setDate(tomorrow.getDate() + 1);
   return tomorrow;
 };
+
+// get yesterday date
+export const yesterday = () => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return yesterday;
+};

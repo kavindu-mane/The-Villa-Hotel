@@ -1,9 +1,6 @@
+import { Restaurant } from "@/components";
 const RestaurantPage = () => {
-  return (
-    <main className="flex flex-col items-center">
-      <p className="">Restaurant</p>
-    </main>
-  );
+  return <Restaurant />;
 };
 
 export default RestaurantPage;

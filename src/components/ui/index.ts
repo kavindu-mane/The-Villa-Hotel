@@ -10,4 +10,6 @@ export * from "./toast";
 export * from "./toaster";
 export * from "./input";
 export * from "./dropdown-menu";
-export * from "./textarea"
+export * from "./textarea";
+export * from "./carousel";
+export * from "./radio-group";

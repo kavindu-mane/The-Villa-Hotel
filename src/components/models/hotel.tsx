@@ -1,10 +1,11 @@
 "use client";
 
 import * as THREE from "three";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
+import { useSearchParams } from "next/navigation";
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -37,9 +38,40 @@ type GLTFResult = GLTF & {
     ["BALUSTER_-_001_Paint_-_Golden_Beige_0"]: THREE.Mesh;
     ["CI_Tools_Roof_Covering_-__Roof_-_Asphalt_Shingle_Gray_0"]: THREE.Mesh;
     ["CI_Tools_Roof_Covering_-__Roof_-_Asphalt_Shingle_Gray_Lighter_0"]: THREE.Mesh;
-    room_1: THREE.Mesh;
+    room_1_inner: THREE.Mesh;
+    room_1_outer: THREE.Mesh;
+    room_2_inner: THREE.Mesh;
+    room_2_outer: THREE.Mesh;
+    room_3_inner: THREE.Mesh;
+    room_3_outer: THREE.Mesh;
+    room_4_inner: THREE.Mesh;
+    room_4_outer: THREE.Mesh;
+    room_5_inner: THREE.Mesh;
+    room_5_outer: THREE.Mesh;
+    room_6_inner: THREE.Mesh;
+    room_6_outer: THREE.Mesh;
+    room_7_inner: THREE.Mesh;
+    room_7_outer: THREE.Mesh;
+    room_8_inner: THREE.Mesh;
+    room_8_outer: THREE.Mesh;
   };
   materials: {
+    ["Shading.002"]: THREE.MeshStandardMaterial;
+    ["Main.002"]: THREE.MeshStandardMaterial;
+    ["Shading.003"]: THREE.MeshStandardMaterial;
+    ["Main.003"]: THREE.MeshStandardMaterial;
+    ["Shading.004"]: THREE.MeshStandardMaterial;
+    ["Main.004"]: THREE.MeshStandardMaterial;
+    ["Shading.005"]: THREE.MeshStandardMaterial;
+    ["Main.005"]: THREE.MeshStandardMaterial;
+    ["Shading.009"]: THREE.MeshStandardMaterial;
+    ["Main.009"]: THREE.MeshStandardMaterial;
+    ["Shading.008"]: THREE.MeshStandardMaterial;
+    ["Main.008"]: THREE.MeshStandardMaterial;
+    ["Shading.007"]: THREE.MeshStandardMaterial;
+    ["Main.007"]: THREE.MeshStandardMaterial;
+    ["Shading.006"]: THREE.MeshStandardMaterial;
+    ["Main.006"]: THREE.MeshStandardMaterial;
     ["Wood_-_Walnut_Horizontal"]: THREE.MeshStandardMaterial;
     ["Foliage_-_Leaves_Tree_Small"]: THREE.MeshStandardMaterial;
     ["Paint_-_Forest_Green"]: THREE.MeshStandardMaterial;
@@ -74,24 +106,84 @@ type GLTFResult = GLTF & {
 
 const roomSetup = {
   room_1: {
-    rotation_y: 2.3,
-    position_x:8,
-    zoom: 7,
+    rotation_y: 2.1,
+    position_x: 6,
+  },
+  room_2: {
+    rotation_y: 0.4,
+    position_x: -4,
+  },
+  room_3: {
+    rotation_y: 0,
+    position_x: -12,
+  },
+  room_4: {
+    rotation_y: 0.8,
+    position_x: -30,
+  },
+  room_5: {
+    rotation_y: 3.9,
+    position_x: -20,
+  },
+  room_6: {
+    rotation_y: 4.3,
+    position_x: 0,
+  },
+  room_7: {
+    rotation_y: 3.2,
+    position_x: -1,
+  },
+  room_8: {
+    rotation_y: 3.2,
+    position_x: -1,
+  },
+  default: {
+    rotation_y: 0,
+    position_x: 0,
   },
 };
 
+const rooms = [
+  "room_1",
+  "room_2",
+  "room_3",
+  "room_4",
+  "room_5",
+  "room_6",
+  "room_7",
+  "room_8",
+];
+
 export const HotelModel = (props: JSX.IntrinsicElements["group"]) => {
-  const { nodes, materials } = useGLTF("/models/hotel2.glb") as GLTFResult;
+  const { nodes, materials } = useGLTF("/models/hotel3.glb") as GLTFResult;
   const ref = useRef<THREE.Group>(null);
+  const { camera } = useThree();
 
-  useFrame(() => {
-    if (ref.current) ref.current.rotation.y = 2.3;
-  });
+  const [focusPoint, setFocusPoint] = useState(nodes["room_1_outer"]);
+  const targetPosition = useRef(focusPoint.position.clone());
 
-  useThree(({ camera }) => {
-    camera.position.x = 8;
-    camera.zoom = 7;
-  });
+  // get use search params
+  const searchParams = useSearchParams();
+
+  // change focus point and target position with search params
+  useEffect(() => {
+    const roomParam = searchParams.get("room");
+    if (roomParam && roomParam !== null) {
+      if (rooms.includes(roomParam)) {
+        const focus = nodes[`${roomParam}_outer` as keyof typeof nodes];
+        setFocusPoint(focus);
+        targetPosition.current = focus.position.clone();
+      }
+    } else {
+      setFocusPoint(nodes["room_1_outer"]);
+      targetPosition.current = nodes["room_1_outer"].position.clone();
+    }
+  }, [searchParams, nodes]);
+
+  useEffect(() => {
+    camera.position.lerp(targetPosition.current, 0.3);
+    camera.lookAt(focusPoint.position);
+  }, [camera, focusPoint]);
 
   return (
     <group {...props} dispose={null} ref={ref}>
@@ -323,14 +415,119 @@ export const HotelModel = (props: JSX.IntrinsicElements["group"]) => {
         rotation={[-Math.PI / 2, 0, -2.76]}
         scale={0.01}
       />
+
       <mesh
-        geometry={nodes.room_1.geometry}
-        material={nodes.room_1.material}
-        position={[2.883, 1.659, 7.518]}
-        scale={[-0.038, -0.037, -0.01]}
+        geometry={nodes.room_1_outer.geometry}
+        material={materials["Main.002"]}
+        position={[1.607, 3.363, 8.259]}
+        rotation={[0, 0.365, 0]}
+        visible={focusPoint === nodes.room_1_outer}
+      />
+      <mesh
+        geometry={nodes.room_1_inner.geometry}
+        material={materials["Shading.002"]}
+        position={[1.607, 3.363, 8.259]}
+        rotation={[0, 0.365, 0]}
+        visible={focusPoint === nodes.room_1_outer}
+      />
+      <mesh
+        geometry={nodes.room_2_inner.geometry}
+        material={materials["Shading.003"]}
+        position={[-3.344, 3.57, -3.612]}
+        rotation={[0, 0.358, 0]}
+        visible={focusPoint === nodes.room_2_outer}
+      />
+      <mesh
+        geometry={nodes.room_2_outer.geometry}
+        material={materials["Main.003"]}
+        position={[-3.344, 3.57, -3.612]}
+        rotation={[0, 0.358, 0]}
+        visible={focusPoint === nodes.room_2_outer}
+      />
+      <mesh
+        geometry={nodes.room_3_inner.geometry}
+        material={materials["Shading.004"]}
+        position={[-4.951, 4.03, -7.378]}
+        rotation={[0, 0.391, 0]}
+        visible={focusPoint === nodes.room_3_outer}
+      />
+      <mesh
+        geometry={nodes.room_3_outer.geometry}
+        material={materials["Main.004"]}
+        position={[-4.951, 4.03, -7.378]}
+        rotation={[0, 0.391, 0]}
+        visible={focusPoint === nodes.room_3_outer}
+      />
+      <mesh
+        geometry={nodes.room_4_inner.geometry}
+        material={materials["Shading.005"]}
+        position={[-10.078, 4.437, -19.847]}
+        rotation={[0, 0.398, 0]}
+        visible={focusPoint === nodes.room_4_outer}
+      />
+      <mesh
+        geometry={nodes.room_4_outer.geometry}
+        material={materials["Main.005"]}
+        position={[-10.078, 4.437, -19.847]}
+        rotation={[0, 0.398, 0]}
+        visible={focusPoint === nodes.room_4_outer}
+      />
+      <mesh
+        geometry={nodes.room_5_inner.geometry}
+        material={materials["Shading.009"]}
+        position={[14.388, 4.146, 5.883]}
+        visible={focusPoint === nodes.room_5_outer}
+      />
+      <mesh
+        geometry={nodes.room_5_outer.geometry}
+        material={materials["Main.009"]}
+        position={[14.388, 4.146, 5.883]}
+        visible={focusPoint === nodes.room_5_outer}
+      />
+      <mesh
+        geometry={nodes.room_6_inner.geometry}
+        material={materials["Shading.008"]}
+        position={[9.167, 3.722, -8.113]}
+        rotation={[0, 0.434, 0]}
+        visible={focusPoint === nodes.room_6_outer}
+      />
+      <mesh
+        geometry={nodes.room_6_outer.geometry}
+        material={materials["Main.008"]}
+        position={[9.167, 3.722, -8.113]}
+        rotation={[0, 0.434, 0]}
+        visible={focusPoint === nodes.room_6_outer}
+      />
+      <mesh
+        geometry={nodes.room_7_inner.geometry}
+        material={materials["Shading.007"]}
+        position={[7.137, 4.182, -13.239]}
+        rotation={[0, 0.309, 0]}
+        visible={focusPoint === nodes.room_7_outer}
+      />
+      <mesh
+        geometry={nodes.room_7_outer.geometry}
+        material={materials["Main.007"]}
+        position={[7.137, 4.182, -13.239]}
+        rotation={[0, 0.309, 0]}
+        visible={focusPoint === nodes.room_7_outer}
+      />
+      <mesh
+        geometry={nodes.room_8_inner.geometry}
+        material={materials["Shading.006"]}
+        position={[0.924, 3.544, -26.231]}
+        rotation={[-0.169, 1.459, 0.172]}
+        visible={focusPoint === nodes.room_8_outer}
+      />
+      <mesh
+        geometry={nodes.room_8_outer.geometry}
+        material={materials["Main.006"]}
+        position={[0.924, 3.544, -26.231]}
+        rotation={[-0.169, 1.459, 0.172]}
+        visible={focusPoint === nodes.room_8_outer}
       />
     </group>
   );
 };
 
-useGLTF.preload("/models/hotel2.glb");
+useGLTF.preload("/models/hotel3.glb");
