@@ -7,7 +7,7 @@ import { Headings } from "@/components";
 
 export const ContactUs: FC = () => {
   return (
-    <section className="contact flex flex-col items-center justify-center gap-y-10 p-2 py-16  text-slate-900 lg:gap-y-20">
+    <section className="flex flex-col items-center justify-center gap-y-10 p-2 py-16  text-slate-900 lg:gap-y-20">
       {/* heading */}
       <Headings
         title="Get In Touch"

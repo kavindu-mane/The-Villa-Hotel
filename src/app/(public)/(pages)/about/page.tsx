@@ -5,7 +5,7 @@
 // import { Canvas, useLoader } from "@react-three/fiber";
 // import { OrbitControls, Preload } from "@react-three/drei";
 
-const About = () => {
+const AboutPage = () => {
   // const maps = useLoader(THREE.TextureLoader, "/images/img_15.jpg");
   // return (
   // 	<div className="h-screen w-full">
@@ -45,4 +45,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default AboutPage;
