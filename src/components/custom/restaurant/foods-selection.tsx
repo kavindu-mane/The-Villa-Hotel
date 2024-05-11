@@ -150,7 +150,7 @@ export const FoodsSelections: FC<{
           onClick={() => setCurrentStep(4)}
           className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2"
         >
-          Previous
+          Next
         </Button>
       </div>
     </div>

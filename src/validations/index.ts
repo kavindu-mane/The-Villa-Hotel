@@ -7,7 +7,7 @@ export const BookingSchema = z.object({
       message: "Please select a room type",
     })
     .refine((value) => {
-      const roomTypes = ["single", "double", "triple"];
+      const roomTypes = ["Deluxe" , "Superior" , "Standard"];
       if (value && !roomTypes.includes(value)) {
         return {
           message: "Please select a valid room type",
