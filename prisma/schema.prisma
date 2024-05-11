@@ -97,6 +97,7 @@ model Rooms {
 model Booking {
   id        String   @id @default(cuid())
   roomId    String
+  total     Float
   userId    String?
   name      String?
   email     String?

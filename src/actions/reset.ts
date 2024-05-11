@@ -12,17 +12,17 @@ import { getResetPasswordToken } from "@/lib/tokens";
 
 export const reset = async (values: z.infer<typeof ResetPasswordSchema>) => {
   // validate data in backend
-  const validatedField = ResetPasswordSchema.parse(values);
+  const validatedField = ResetPasswordSchema.safeParse(values);
 
   // check if validation failed and return errors
-  if (!validatedField) {
+  if (!validatedField.success) {
     return {
       error: "Invalid email.",
     };
   }
 
   // destructure data from validated fields
-  const { email } = validatedField;
+  const { email } = validatedField.data;
 
   // check if email exists
   const user = await getUserByEmail(email);

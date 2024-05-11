@@ -33,7 +33,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 export const BookingCard: FC = () => {
   // room types
-  const roomTypes = ["standard", "deluxe", "superior"];
+  const roomTypes = ["Standard", "Deluxe", "Superior"];
   // router hook
   const router = useRouter();
   // get use search params
