@@ -6,18 +6,35 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
+  Calendar,
 } from "@/components";
 import { FC, Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import { RxCross2 } from "react-icons/rx";
 import { GridLoader } from "react-magic-spinners";
+import { roomDetailsAnimation } from "@/animations";
+import { motion } from "framer-motion";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { oneMonthFromNow, tomorrow } from "@/utils";
 
 export const RoomsLocation: FC<{
   setIsStructureShow: (value: boolean) => void;
 }> = ({ setIsStructureShow }) => {
   // is top view state
   const [isTopView, setIsTopView] = useState<boolean>(false);
+  // is collapse state
+  const [isCollapse, setIsCollapse] = useState<boolean>(true);
+  // room id state
+  const [roomId, setRoomId] = useState<number>(1);
+  // is loading state
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // modifiers coming from backend
+  const modifiers = {
+    available: [new Date(2024, 4, 12), new Date(2024, 4, 13)],
+    notAvailable: [new Date(2024, 4, 14), new Date(2024, 4, 15)],
+  };
 
   return (
     <section className="fixed left-0 right-0 top-0 z-50 h-screen min-h-[40rem] w-full p-5">
@@ -49,10 +66,83 @@ export const RoomsLocation: FC<{
           <Button
             onClick={() => setIsStructureShow(false)}
             variant={"outline"}
-            className="h-8 w-8 bg-transparent p-1 text-white hover:bg-transparent hover:text-primary"
+            className="mb-[3px] h-8 w-8 bg-transparent p-1 text-white hover:bg-transparent hover:text-primary"
           >
             <RxCross2 className="h-6 w-6 text-2xl" />
           </Button>
+        </div>
+
+        {/* details window */}
+        <div className="absolute end-11 top-2 z-[56] w-full max-w-96 rounded-lg border bg-white px-2 py-0.5 shadow-md drop-shadow-xl">
+          {/* room name and collapse button */}
+          <div className="flex w-full items-center justify-between">
+            {/* title */}
+            <h2 className="text-sm font-medium text-gray-600">
+              Room {roomId} (Deluxe Room)
+            </h2>
+
+            {/* down arrow icon */}
+            <div className="z-[9999] flex items-center">
+              {isCollapse ? (
+                <IoIosArrowDown
+                  className="h-7 w-full cursor-pointer rounded-lg bg-primary p-1 font-bold text-white"
+                  onClick={() => setIsCollapse(!isCollapse)}
+                />
+              ) : (
+                <IoIosArrowUp
+                  className="h-7 w-full cursor-pointer rounded-lg bg-primary p-1 font-bold text-white"
+                  onClick={() => setIsCollapse(!isCollapse)}
+                />
+              )}
+            </div>
+          </div>
+
+          <motion.div
+            className={"max-h-[30rem] overflow-auto"}
+            animate={isCollapse ? "closed" : "open"}
+            variants={roomDetailsAnimation}
+            transition={{ duration: 0.2 }}
+            initial="closed"
+          >
+            <div className="py-2">
+              <hr className="border-gray-300 py-1" />
+              <p className="">Price : $200 (per night)</p>
+              <p className=""></p>
+              <p className=""></p>
+              <p className=""></p>
+              <p className=""></p>
+
+              {/* availability */}
+              <h3 className="my-3 font-medium">Availability</h3>
+              {/* calender */}
+              <div className="mb-3 flex w-full justify-center">
+                <Calendar
+                  mode="multiple"
+                  className="rounded-md border"
+                  ISOWeek
+                  fromDate={tomorrow()}
+                  toDate={oneMonthFromNow()}
+                  modifiers={modifiers}
+                  modifiersClassNames={{
+                    available: "!bg-emerald-300 !rounded-full",
+                    notAvailable: "!bg-red-300 !rounded-full",
+                  }}
+                />
+              </div>
+              {/* color meanings */}
+              <div className="flex w-full items-center justify-end gap-x-4">
+                <p className="flex items-center gap-x-1 text-sm">
+                  <span className="flex h-3 w-3 bg-emerald-300" />
+                  Available
+                </p>
+
+                <p className="flex items-center gap-x-1 text-sm">
+                  <span className="flex h-3 w-3 bg-red-300" />
+                  Not Available
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         {/* canvas */}
@@ -91,6 +181,7 @@ export const RoomsLocation: FC<{
               <RoomsPlacement
                 isTopView={isTopView}
                 setIsTopView={setIsTopView}
+                setRoomId={setRoomId}
               />
             </Suspense>
           </Canvas>
