@@ -1,7 +1,12 @@
 "use client";
 
 import { HotelModel } from "@/components";
-import { Html, PresentationControls, Stage } from "@react-three/drei";
+import {
+  Html,
+  MeshReflectorMaterial,
+  PresentationControls,
+  Stage,
+} from "@react-three/drei";
 import { FC, Suspense } from "react";
 import { GridLoader } from "react-magic-spinners";
 
@@ -28,6 +33,22 @@ export const RoomsPlacement: FC<{
           />
         </Suspense>
       </Stage>
+      <mesh rotation={[-Math.PI / 2 + 0.02, 0, 0.36]} position={[0, -3.75, 0]}>
+        <planeGeometry args={[100, 100]} />
+        <MeshReflectorMaterial
+          color="#101010"
+          mirror={0}
+          resolution={1024}
+          blur={[300, 200]}
+          mixBlur={2}
+          mixStrength={15}
+          roughness={0.4}
+          depthScale={1.2}
+          minDepthThreshold={0.4}
+          maxDepthThreshold={1}
+          metalness={1.5}
+        />
+      </mesh>
     </PresentationControls>
   );
 };
