@@ -1,11 +1,21 @@
 "use client";
 
 import { BookingCard, Button, Headings, RoomsLocation } from "@/components";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 export const Rooms: FC = () => {
   // is structure button state
   const [isStructureShow, setIsStructureShow] = useState(false);
+
+  // use Effect for disable scroll
+  useEffect(() => {
+    const documentElement = document.documentElement.classList;
+    if (isStructureShow) {
+      documentElement.add("overflow-hidden");
+    } else {
+      documentElement.remove("overflow-hidden");
+    }
+  }, [isStructureShow]);
 
   return (
     <section className="flex w-full flex-col gap-y-8 px-5 py-16">

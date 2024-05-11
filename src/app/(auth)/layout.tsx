@@ -44,7 +44,7 @@ function RootLayout({
           alt="waves"
           width={1920}
           height={100}
-          className="absolute bottom-0 -z-10 h-full object-cover opacity-30"
+          className="fixed bottom-0 -z-10 h-full object-cover opacity-30"
         />
       </body>
     </html>

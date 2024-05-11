@@ -105,7 +105,11 @@ type GLTFResult = GLTF & {
 export const HotelModel: FC<{
   setIsTopView: (value: boolean) => void;
   isTopView: boolean;
-}> = ({ setIsTopView, isTopView }, props: JSX.IntrinsicElements["group"]) => {
+  setRoomId: (value: number) => void;
+}> = (
+  { setIsTopView, isTopView, setRoomId },
+  props: JSX.IntrinsicElements["group"],
+) => {
   const { nodes, materials } = useGLTF("/models/hotel.glb") as GLTFResult;
   const ref = useRef<THREE.Group>(null);
   const isInitialLoadRef = useRef(true);
@@ -371,98 +375,112 @@ export const HotelModel: FC<{
           material={materials["Main.002"]}
           position={[1.607, 3.363, 8.259]}
           rotation={[0, 0.365, 0]}
+          onClick={() => setRoomId(1)}
         />
         <mesh
           geometry={nodes.room_1_inner.geometry}
           material={materials["Shading.002"]}
           position={[1.607, 3.363, 8.259]}
           rotation={[0, 0.365, 0]}
+          onClick={() => setRoomId(1)}
         />
         <mesh
           geometry={nodes.room_2_inner.geometry}
           material={materials["Shading.003"]}
           position={[-3.344, 3.57, -3.612]}
           rotation={[0, 0.358, 0]}
+          onClick={() => setRoomId(2)}
         />
         <mesh
           geometry={nodes.room_2_outer.geometry}
           material={materials["Main.003"]}
           position={[-3.344, 3.57, -3.612]}
           rotation={[0, 0.358, 0]}
+          onClick={() => setRoomId(2)}
         />
         <mesh
           geometry={nodes.room_3_inner.geometry}
           material={materials["Shading.004"]}
           position={[-4.951, 4.03, -7.378]}
           rotation={[0, 0.391, 0]}
+          onClick={() => setRoomId(3)}
         />
         <mesh
           geometry={nodes.room_3_outer.geometry}
           material={materials["Main.004"]}
           position={[-4.951, 4.03, -7.378]}
           rotation={[0, 0.391, 0]}
+          onClick={() => setRoomId(3)}
         />
         <mesh
           geometry={nodes.room_4_inner.geometry}
           material={materials["Shading.005"]}
           position={[-10.078, 4.437, -19.847]}
           rotation={[0, 0.398, 0]}
+          onClick={() => setRoomId(4)}
         />
         <mesh
           geometry={nodes.room_4_outer.geometry}
           material={materials["Main.005"]}
           position={[-10.078, 4.437, -19.847]}
           rotation={[0, 0.398, 0]}
+          onClick={() => setRoomId(4)}
         />
         <mesh
           geometry={nodes.room_5_inner.geometry}
           material={materials["Shading.009"]}
           position={[14.388, 4.146, 5.883]}
+          onClick={() => setRoomId(5)}
         />
         <mesh
           geometry={nodes.room_5_outer.geometry}
           material={materials["Main.009"]}
           position={[14.388, 4.146, 5.883]}
+          onClick={() => setRoomId(5)}
         />
         <mesh
           geometry={nodes.room_6_inner.geometry}
           material={materials["Shading.008"]}
           position={[9.167, 3.722, -8.113]}
           rotation={[0, 0.434, 0]}
+          onClick={() => setRoomId(6)}
         />
         <mesh
           geometry={nodes.room_6_outer.geometry}
           material={materials["Main.008"]}
           position={[9.167, 3.722, -8.113]}
           rotation={[0, 0.434, 0]}
+          onClick={() => setRoomId(6)}
         />
         <mesh
           geometry={nodes.room_7_inner.geometry}
           material={materials["Shading.007"]}
           position={[7.137, 4.182, -13.239]}
           rotation={[0, 0.309, 0]}
+          onClick={() => setRoomId(7)}
         />
         <mesh
           geometry={nodes.room_7_outer.geometry}
           material={materials["Main.007"]}
           position={[7.137, 4.182, -13.239]}
           rotation={[0, 0.309, 0]}
+          onClick={() => setRoomId(7)}
         />
         <mesh
           geometry={nodes.room_8_inner.geometry}
           material={materials["Shading.006"]}
           position={[0.924, 3.544, -26.231]}
           rotation={[-0.169, 1.459, 0.172]}
+          onClick={() => setRoomId(8)}
         />
         <mesh
           geometry={nodes.room_8_outer.geometry}
           material={materials["Main.006"]}
           position={[0.924, 3.544, -26.231]}
           rotation={[-0.169, 1.459, 0.172]}
+          onClick={() => setRoomId(8)}
         />
       </group>
     </group>
   );
 };
-
-useGLTF.preload("/models/hotel.glb");
