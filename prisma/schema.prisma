@@ -12,6 +12,12 @@ enum Role {
   ADMIN
 }
 
+enum RoomType {
+  Deluxe
+  Standard
+  Superior
+}
+
 model User {
   id            String          @id @default(cuid())
   name          String?
@@ -21,7 +27,8 @@ model User {
   image         String?
   password      String?
   role          Role            @default(USER)
-  Account       Account?
+  account       Account?
+  bookings      Booking[]
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -55,6 +62,7 @@ model VerificationToken {
   email     String
   token     String   @unique
   expiresAt DateTime
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -66,8 +74,41 @@ model PasswordResetToken {
   email     String
   token     String   @unique
   expiresAt DateTime
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([email, token])
+}
+
+model Rooms {
+  id        String   @id @default(cuid())
+  number    Int
+  type      RoomType
+  price     Float
+  booking   Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([number])
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String?
+  name      String?
+  email     String?
+  phone     String?
+  remark    String?
+  checkIn   DateTime
+  checkOut  DateTime
+
+  room      Rooms  @relation(fields: [roomId], references: [id])
+  user      User?  @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
 }
