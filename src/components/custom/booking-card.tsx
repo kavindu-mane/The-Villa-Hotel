@@ -181,7 +181,7 @@ export const BookingCard: FC = () => {
             )}
           />
           <Button type="submit" className="h-10 w-full max-w-sm lg:max-w-xs">
-            Book Now
+            Check Availability
           </Button>
         </form>
       </Form>
