@@ -13,3 +13,4 @@ export * from "./dropdown-menu";
 export * from "./textarea";
 export * from "./carousel";
 export * from "./radio-group";
+export * from "./tabs";

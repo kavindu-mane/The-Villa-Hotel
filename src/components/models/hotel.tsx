@@ -1,7 +1,7 @@
 "use client";
 
 import * as THREE from "three";
-import React, { useRef } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { useBounds, useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { useThree } from "@react-three/fiber";
@@ -102,11 +102,31 @@ type GLTFResult = GLTF & {
     ["Grass_-_Brown.001"]: THREE.MeshStandardMaterial;
   };
 };
-export const HotelModel = (props: JSX.IntrinsicElements["group"]) => {
+export const HotelModel: FC<{
+  setIsTopView: (value: boolean) => void;
+  isTopView: boolean;
+}> = ({ setIsTopView, isTopView }, props: JSX.IntrinsicElements["group"]) => {
   const { nodes, materials } = useGLTF("/models/hotel.glb") as GLTFResult;
   const ref = useRef<THREE.Group>(null);
+  const isInitialLoadRef = useRef(true);
   const { camera } = useThree();
   const bounds = useBounds();
+
+  // reset positions when moving to top view
+  useEffect(() => {
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false;
+      return;
+    }
+    if (isTopView) {
+      camera.position.set(0, 10, 0);
+    } else {
+      camera.position.set(0, 0, 10);
+    }
+    camera.lookAt(0, 0, 0);
+    camera.zoom = 0.7;
+    camera.updateProjectionMatrix();
+  }, [camera, isTopView]);
 
   return (
     <group {...props} dispose={null} ref={ref}>
@@ -342,8 +362,8 @@ export const HotelModel = (props: JSX.IntrinsicElements["group"]) => {
       <group
         onClick={(e) => (
           e.stopPropagation(),
-          e.delta <= 2 && bounds.refresh(e.object).fit(),
-          (camera.zoom = 0.7)
+          setIsTopView(false),
+          e.delta <= 2 && bounds.refresh(e.object).fit()
         )}
       >
         <mesh
