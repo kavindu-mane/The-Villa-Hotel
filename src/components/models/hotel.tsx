@@ -484,5 +484,3 @@ export const HotelModel: FC<{
     </group>
   );
 };
-
-useGLTF.preload("/models/hotel.glb");
