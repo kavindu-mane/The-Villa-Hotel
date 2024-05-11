@@ -20,6 +20,7 @@ import { FC, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { BiError } from "react-icons/bi";
+import { ClipLoader } from "react-magic-spinners";
 import { z } from "zod";
 
 // default value for errors
@@ -146,9 +147,7 @@ export const ContactForm: FC = () => {
             type="submit"
             className="flex w-full items-center justify-center gap-x-3"
           >
-            {isPending && (
-              <AiOutlineLoading3Quarters className="h-4 w-4 animate-spin text-white" />
-            )}
+            {isPending && <ClipLoader size={20} color="#fff" />}
             Send
           </Button>
         </form>

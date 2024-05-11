@@ -20,7 +20,7 @@ import {
 } from "../../ui";
 import { register } from "@/actions/register";
 import { useSearchParams } from "next/navigation";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { ClipLoader } from "react-magic-spinners";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -184,9 +184,7 @@ export const Register: FC<{}> = () => {
             type="submit"
             className="flex w-full items-center justify-center gap-x-3"
           >
-            {isPending && (
-              <AiOutlineLoading3Quarters className="h-4 w-4 animate-spin text-white" />
-            )}
+            {isPending && <ClipLoader size={20} color="#fff" />}
             Create an Account
           </Button>
         </form>
