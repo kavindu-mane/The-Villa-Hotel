@@ -10,7 +10,7 @@ export const GoogleAuth: FC = () => {
   // sign in via google
   const signInWithGoogle = () => {
     setIsLoading(true);
-    signIn("google", { callbackUrl: "/" }).then(() => {
+    signIn("google").then(() => {
       setIsLoading(false);
     });
   };
