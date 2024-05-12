@@ -2,8 +2,9 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "next-auth";
 import { LoginFormSchema } from "./validations";
-import { getUserByEmail } from "./actions/utils/user";
+import { getUserByEmail, getUserById } from "./actions/utils/user";
 import bcrypt from "bcryptjs";
+import { Role } from "@prisma/client";
 
 // NextAuth configuration
 export default {
@@ -38,4 +39,44 @@ export default {
       },
     }),
   ],
+  callbacks: {
+    async signIn({ user, account }) {
+      // Allow OAuth accounts with verification
+      if (account?.provider !== "credentials") {
+        return true;
+      }
+
+      const existingUser = await getUserById(user.id || "");
+
+      if (!existingUser || !existingUser.emailVerified) {
+        return false;
+      }
+
+      return true;
+    },
+    // Add user id and role to session
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+
+      if (token.role && session.user) {
+        session.user.role = token.role as Role;
+      }
+
+      return session;
+    },
+    // Add role to JWT
+    async jwt({ token }) {
+      if (!token?.sub) {
+        return token;
+      }
+      const existingUser = await getUserById(token.sub);
+
+      if (!existingUser) return token;
+
+      token.role = existingUser.role;
+      return token;
+    },
+  },
 } satisfies NextAuthConfig;

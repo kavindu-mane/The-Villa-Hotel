@@ -1,16 +1,10 @@
 // Define all routes here
-export const publicRoutes = [
-  "/",
-  "/auth/verify-email",
-  "/contact-us",
-  "/restaurant",
-  "/customize",
-  "/rooms",
-];
-
-// Define all routes here
 export const privateRoutes = ["/dashboard"];
 
+// Define all admin routes here
+export const adminRoutesPrefix = "/admin";
+
+// Define all auth routes here
 export const authRoutes = [
   "/auth/login",
   "/auth/register",
@@ -23,3 +17,5 @@ export const apiAuthPrefix = "/api/auth";
 
 // Define default login redirect
 export const DEFAULT_LOGIN_REDIRECT = "/";
+
+export const DEFAULT_ADMIN_LOGIN_REDIRECT = "/admin";

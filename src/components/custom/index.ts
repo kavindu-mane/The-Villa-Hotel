@@ -9,6 +9,7 @@ export * from "./copyright";
 export * from "./back-to-top";
 export * from "./heading";
 export * from "./contact-us";
-export * from "./booking-card"
+export * from "./booking-card";
 export * from "./restaurant";
 export * from "./hotel";
+export * from "./user-dropdown";

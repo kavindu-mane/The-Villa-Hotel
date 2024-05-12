@@ -1,12 +1,14 @@
 import authConfig from "@/auth.config";
 import NextAuth from "next-auth";
 import {
+  DEFAULT_ADMIN_LOGIN_REDIRECT,
   DEFAULT_LOGIN_REDIRECT,
+  adminRoutesPrefix,
   apiAuthPrefix,
   authRoutes,
   privateRoutes,
-  publicRoutes,
 } from "@/routes";
+import { Role } from "@prisma/client";
 const { auth } = NextAuth(authConfig);
 
 // Middleware to check if user is authenticated
@@ -22,6 +24,8 @@ export default auth((req) => {
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   // Check if the route is a private route
   const isPrivateRoute = privateRoutes.includes(nextUrl.pathname);
+  // Check if the route is an admin route
+  const isAdminRoute = nextUrl.pathname.startsWith(adminRoutesPrefix);
 
   // Redirect user if not authenticated
   if (isApiAuthRoute) {
@@ -31,9 +35,27 @@ export default auth((req) => {
   // Redirect user if not authenticated
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+      if (req.auth?.user.role === Role.ADMIN) {
+        return Response.redirect(
+          new URL(DEFAULT_ADMIN_LOGIN_REDIRECT, nextUrl),
+        );
+      } else {
+        return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+      }
     }
     return;
+  }
+
+  // Redirect admin if not authenticated
+  if (isAdminRoute && !isLoggedIn) {
+    return Response.redirect(new URL("/auth/login", nextUrl));
+  }
+
+  // Redirect user is request admin action and user is not admin
+  if (isAdminRoute && isLoggedIn) {
+    if (req.auth?.user.role !== Role.ADMIN) {
+      return Response.redirect(new URL("/auth/login", nextUrl));
+    }
   }
 
   // Redirect user if not authenticated
@@ -41,6 +63,7 @@ export default auth((req) => {
     return Response.redirect(new URL("/auth/login", nextUrl));
   }
 
+  // Redirect user if authenticated
   return;
 });
 

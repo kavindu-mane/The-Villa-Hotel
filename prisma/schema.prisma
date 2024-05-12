@@ -17,6 +17,12 @@ enum RoomType {
   Standard
   Superior
 }
+enum Status {
+  Pending
+  Confirmed
+  Cancelled
+  Finished
+}
 
 model User {
   id            String          @id @default(cuid())
@@ -103,6 +109,7 @@ model Booking {
   email     String?
   phone     String?
   remark    String?
+  status    Status
   checkIn   DateTime
   checkOut  DateTime
 
