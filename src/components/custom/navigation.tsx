@@ -8,6 +8,7 @@ import { RiCloseLine, RiMenu3Line } from "react-icons/ri";
 import { navigationAnimation } from "../../animations";
 import { Brand } from "./brand";
 import { Button } from "..";
+import { cn } from "@/lib/utils";
 
 export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
   children,
@@ -29,13 +30,23 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
   ];
 
   return (
-    <nav className="relative flex w-full items-center justify-between px-2 py-5 lg:px-5">
+    <nav
+      className={cn(
+        "relative z-[2] flex w-full items-center justify-between px-2 py-4 lg:px-5",
+        pathname === "/admin" ? "border-b bg-white" : "",
+      )}
+    >
       <div className="text-2xl">
         <Link href={"/"}>
           <Brand />
         </Link>
       </div>
-      <ul className="hidden gap-x-5 md:flex">
+      <ul
+        className={cn(
+          "hidden gap-x-5 md:flex",
+          pathname === "/admin" ? "md:hidden" : "",
+        )}
+      >
         {links.map((link, index) => (
           <li
             key={index}
@@ -62,7 +73,10 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
 
         {/* navigation slider button for small devices */}
         <button
-          className="block rounded-full hover:bg-secondary md:hidden"
+          className={cn(
+            "block rounded-full hover:bg-secondary md:hidden",
+            pathname === "/admin" ? "hidden" : "",
+          )}
           onClick={() => setIsOpen(!isOpen)}
         >
           <RiMenu3Line className="h-10 w-10 p-2" />
