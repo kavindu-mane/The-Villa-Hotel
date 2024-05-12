@@ -16,8 +16,10 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { Session } from "next-auth";
 import { Role } from "@prisma/client";
+import { MdDashboard, MdLogout } from "react-icons/md";
 
 export const UserDropdown: FC<{ session: Session }> = ({ session }) => {
+  // logout user
   const logout = async () => {
     await signOut({ callbackUrl: "/auth/login" });
   };
@@ -50,12 +52,19 @@ export const UserDropdown: FC<{ session: Session }> = ({ session }) => {
                 href={
                   session.user.role === Role.ADMIN ? "/admin" : "/dashboard"
                 }
-                className="w-full"
+                className="flex w-full items-center gap-x-2"
               >
+                <MdDashboard className="h-4 w-4" />
                 Dashboard
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => logout()}
+              className="flex w-full items-center gap-x-2 text-red-600 hover:!bg-red-100 hover:!text-red-700"
+            >
+              <MdLogout className="h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenuTrigger>

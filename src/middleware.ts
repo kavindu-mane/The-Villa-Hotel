@@ -48,19 +48,25 @@ export default auth((req) => {
 
   // Redirect admin if not authenticated
   if (isAdminRoute && !isLoggedIn) {
-    return Response.redirect(new URL("/auth/login", nextUrl));
+    return Response.redirect(
+      new URL("/auth/login?callbackUrl=" + nextUrl.pathname, nextUrl),
+    );
   }
 
   // Redirect user is request admin action and user is not admin
   if (isAdminRoute && isLoggedIn) {
     if (req.auth?.user.role !== Role.ADMIN) {
-      return Response.redirect(new URL("/auth/login", nextUrl));
+      return Response.redirect(
+        new URL("/auth/login?callbackUrl=" + nextUrl.pathname, nextUrl),
+      );
     }
   }
 
   // Redirect user if not authenticated
   if (!isLoggedIn && isPrivateRoute) {
-    return Response.redirect(new URL("/auth/login", nextUrl));
+    return Response.redirect(
+      new URL("/auth/login?callbackUrl=" + nextUrl.pathname, nextUrl),
+    );
   }
 
   // Redirect user if authenticated

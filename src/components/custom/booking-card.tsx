@@ -43,7 +43,7 @@ export const BookingCard: FC = () => {
   const form = useForm<z.infer<typeof BookingSchema>>({
     resolver: zodResolver(BookingSchema),
     defaultValues: {
-      room_type: searchParams.get("room_type") || "standard",
+      room_type: searchParams.get("room_type") || "Standard",
       persons: Number(searchParams.get("persons")) || 1,
       date: {
         from: new Date(searchParams.get("from") || tomorrow()),

@@ -12,8 +12,10 @@ import { Button } from "..";
 export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
   children,
 }) => {
+  // get url params
+  const fullPath = usePathname();
   // get current page URL
-  const pathname = "/" + usePathname().split("/")[1];
+  const pathname = "/" + fullPath.split("/")[1];
   // use state for navigation sidebar
   const [isOpen, setIsOpen] = useState(false);
 
@@ -51,7 +53,7 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
         {children ? (
           children
         ) : (
-          <Link href="/auth/login">
+          <Link href={"/auth/login?callbackUrl=" + fullPath}>
             <Button className="h-8 w-20 rounded-md bg-primary text-white lg:h-9 lg:w-28">
               Login
             </Button>

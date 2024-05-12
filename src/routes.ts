@@ -1,5 +1,5 @@
 // Define all routes here
-export const privateRoutes = ["/dashboard"];
+export const privateRoutes = ["/user"];
 
 // Define all admin routes here
 export const adminRoutesPrefix = "/admin";
