@@ -31,6 +31,7 @@ export const UserDropdown: FC<{ session: Session }> = ({ session }) => {
           <AvatarImage
             src={session.user?.image || ""}
             alt={session.user?.email || ""}
+            className="h-9 w-9"
           />
           <AvatarFallback className="bg-primary text-xl font-medium text-white">
             {session.user.name?.charAt(0).toUpperCase()}

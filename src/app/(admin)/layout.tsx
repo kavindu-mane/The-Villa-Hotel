@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../globals.css";
-import { Footer, NavigationWrapper } from "@/components";
+import { AdminSidebar, CopyRight, NavigationWrapper } from "@/components";
 import { Toaster } from "@/components/ui/toaster";
 
 const poppins = Poppins({
@@ -22,13 +22,20 @@ async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} flex flex-col items-center`}>
-        <div className="w-full max-w-screen-2xl">
-          <NavigationWrapper />
-          {children}
-          <Toaster />
+      <body className={`${poppins.className} overflow-hidden`}>
+        <NavigationWrapper />
+        <div className="relative flex">
+          {/*  side bar */}
+          <AdminSidebar />
+          <div className="admin-content-area flex w-full overflow-y-auto sm:p-3">
+            <div className="h-fit w-full rounded-lg border p-3">
+              {children}
+              {/* copyright */}
+              <CopyRight className="mt-8 border-t-0 text-gray-500" />
+            </div>
+          </div>
         </div>
-        <Footer />
+        <Toaster />
       </body>
     </html>
   );

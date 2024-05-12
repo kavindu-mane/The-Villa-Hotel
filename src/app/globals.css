@@ -61,3 +61,7 @@
 .rdp-button_reset {
   @apply mx-2;
 }
+
+.admin-content-area {
+  height: calc(100vh - 4.5rem);
+}

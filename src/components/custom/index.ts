@@ -13,3 +13,4 @@ export * from "./booking-card";
 export * from "./restaurant";
 export * from "./hotel";
 export * from "./user-dropdown";
+export * from "./admin";
