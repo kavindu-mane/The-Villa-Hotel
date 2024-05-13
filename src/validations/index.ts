@@ -7,7 +7,7 @@ export const BookingSchema = z.object({
       message: "Please select a room type",
     })
     .refine((value) => {
-      const roomTypes = ["Deluxe" , "Superior" , "Standard"];
+      const roomTypes = ["Deluxe", "Superior", "Standard"];
       if (value && !roomTypes.includes(value)) {
         return {
           message: "Please select a valid room type",
@@ -59,7 +59,7 @@ export const LoginFormSchema = z.object({
     .email("This is not a valid email."),
   password: z
     .string()
-    .min(1, { message: "Password field has to be filled." })
+    .min(8, { message: "Password field need at least 8 characters." })
     .max(32, { message: "Password should contain maximum 32 characters." }),
 });
 
@@ -76,11 +76,11 @@ export const RegisterFormSchema = z
       .email("This is not a valid email."),
     password: z
       .string()
-      .min(1, { message: "Password field has to be filled." })
+      .min(8, { message: "Password field need at least 8 characters." })
       .max(32, { message: "Password should contain maximum 32 characters." }),
     repeat_password: z
       .string()
-      .min(1, { message: "Repeat Password field has to be filled." })
+      .min(8, { message: "Repeat Password field need at least 8 characters." })
       .max(32, {
         message: "Repeat Password should contain maximum 32 characters.",
       }),

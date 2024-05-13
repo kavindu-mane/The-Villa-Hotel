@@ -3,8 +3,11 @@
 import z from "zod";
 import { ResetPasswordSchema } from "@/validations";
 import { getUserByEmail } from "./utils/user";
-import { sendEmails, setupResetPasswordEmailTemplate } from "@/lib/email";
-import { getResetPasswordToken } from "@/lib/tokens";
+import {
+  sendEmails,
+  setupResetPasswordEmailTemplate,
+} from "@/actions/utils/email";
+import { getResetPasswordToken } from "@/actions/utils/tokens";
 
 /**
  * Server action for reset password form

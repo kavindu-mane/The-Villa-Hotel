@@ -1,8 +1,8 @@
-import { AdminDashboard } from "@/components";
+import { AdminRooms } from "@/components";
 import getSession from "@/lib/getSession";
 import { Role } from "@prisma/client";
 
-const AdminDashboardPage = async () => {
+const AdminRoomPage = async () => {
   const session = await getSession();
 
   // if user is not an admin, show a message
@@ -20,9 +20,9 @@ const AdminDashboardPage = async () => {
 
   return (
     <section className="">
-      <AdminDashboard />
+      <AdminRooms />
     </section>
   );
 };
 
-export default AdminDashboardPage;
+export default AdminRoomPage;

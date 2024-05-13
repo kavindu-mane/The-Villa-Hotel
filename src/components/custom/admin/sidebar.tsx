@@ -66,7 +66,7 @@ export const AdminSidebar: FC = () => {
   return (
     <div className="">
       {/* sheet for small devices */}
-      <div className="absolute start-0 top-3 lg:hidden">
+      <div className="absolute start-0 top-3 z-50 lg:hidden">
         <Sheet>
           <SheetTrigger className="rounded-r-full bg-primary px-3 py-1.5 text-xl text-white">
             <CgMenuLeft className="h-6 w-6" />

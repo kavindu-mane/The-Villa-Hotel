@@ -5,7 +5,7 @@ import { resetPasswordEmailTemplate } from "@/templates/reset-password-email";
 import { contactUsEmailTemplate } from "@/templates/contact-us-email";
 
 
-
+// send emails function
 export const sendEmails = async ({
   to,
   subject,
