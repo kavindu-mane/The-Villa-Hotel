@@ -7,3 +7,4 @@ export * from "./rooms";
 export * from "./table-skeleton";
 export * from "./table-no-data-available";
 export * from "./rooms-table";
+export * from "./rooms-details-form";

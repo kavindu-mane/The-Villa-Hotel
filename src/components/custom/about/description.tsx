@@ -1,11 +1,6 @@
-import { cn } from "@/lib/utils";
-import { FC } from "react";
-import { Dancing_Script } from "next/font/google";
+"use client";
 
-const dancingScript = Dancing_Script({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+import { FC } from "react";
 
 export const Description: FC = () => {
   return (
@@ -19,10 +14,11 @@ export const Description: FC = () => {
       </h1>
 
       <div className="items-center justify-center">
-        "The Villa Hotel & Restaurant" in Unawatuna is an exceptional experience
-        in style, service and location. Facing the Indian Ocean and the white
-        beach of Unawatuna, "The Villa Hotel & Restaurant" combines modern
-        lifestyle with the classic decor of the colonial past of Sri Lanka
+        &quot;The Villa Hotel & Restaurant &quot; in Unawatuna is an exceptional
+        experience in style, service and location. Facing the Indian Ocean and
+        the white beach of Unawatuna, &quot;The Villa Hotel & Restaurant&quot;
+        combines modern lifestyle with the classic decor of the colonial past of
+        Sri Lanka
       </div>
     </section>
   );
