@@ -5,8 +5,11 @@ import { LoginFormSchema } from "@/validations";
 import { AuthError } from "next-auth";
 import { ZodIssue, ZodIssueCode, z } from "zod";
 import { getUserByEmail } from "@/actions/utils/user";
-import { getVerificationToken } from "@/lib/tokens";
-import { sendEmails, setupVerificationEmailTemplate } from "@/lib/email";
+import { getVerificationToken } from "@/actions/utils/tokens";
+import {
+  sendEmails,
+  setupVerificationEmailTemplate,
+} from "@/actions/utils/email";
 
 /**
  * Server action for login form
@@ -45,7 +48,10 @@ export const login = async (values: z.infer<typeof LoginFormSchema>) => {
     const url = `${process.env.DOMAIN}/auth/verify-email?token=${verificationToken.token}`;
 
     // setup email template
-    const template = await setupVerificationEmailTemplate(url , existingUser.name || "");
+    const template = await setupVerificationEmailTemplate(
+      url,
+      existingUser.name || "",
+    );
 
     // send email
     const isSend = await sendEmails({

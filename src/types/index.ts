@@ -1,3 +1,6 @@
+import { RoomType } from "@prisma/client";
+import { JsonValue } from "@prisma/client/runtime/library";
+
 // types for validation error
 export type errorTypes = {
   email?: string[];
@@ -18,3 +21,16 @@ export type menuSelectionTypes = {
   id: number;
   qty: number;
 };
+
+// types for rooms data
+export type roomsDataTypes = {
+  id: string;
+  number: number;
+  type: RoomType;
+  price: number;
+  persons: number;
+  beds: JsonValue;
+  features: JsonValue;
+  createdAt: Date;
+  updatedAt: Date;
+}[];

@@ -5,8 +5,11 @@ import { ZodIssue, ZodIssueCode, z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { getUserByEmail } from "@/actions/utils/user";
-import { getVerificationToken } from "@/lib/tokens";
-import { sendEmails, setupVerificationEmailTemplate } from "@/lib/email";
+import { getVerificationToken } from "@/actions/utils/tokens";
+import {
+  sendEmails,
+  setupVerificationEmailTemplate,
+} from "@/actions/utils/email";
 
 /**
  * Server action for register form

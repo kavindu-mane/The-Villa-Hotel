@@ -21,3 +21,4 @@ export * from "./table";
 export * from "./badge";
 export * from "./pagination";
 export * from "./separator";
+export * from "./skeleton";

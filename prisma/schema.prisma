@@ -17,25 +17,32 @@ enum RoomType {
   Standard
   Superior
 }
+
 enum Status {
   Pending
   Confirmed
   Cancelled
+  Ongoing
   Finished
 }
 
+enum BookingType {
+  Online
+  Offline
+}
+
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  username      String?         @unique
-  email         String?         @unique
+  username      String?   @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  role          Role            @default(USER)
+  role          Role      @default(USER)
   account       Account?
   bookings      Booking[]
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -55,10 +62,10 @@ model Account {
   session_state            String?
   refresh_token_expires_in Int?
   user                     User?   @relation(fields: [userId], references: [id])
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
@@ -88,35 +95,39 @@ model PasswordResetToken {
 }
 
 model Rooms {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   number    Int
   type      RoomType
   price     Float
+  persons   Int
+  beds      Json
+  features  Json
   booking   Booking[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([number])
 }
 
 model Booking {
-  id        String   @id @default(cuid())
-  roomId    String
-  total     Float
-  userId    String?
-  name      String?
-  email     String?
-  phone     String?
-  remark    String?
-  status    Status
-  checkIn   DateTime
-  checkOut  DateTime
+  id             String      @id @default(cuid())
+  roomId         String
+  total          Float
+  offer          Float       @default(0)
+  pendingBalance Float       @default(0)
+  userId         String?
+  name           String?
+  email          String?
+  phone          String?
+  remark         String?
+  status         Status
+  checkIn        DateTime
+  checkOut       DateTime
+  type           BookingType @default(Online)
 
-  room      Rooms  @relation(fields: [roomId], references: [id])
-  user      User?  @relation(fields: [userId], references: [id])
+  room Rooms @relation(fields: [roomId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }

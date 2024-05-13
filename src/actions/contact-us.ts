@@ -1,6 +1,6 @@
 "use server";
 
-import { sendEmails, setupContactUsEmail } from "@/lib/email";
+import { sendEmails, setupContactUsEmail } from "@/actions/utils/email";
 import { ContactUsSchema } from "@/validations";
 import { z } from "zod";
 
@@ -48,7 +48,7 @@ export const contactUs = async (values: z.infer<typeof ContactUsSchema>) => {
       return {
         success: "Message sent successfully",
       };
-    // if recipient email is not available
+      // if recipient email is not available
     } else {
       return {
         error: "Something went wrong",

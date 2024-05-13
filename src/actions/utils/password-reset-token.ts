@@ -9,8 +9,8 @@ export const getResetPasswordTokenByEmail = async (email: string) => {
       },
     });
     return resetPasswordToken;
-  } catch (e) {
-    return null;
+  } catch (e: any) {
+    return e.message;
   }
 };
 
@@ -23,7 +23,7 @@ export const getResetPasswordTokenByToken = async (token: string) => {
       },
     });
     return resetPasswordToken;
-  } catch (e) {
-    return null;
+  } catch (e: any) {
+    return e.message;
   }
 };

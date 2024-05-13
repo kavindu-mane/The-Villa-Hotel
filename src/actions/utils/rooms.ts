@@ -2,14 +2,14 @@ import { db } from "@/lib/db";
 
 // get available rooms
 export const getAvailableRooms = async (
-  room_type: "Deluxe" | "Superior" | "Standard",
+  roomType: "Deluxe" | "Superior" | "Standard",
   startDate: Date,
   endDate: Date,
 ) => {
   try {
     const rooms = await db.rooms.findMany({
       where: {
-        type: room_type,
+        type: roomType,
         booking: {
           none: {
             OR: [

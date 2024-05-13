@@ -46,7 +46,7 @@ export const HeroSection: FC = () => {
         <Image
           src="/images/img_19.jpg"
           alt="hero"
-          className="h-full max-h-[55rem] min-h-[55rem] w-full object-cover opacity-30 lg:rounded-md lg:opacity-100"
+          className="h-[55rem] w-full object-cover opacity-30 lg:h-[45rem] lg:rounded-md lg:opacity-100"
           width={500}
           height={300}
         />

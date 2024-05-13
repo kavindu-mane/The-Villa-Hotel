@@ -2,7 +2,7 @@ import { AdminDashboard } from "@/components";
 import getSession from "@/lib/getSession";
 import { Role } from "@prisma/client";
 
-const AdminPage = async () => {
+const AdminDashboardPage = async () => {
   const session = await getSession();
 
   // if user is not an admin, show a message
@@ -25,4 +25,4 @@ const AdminPage = async () => {
   );
 };
 
-export default AdminPage;
+export default AdminDashboardPage;
