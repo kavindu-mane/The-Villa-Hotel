@@ -15,7 +15,7 @@ export const HeroSection: FC = () => {
   return (
     <section className="relative flex h-full w-full flex-col gap-5 overflow-x-hidden lg:flex-row lg:px-5">
       {/* left side */}
-      <div className="absolute top-0 flex h-full w-full flex-col items-center justify-center px-2 pb-56 text-white md:pb-36 lg:relative lg:h-auto lg:w-1/2 lg:items-start lg:px-0 lg:pb-10 lg:text-slate-900 xl:pb-0">
+      <div className="absolute top-0 flex h-full w-full flex-col items-center justify-center px-2 pb-56 text-white md:pb-36 lg:relative lg:h-auto lg:w-1/2 lg:items-start lg:px-0 lg:text-slate-900">
         <h2
           className={cn("mb-5 text-2xl font-semibold", dancingScript.className)}
         >
@@ -52,7 +52,7 @@ export const HeroSection: FC = () => {
         />
       </div>
       {/* bookings */}
-      <div className="absolute bottom-10 end-1 start-1 md:end-5 md:start-5">
+      <div className="absolute bottom-10 end-1 start-1 md:end-5 md:start-5 lg:bottom-20">
         <BookingCard />
       </div>
     </section>
