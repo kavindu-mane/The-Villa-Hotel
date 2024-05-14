@@ -80,6 +80,7 @@ export const getRooms = async (page: number, limit: number) => {
     const rooms = await db.rooms.findMany({
       skip: (page - 1) * limit,
       take: limit,
+      cacheStrategy: { ttl: 60 },
     });
     return rooms;
   } catch (e) {

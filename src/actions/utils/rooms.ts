@@ -33,6 +33,7 @@ export const getAvailableRooms = async (
         type: true,
         _count: true,
       },
+      cacheStrategy: { ttl: 60 },
     });
     return rooms;
   } catch (e) {
@@ -75,6 +76,7 @@ export const getOtherAvailableRooms = async (
         type: true,
         _count: true,
       },
+      cacheStrategy: { ttl: 60 },
     });
     return rooms;
   } catch (e) {
@@ -89,6 +91,7 @@ export const getRoomByNumber = async (number: number) => {
       where: {
         number,
       },
+      cacheStrategy: { ttl: 60 },
     });
     return room;
   } catch (e) {
