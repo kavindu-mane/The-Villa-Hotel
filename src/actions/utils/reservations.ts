@@ -24,6 +24,7 @@ export const bookRoom = async (
           },
         },
       },
+      cacheStrategy: { ttl: 60 },
     }),
     // Create a 'Pending' booking
     db.booking.create({
@@ -64,6 +65,7 @@ const confirmBooking = async (bookingId: string) => {
     const booking = await db.booking.findUnique({
       where: { id: bookingId },
       include: { room: true },
+      cacheStrategy: { ttl: 60 },
     });
 
     // Check if the room is still available
@@ -82,6 +84,7 @@ const confirmBooking = async (bookingId: string) => {
           },
         },
       },
+      cacheStrategy: { ttl: 60 },
     });
 
     // If the room is available, return success
