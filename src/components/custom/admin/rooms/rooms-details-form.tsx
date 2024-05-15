@@ -28,6 +28,8 @@ import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BsBuildingsFill } from "react-icons/bs";
 import { IoPerson } from "react-icons/io5";
+import { FaDollarSign } from "react-icons/fa";
+import { TbHexagonNumber1Filled } from "react-icons/tb";
 import { z } from "zod";
 
 // default value for errors
@@ -56,7 +58,7 @@ export const AdminRoomsDetailsForm: FC = () => {
   const form = useForm<z.infer<typeof RoomFormSchema>>({
     resolver: zodResolver(RoomFormSchema),
     defaultValues: {
-      number: undefined,
+      number: 1,
       room_type: "Standard",
       beds: [],
       features: [],
@@ -92,13 +94,12 @@ export const AdminRoomsDetailsForm: FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      <BsBuildingsFill /> Room Number
+                      <TbHexagonNumber1Filled /> Room Number
                     </FormLabel>
                     <FormControl>
                       <Input
                         className="h-10"
                         type="number"
-                        placeholder="1"
                         {...field}
                       />
                     </FormControl>
@@ -184,7 +185,7 @@ export const AdminRoomsDetailsForm: FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      <BsBuildingsFill /> Price (USD)
+                      <FaDollarSign /> Price (USD)
                     </FormLabel>
                     <FormControl>
                       <Input className="h-10" type="number" {...field} />

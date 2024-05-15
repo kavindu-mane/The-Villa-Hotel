@@ -8,6 +8,7 @@ export const createRoom = async (
   price: number,
   persons: number,
   beds: string[],
+  images: string[],
   features: string[],
 ) => {
   try {
@@ -17,6 +18,9 @@ export const createRoom = async (
         type,
         price,
         persons,
+        images: {
+          data: images,
+        },
         beds: {
           data: beds,
         },

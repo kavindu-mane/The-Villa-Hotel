@@ -87,7 +87,8 @@ export const AdminRoomsTable: FC = () => {
       <CardContent className="px-5">
         {/*  if rooms are not available  */}
         {(roomsTableData?.length == 0 || roomsTableData == null) &&
-          !isLoading && <TableNoDataAvailable />}
+          !isLoading &&
+          !isError && <TableNoDataAvailable />}
 
         {/* is error occurred */}
         {isError && (
