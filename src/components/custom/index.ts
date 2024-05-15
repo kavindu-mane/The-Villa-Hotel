@@ -12,5 +12,4 @@ export * from "./contact-us";
 export * from "./booking-card";
 export * from "./restaurant";
 export * from "./hotel";
-export * from "./user-dropdown";
-export * from "./admin";
+export * from "./explore";
