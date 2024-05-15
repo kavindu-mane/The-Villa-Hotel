@@ -14,3 +14,6 @@ export * from "./restaurant";
 export * from "./hotel";
 export * from "./explore";
 export * from "./admin";
+export * from "./table";
+export * from "./about";
+
