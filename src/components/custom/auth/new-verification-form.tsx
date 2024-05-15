@@ -21,6 +21,9 @@ export const NewVerificationEmailForm = () => {
       return;
     }
 
+    setError(undefined);
+    setSuccess(undefined);
+
     newVerification(token)
       .then((res) => {
         if (res.error) {
@@ -45,13 +48,13 @@ export const NewVerificationEmailForm = () => {
       <div className="flex w-full flex-col items-center justify-center">
         {!success && !error && <BeatLoader dotsSize={20} color="#059669" />}
 
-        {success && (
+        {success && !error && (
           <div className="flex w-full items-end justify-center gap-x-2 rounded-lg  bg-emerald-200/70 p-2 text-emerald-700">
             {success}
           </div>
         )}
 
-        {error && (
+        {error && !success && (
           <div className="flex w-full items-end justify-center gap-x-2 rounded-lg  bg-red-200/70 p-2 text-red-700">
             <BiError className="h-5 w-5" /> {error}
           </div>

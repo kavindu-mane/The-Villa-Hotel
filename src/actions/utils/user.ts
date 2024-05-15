@@ -7,7 +7,6 @@ export const getUserByEmail = async (email: string) => {
       where: {
         email,
       },
-      cacheStrategy: { ttl: 60 },
     });
     return user;
   } catch (e) {
@@ -22,7 +21,6 @@ export const getUserById = async (id: string) => {
       where: {
         id,
       },
-      cacheStrategy: { ttl: 60 },
     });
     return user;
   } catch (e) {
