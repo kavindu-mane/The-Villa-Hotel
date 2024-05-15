@@ -14,6 +14,13 @@ export type errorTypes = {
   menu?: string[];
   date?: string[];
   time_slot?: string[];
+  number?: string[];
+  room_type?: string[];
+  beds?: string[];
+  features?: string[];
+  persons?: string[];
+  price?: string[];
+  images?: string[];
 };
 
 // types for menu selection
