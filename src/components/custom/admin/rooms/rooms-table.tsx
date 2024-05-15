@@ -18,7 +18,9 @@ import {
   TableSkeleton,
 } from "@/components";
 import { roomsDataTypes } from "@/types";
-import { FC, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FC, useCallback, useEffect, useState } from "react";
 import { BiSolidError } from "react-icons/bi";
 
 // rooms table column headers
@@ -41,26 +43,33 @@ const roomsTableHeaders = [
   },
 ];
 
-export const AdminRoomsTable: FC = () => {
+export const AdminRoomsTable: FC<{
+  isRefresh: boolean;
+  setIsRefresh(value: boolean): void;
+  setData: (value: roomsDataTypes) => void;
+}> = ({ isRefresh, setIsRefresh, setData }) => {
   // use state for save the rooms table data
-  const [roomsTableData, setRoomsTableData] = useState<roomsDataTypes | null>(
+  const [roomsTableData, setRoomsTableData] = useState<roomsDataTypes[] | null>(
     null,
   );
+  const params = useSearchParams();
+  const roomId = params.get("id");
   // state for is loading
   const [isLoading, setIsLoading] = useState(true);
   // is error
   const [isError, setIsError] = useState(false);
+  // router
+  const router = useRouter();
 
   // load rooms data
-  const loadRoomsData = async () => {
+  const loadRoomsData = useCallback(async () => {
     setIsLoading(true);
     setIsError(false);
     // fetch rooms data from the server
     await getRoomsData(1)
       .then((data) => {
-        console.log(data);
         if (data?.rooms) {
-          setRoomsTableData(data?.rooms);
+          setRoomsTableData(data?.rooms as roomsDataTypes[]);
         }
         if (data?.error) {
           setIsError(true);
@@ -70,13 +79,30 @@ export const AdminRoomsTable: FC = () => {
         setIsError(true);
         setRoomsTableData(null);
       })
-      .finally(() => setIsLoading(false));
-  };
+      .finally(() => {
+        setIsLoading(false);
+        setIsRefresh(false);
+      });
+  }, [setIsRefresh]);
 
   // load rooms data on component mount
   useEffect(() => {
-    loadRoomsData();
-  }, []);
+    if (isRefresh) {
+      loadRoomsData();
+    }
+  }, [isRefresh, loadRoomsData]);
+
+  // change set data
+  useEffect(() => {
+    if (roomsTableData && roomId) {
+      const room = roomsTableData.find(
+        (room) => room.number.toString() === roomId,
+      );
+      if (room) {
+        setData(room);
+      }
+    }
+  }, [roomId, roomsTableData, setData]);
 
   return (
     <Card className="xl:col-span-2">
@@ -115,7 +141,11 @@ export const AdminRoomsTable: FC = () => {
             </TableHeader>
             <TableBody>
               {roomsTableData.map((data, index) => (
-                <TableRow key={index}>
+                <TableRow
+                  key={index}
+                  className={data.number.toString() === roomId ? "bg-emerald-100" : ""}
+                  onClick={() => router.push(`/admin/rooms?id=${data.number}`)}
+                >
                   <TableCell>
                     <div className="font-medium">{data?.number}</div>
                   </TableCell>

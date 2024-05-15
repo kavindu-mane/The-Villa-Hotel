@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { startTransition, useCallback, useEffect, useState } from "react";
 import { BeatLoader } from "react-magic-spinners";
 import { newVerification } from "@/actions/new-verifications";
 import { BiError } from "react-icons/bi";
@@ -24,18 +24,20 @@ export const NewVerificationEmailForm = () => {
     setError(undefined);
     setSuccess(undefined);
 
-    newVerification(token)
-      .then((res) => {
-        if (res.error) {
-          setError(res.error);
-        }
-        if (res.success) {
-          setSuccess(res.success);
-        }
-      })
-      .catch((err) => {
-        setError("Something went wrong!");
-      });
+    startTransition(() => {
+      newVerification(token)
+        .then((res) => {
+          if (res.error) {
+            setError(res.error);
+          }
+          if (res.success) {
+            setSuccess(res.success);
+          }
+        })
+        .catch((err) => {
+          setError("Something went wrong!");
+        });
+    });
   }, [token]);
 
   useEffect(() => {

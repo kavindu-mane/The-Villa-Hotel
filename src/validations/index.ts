@@ -1,27 +1,13 @@
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 200000;
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-];
-
 export const BookingSchema = z.object({
-  room_type: z
-    .string()
-    .min(1, {
-      message: "Please select a room type",
-    })
-    .refine((value) => {
-      const roomTypes = ["Deluxe", "Superior", "Standard"];
-      if (value && !roomTypes.includes(value)) {
-        return {
-          message: "Please select a valid room type",
-        };
-      }
-    }),
+  room_type: z.enum(["Deluxe", "Superior", "Standard"], {
+    errorMap: (_, ctx) => {
+      return {
+        message: ctx.defaultError.split(".")[1],
+      };
+    },
+  }),
   persons: z.coerce
     .number()
     .refine((val) => !isNaN(val), {
@@ -231,19 +217,13 @@ export const RoomFormSchema = z.object({
     .refine((val) => !isNaN(val), {
       message: "Table must be a number",
     }),
-  room_type: z
-    .string()
-    .min(1, {
-      message: "Please select a room type",
-    })
-    .refine((value) => {
-      const roomTypes = ["Deluxe", "Superior", "Standard"];
-      if (value && !roomTypes.includes(value)) {
-        return {
-          message: "Please select a valid room type",
-        };
-      }
-    }),
+  room_type: z.enum(["Deluxe", "Superior", "Standard"], {
+    errorMap: (_, ctx) => {
+      return {
+        message: ctx.defaultError.split(".")[1],
+      };
+    },
+  }),
   persons: z.coerce
     .number()
     .refine((val) => !isNaN(val), {
@@ -261,27 +241,7 @@ export const RoomFormSchema = z.object({
   features: z.array(z.string()).refine((val) => val.length > 0, {
     message: "Please select at least one feature",
   }),
-  images: z.optional(
-    z
-      .array(z.custom<File>())
-      .refine(
-        (files) => {
-          // Check if all items in the array are instances of the File object
-          return files.every((file) => file instanceof File);
-        },
-        {
-          // If the refinement fails, throw an error with this message
-          message: "Expected a file",
-        },
-      )
-      .refine(
-        (files) => files.every((file) => file.size <= MAX_FILE_SIZE),
-        `File size should be less than 2mb.`,
-      )
-      .refine(
-        (files) =>
-          files.every((file) => ACCEPTED_IMAGE_TYPES.includes(file.type)),
-        "Only these types are allowed .jpg, .jpeg, .png and .webp",
-      ),
-  ),
+  images: z.array(z.string()).refine((val) => val.length > 0, {
+    message: "Please select at least one image",
+  }),
 });

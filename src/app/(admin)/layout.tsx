@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "../globals.css";
 import { AdminSidebar, CopyRight, NavigationWrapper } from "@/components";
 import { Toaster } from "@/components/ui/toaster";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -29,7 +30,7 @@ async function RootLayout({
           <AdminSidebar />
           <div className="admin-content-area flex w-full overflow-y-auto sm:p-3">
             <div className="h-fit w-full rounded-lg border p-3">
-              {children}
+              <EdgeStoreProvider> {children}</EdgeStoreProvider>
               {/* copyright */}
               <CopyRight className="mt-8 border-t-0 text-gray-500" />
             </div>
