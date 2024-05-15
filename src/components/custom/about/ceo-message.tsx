@@ -1,16 +1,24 @@
 "use client";
 
 import { FC } from "react";
+import { Signature } from "./signature";
 
 export const CeoMessage: FC = () => {
   return (
-    <section>
-      <span className="text-4xl font-medium leading-loose text-slate-950">
-        A Message From Our{" "}
-        <span className="text-5xl font-medium text-slate-950 ">CEO</span>
-      </span>
+    <section className="items-center justify-center gap-y-5 px-2 sm:px-5 md:flex-row md:gap-x-2 md:gap-y-0 lg:gap-x-5">
+      <div className="flex items-center justify-between flex-col sm:flex-row mb-10 sm:mb-0">
+        <div className="">
+          <h1 className="text-4xl font-medium text-slate-950">A Note From</h1>
+          <h1 className="max-w-xl pb-5 text-5xl font-medium lg:max-w-lg lg:text-start lg:text-6xl">
+            <span className="text-4xl"> Our</span>
+            {"  "}
+            <span className="text-emerald-500 ">CEO</span>
+          </h1>
+        </div>
+        <Signature />
+      </div>
 
-      <div className="text-center">
+      <div className="text-justify text-sm text-gray-500">
         A world of luxury and new discoveries await you located on Unawatuna at
         The Villa Hotel & Restaurant, Unawatuna. &quot;The Villa Hotel &
         Restaurant &quot; combines modern lifestyle with the classic decor of

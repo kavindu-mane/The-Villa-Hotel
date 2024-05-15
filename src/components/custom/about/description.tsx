@@ -9,16 +9,22 @@ export const Description: FC = () => {
         The<span className="ms-2 text-emerald-500">V</span>illa
         <span className="ms-2 text-emerald-500">H</span>otel
       </h1>
-      <h1 className="max-w-xl text-center text-5xl font-medium lg:max-w-lg lg:text-start lg:text-6xl">
-        <span className="text-4xl">SINCE</span> 1995
+      <h1 className="max-w-xl text-center text-5xl font-medium lg:max-w-lg lg:text-start lg:text-6xl pb-5">
+        <span className="text-4xl">SINCE</span>{" "}
+        <span className="text-emerald-500">1995</span>
       </h1>
 
-      <div className="items-center justify-center">
-        &quot;The Villa Hotel & Restaurant &quot; in Unawatuna is an exceptional
-        experience in style, service and location. Facing the Indian Ocean and
-        the white beach of Unawatuna, &quot;The Villa Hotel & Restaurant&quot;
-        combines modern lifestyle with the classic decor of the colonial past of
-        Sri Lanka
+      <div className="text-gray-500 items-center justify-center text-sm">
+        Discover an exceptional experience at The Villa Hotel & Restaurant in
+        Unawatuna, where style, service, and location come together seamlessly.
+        Nestled along the pristine white sands of Unawatuna and overlooking the
+        majestic Indian Ocean, our hotel offers a perfect blend of modern
+        lifestyle and classic colonial charm. Immerse yourself in the elegance
+        of our thoughtfully designed interiors, reminiscent of Sri Lanka's rich
+        colonial past, while enjoying contemporary amenities and unparalleled
+        service. Whether you're here to relax by the beach, indulge in gourmet
+        dining, or explore the local culture, The Villa Hotel & Restaurant
+        promises an unforgettable stay.
       </div>
     </section>
   );
