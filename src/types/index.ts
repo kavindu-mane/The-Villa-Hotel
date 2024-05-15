@@ -36,8 +36,15 @@ export type roomsDataTypes = {
   type: RoomType;
   price: number;
   persons: number;
-  beds: JsonValue;
-  features: JsonValue;
+  beds: {
+    data: string[];
+  };
+  features: {
+    data: string[];
+  };
+  images: {
+    data: string[];
+  };
   createdAt: Date;
   updatedAt: Date;
-}[];
+};

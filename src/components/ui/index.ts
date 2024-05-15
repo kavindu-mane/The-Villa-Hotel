@@ -22,3 +22,5 @@ export * from "./badge";
 export * from "./pagination";
 export * from "./separator";
 export * from "./skeleton";
+export * from "./checkbox";
+export * from "./multi-file-dropzone";

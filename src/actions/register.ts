@@ -28,7 +28,7 @@ export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
     }
 
     // destructure data from validated fields
-    const { email, password, name } = values;
+    const { email, password, name } = validatedFields.data;
     // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     // check if email exists

@@ -91,3 +91,17 @@ export const getRooms = async (page: number, limit: number) => {
     return null;
   }
 };
+
+// get room by id
+export const getRoomById = async (id: number) => {
+  try {
+    const room = await db.rooms.findUnique({
+      where: {
+        number: id,
+      },
+    });
+    return room;
+  } catch (e) {
+    return null;
+  }
+};
