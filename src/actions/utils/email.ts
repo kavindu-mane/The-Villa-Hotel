@@ -1,8 +1,4 @@
 import nodemailer from "nodemailer";
-import * as handlebars from "handlebars";
-import { verificationEmailTemplate } from "@/templates/verification-email";
-import { resetPasswordEmailTemplate } from "@/templates/reset-password-email";
-import { contactUsEmailTemplate } from "@/templates/contact-us-email";
 
 
 // send emails function
@@ -55,34 +51,3 @@ export const sendEmails = async ({
     return false;
   }
 };
-
-// setup email templates with handlebars for verification
-export async function setupVerificationEmailTemplate(
-  verificationLink: string,
-  userName: string,
-) {
-  const template = handlebars.compile(verificationEmailTemplate);
-  const htmlBody = template({ verificationLink, userName });
-  return htmlBody;
-}
-
-// setup email templates with handlebars for reset password
-export async function setupResetPasswordEmailTemplate(
-  resetLink: string,
-  userName: string,
-) {
-  const template = handlebars.compile(resetPasswordEmailTemplate);
-  const htmlBody = template({ resetLink, userName });
-  return htmlBody;
-}
-
-// setup email templates with handlebars for contact us
-export async function setupContactUsEmail(
-  name: string,
-  email: string,
-  message: string,
-) {
-  const template = handlebars.compile(contactUsEmailTemplate);
-  const htmlBody = template({ name, email, message });
-  return htmlBody;
-}

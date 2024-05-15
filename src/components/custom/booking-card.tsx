@@ -108,7 +108,7 @@ export const BookingCard: FC = () => {
             render={({ field }) => (
               <FormItem className="w-full max-w-sm lg:max-w-xs">
                 <FormLabel className="flex items-center gap-2">
-                  <IoPerson /> Person
+                  <IoPerson /> Persons
                 </FormLabel>
                 <Select
                   onValueChange={field.onChange}

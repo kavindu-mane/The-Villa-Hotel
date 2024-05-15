@@ -79,7 +79,7 @@ export const AdminRoomsTable: FC = () => {
   }, []);
 
   return (
-    <Card>
+    <Card className="xl:col-span-2">
       <CardHeader className="px-5">
         <CardTitle>Rooms Data</CardTitle>
         <CardDescription>Rooms details of The Villa Hotel.</CardDescription>

@@ -8,8 +8,8 @@ import { getUserByEmail } from "@/actions/utils/user";
 import { getVerificationToken } from "@/actions/utils/tokens";
 import {
   sendEmails,
-  setupVerificationEmailTemplate,
 } from "@/actions/utils/email";
+import { verificationEmailTemplate } from "@/templates/verification-email";
 
 /**
  * Server action for register form
@@ -66,7 +66,7 @@ export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
     const url = `${process.env.DOMAIN}/auth/verify-email?token=${verificationToken.token}`;
 
     // setup email template
-    const template = await setupVerificationEmailTemplate(url, name || "");
+    const template = verificationEmailTemplate(url, name || "");
 
     // send email
     const isSend = await sendEmails({
