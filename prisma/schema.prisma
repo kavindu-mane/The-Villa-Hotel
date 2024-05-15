@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "mysql"
+  url       = env("DATABASE_URL")
+  directUrl = env("MIGRATE_DATABASE_URL")
 }
 
 enum Role {
@@ -102,6 +103,7 @@ model Rooms {
   persons   Int
   beds      Json
   features  Json
+  images    Json
   booking   Booking[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
