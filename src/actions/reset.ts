@@ -5,9 +5,9 @@ import { ResetPasswordSchema } from "@/validations";
 import { getUserByEmail } from "./utils/user";
 import {
   sendEmails,
-  setupResetPasswordEmailTemplate,
 } from "@/actions/utils/email";
 import { getResetPasswordToken } from "@/actions/utils/tokens";
+import { resetPasswordEmailTemplate } from "@/templates/reset-password-email";
 
 /**
  * Server action for reset password form
@@ -41,7 +41,7 @@ export const reset = async (values: z.infer<typeof ResetPasswordSchema>) => {
   // generate new url with reset token
   const url = `${process.env.DOMAIN}/auth/reset-password?token=${resetToken?.token}`;
   // setup email template
-  const template = await setupResetPasswordEmailTemplate(url, user.name || "");
+  const template = resetPasswordEmailTemplate(url, user.name || "");
 
   // send email
   const isSend = await sendEmails({

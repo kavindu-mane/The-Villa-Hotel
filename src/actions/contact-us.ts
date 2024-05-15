@@ -1,6 +1,7 @@
 "use server";
 
-import { sendEmails, setupContactUsEmail } from "@/actions/utils/email";
+import { sendEmails } from "@/actions/utils/email";
+import { contactUsEmailTemplate } from "@/templates/contact-us-email";
 import { ContactUsSchema } from "@/validations";
 import { z } from "zod";
 
@@ -24,7 +25,7 @@ export const contactUs = async (values: z.infer<typeof ContactUsSchema>) => {
     const { name, email, message } = values;
 
     // setup email template
-    const template = await setupContactUsEmail(name, email, message);
+    const template = contactUsEmailTemplate(name, email, message);
     //get recipient email from env
     const to = process.env.CONTACT_US_EMAIL;
 
