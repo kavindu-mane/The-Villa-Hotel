@@ -1,16 +1,18 @@
 "use client";
 
 import { FC } from "react";
-import { RestaurantForm, RestaurantHero, Table, Tables} from "@/components";
+import { RestaurantForm, RestaurantHero, Table, Tables } from "@/components";
 
 export const Restaurant: FC = () => {
   return (
     <section className="">
-      {/* hero section */}
-      <RestaurantHero />
+      <div>
+        {/* hero section */}
+        <RestaurantHero />
 
-      {/* view table structure and plan */}
-      <Tables />
+        {/* view table structure and plan */}
+        <Tables />
+      </div>
 
       {/* restaurant form */}
       <RestaurantForm />

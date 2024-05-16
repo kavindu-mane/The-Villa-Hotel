@@ -210,12 +210,12 @@ export const RestaurantMenuSchema = z.object({
 //form schema for add and edit room validation
 export const RoomFormSchema = z.object({
   number: z.coerce
-    .number({ invalid_type_error: "Please select a table" })
+    .number({ invalid_type_error: "Please select a room" })
     .refine((val) => val !== undefined, {
-      message: "Table field has to be filled.",
+      message: "Room field has to be filled.",
     })
     .refine((val) => !isNaN(val), {
-      message: "Table must be a number",
+      message: "Room must be a number",
     }),
   room_type: z.enum(["Deluxe", "Superior", "Standard"], {
     errorMap: (_, ctx) => {

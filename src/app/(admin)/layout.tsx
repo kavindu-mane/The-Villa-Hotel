@@ -25,6 +25,7 @@ async function RootLayout({
     <html lang="en">
       <body className={`${poppins.className} overflow-hidden`}>
         <NavigationWrapper />
+
         <div className="relative flex">
           {/*  side bar */}
           <AdminSidebar />
