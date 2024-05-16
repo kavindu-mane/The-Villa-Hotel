@@ -38,8 +38,39 @@ export const RestaurantReservationForm: FC<{
     <Form {...reservationForm}>
       <form
         onSubmit={reservationForm.handleSubmit(onReservationFormSubmit)}
-        className="flex w-full max-w-2xl flex-col items-center justify-center gap-5"
+        className="flex w-full max-w-2xl flex-col items-center justify-center gap-5 pt-8"
       >
+        {/* available table numbers */}
+        <FormField
+          control={reservationForm.control}
+          name="table"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel>Select Table</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  className="flex flex-wrap justify-center gap-3"
+                >
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <FormItem key={i} className="flex items-center">
+                      <FormLabel className="w-28 cursor-pointer rounded-lg bg-slate-600 py-3 text-center font-normal text-white disabled:bg-gray-300 has-[:checked]:bg-primary">
+                        <FormControl>
+                          <RadioGroupItem
+                            value={(i + 1).toString()}
+                            className="peer sr-only"
+                          />
+                        </FormControl>
+                        Table {(i + 1).toString().padStart(2, "0")}
+                      </FormLabel>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         {/* name field */}
         <FormField
           control={reservationForm.control}
@@ -118,37 +149,6 @@ export const RestaurantReservationForm: FC<{
                 />
               </FormControl>
               <FormMessage>{errors?.remark && errors?.remark[0]}</FormMessage>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={reservationForm.control}
-          name="table"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel>Select Table</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  className="flex flex-wrap justify-center gap-3"
-                >
-                  {Array.from({ length: 20 }, (_, i) => (
-                    <FormItem key={i} className="flex items-center">
-                      <FormLabel className="w-28 cursor-pointer rounded-lg bg-slate-600 py-3 text-center font-normal text-white disabled:bg-gray-300 has-[:checked]:bg-primary">
-                        <FormControl>
-                          <RadioGroupItem
-                            value={(i + 1).toString()}
-                            className="peer sr-only"
-                          />
-                        </FormControl>
-                        Table {(i + 1).toString().padStart(2, "0")}
-                      </FormLabel>
-                    </FormItem>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />

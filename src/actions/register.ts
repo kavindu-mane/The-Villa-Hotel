@@ -89,7 +89,7 @@ export const register = async (values: z.infer<typeof RegisterFormSchema>) => {
   } catch (error) {
     // if error return error
     return {
-      error: "Something went wrong!",
+      error: "Something Went Wrong",
     };
   }
 };
