@@ -2,20 +2,18 @@
 
 import { FC, useState } from "react";
 import { AdminRoomsDetailsForm, AdminRoomsTable } from "@/components";
-import { roomsDataTypes } from "@/types";
+import { Provider } from "react-redux";
+import { adminStore } from "@/states/stores";
 
 export const AdminRooms: FC = () => {
-  const [isRefresh, setIsRefresh] = useState(true);
-  const [data, setData] = useState<roomsDataTypes | undefined>();
-
+  // state for is loading
+  const [isLoading, setIsLoading] = useState(true);
   return (
     <section className="grid w-full flex-1 items-start gap-4 p-2 md:gap-8 xl:grid-cols-3 xl:gap-4 xl:p-0 2xl:p-2">
-      <AdminRoomsTable
-        isRefresh={isRefresh}
-        setIsRefresh={setIsRefresh}
-        setData={setData}
-      />
-      <AdminRoomsDetailsForm setIsRefresh={setIsRefresh} data={data} />
+      <Provider store={adminStore}>
+        <AdminRoomsTable isLoading={isLoading} setIsLoading={setIsLoading} />
+        <AdminRoomsDetailsForm isPending={isLoading} />
+      </Provider>
     </section>
   );
 };

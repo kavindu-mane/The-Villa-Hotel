@@ -21,7 +21,10 @@ const edgeStoreRouter = es.router({
       {
         type: input.type,
       },
-    ]),
+    ])
+    .beforeDelete(({ ctx, fileInfo }) => {
+      return true;
+    }),
 });
 
 const handler = createEdgeStoreNextHandler({

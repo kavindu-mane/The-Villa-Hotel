@@ -3,11 +3,17 @@
 import { getRoomsData } from "@/actions/admin/rooms-crud";
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
   Table,
   TableBody,
   TableCell,
@@ -17,11 +23,13 @@ import {
   TableRow,
   TableSkeleton,
 } from "@/components";
+import { setAllRooms, setCurrentRoom } from "@/states/admin/rooms-slice";
+import { AdminState } from "@/states/stores";
 import { roomsDataTypes } from "@/types";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
 import { BiSolidError } from "react-icons/bi";
+import { useDispatch, useSelector } from "react-redux";
 
 // rooms table column headers
 const roomsTableHeaders = [
@@ -38,81 +46,83 @@ const roomsTableHeaders = [
     className: "hidden sm:table-cell",
   },
   {
-    name: "Price",
+    name: "Price(USD)",
     className: "text-right",
   },
 ];
 
 export const AdminRoomsTable: FC<{
-  isRefresh: boolean;
-  setIsRefresh(value: boolean): void;
-  setData: (value: roomsDataTypes) => void;
-}> = ({ isRefresh, setIsRefresh, setData }) => {
-  // use state for save the rooms table data
-  const [roomsTableData, setRoomsTableData] = useState<roomsDataTypes[] | null>(
-    null,
-  );
+  isLoading: boolean;
+  setIsLoading: (value: boolean) => void;
+}> = ({ isLoading, setIsLoading }) => {
   const params = useSearchParams();
-  const roomId = params.get("id");
-  // state for is loading
-  const [isLoading, setIsLoading] = useState(true);
+  const page = params.get("page") || "1";
   // is error
   const [isError, setIsError] = useState(false);
-  // router
-  const router = useRouter();
+  // dispatcher
+  const dispatch = useDispatch();
+  const rooms = useSelector((state: AdminState) => state.rooms_admin);
+  const [roomId, setRoomId] = useState<string>("new");
 
   // load rooms data
   const loadRoomsData = useCallback(async () => {
     setIsLoading(true);
     setIsError(false);
+    const pageInt = isNaN(Number(page)) ? 1 : Number(page);
     // fetch rooms data from the server
-    await getRoomsData(1)
+    await getRoomsData(pageInt)
       .then((data) => {
         if (data?.rooms) {
-          setRoomsTableData(data?.rooms as roomsDataTypes[]);
+          dispatch(setAllRooms(data?.rooms as roomsDataTypes[]));
         }
         if (data?.error) {
           setIsError(true);
+          dispatch(setAllRooms(null));
         }
       })
       .catch(() => {
         setIsError(true);
-        setRoomsTableData(null);
+        dispatch(setAllRooms(null));
       })
       .finally(() => {
         setIsLoading(false);
-        setIsRefresh(false);
       });
-  }, [setIsRefresh]);
+  }, [dispatch, page, setIsLoading]);
 
   // load rooms data on component mount
   useEffect(() => {
-    if (isRefresh) {
-      loadRoomsData();
-    }
-  }, [isRefresh, loadRoomsData]);
+    loadRoomsData();
+  }, [loadRoomsData]);
 
   // change set data
   useEffect(() => {
-    if (roomsTableData && roomId) {
-      const room = roomsTableData.find(
-        (room) => room.number.toString() === roomId,
-      );
+    if (rooms.all && roomId) {
+      const room = rooms.all.find((room) => room.number.toString() === roomId);
       if (room) {
-        setData(room);
+        dispatch(setCurrentRoom(room));
+      } else {
+        dispatch(setCurrentRoom(null));
       }
     }
-  }, [roomId, roomsTableData, setData]);
+  }, [dispatch, roomId, rooms]);
 
   return (
     <Card className="xl:col-span-2">
-      <CardHeader className="px-5">
-        <CardTitle>Rooms Data</CardTitle>
-        <CardDescription>Rooms details of The Villa Hotel.</CardDescription>
+      <CardHeader>
+        <div className="flex w-full justify-between">
+          <div className="">
+            <CardTitle className="text-lg">Rooms Data</CardTitle>
+            <CardDescription>Rooms details of The Villa Hotel.</CardDescription>
+          </div>
+
+          <Button variant="default" onClick={() => setRoomId("new")}>
+            Add Room
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="px-5">
         {/*  if rooms are not available  */}
-        {(roomsTableData?.length == 0 || roomsTableData == null) &&
+        {(rooms.all?.length == 0 || rooms.all == null) &&
           !isLoading &&
           !isError && <TableNoDataAvailable />}
 
@@ -128,7 +138,7 @@ export const AdminRoomsTable: FC<{
         {isLoading && <TableSkeleton />}
 
         {/* if rooms data are available */}
-        {roomsTableData && !isLoading && (
+        {rooms.all && !isLoading && (
           <Table>
             <TableHeader>
               <TableRow>
@@ -140,11 +150,13 @@ export const AdminRoomsTable: FC<{
               </TableRow>
             </TableHeader>
             <TableBody>
-              {roomsTableData.map((data, index) => (
+              {rooms.all.map((data, index) => (
                 <TableRow
                   key={index}
-                  className={data.number.toString() === roomId ? "bg-emerald-100" : ""}
-                  onClick={() => router.push(`/admin/rooms?id=${data.number}`)}
+                  className={
+                    data.number.toString() === roomId ? "bg-emerald-100" : ""
+                  }
+                  onClick={() => setRoomId(data.number.toString())}
                 >
                   <TableCell>
                     <div className="font-medium">{data?.number}</div>
@@ -155,11 +167,33 @@ export const AdminRoomsTable: FC<{
                   <TableCell className="hidden sm:table-cell">
                     {data?.persons}
                   </TableCell>
-                  <TableCell className="text-right">{data?.price}</TableCell>
+                  <TableCell className="text-right">
+                    $ {data?.price.toFixed(2)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+        )}
+
+        {/* pagination */}
+        {rooms.all && !isLoading && (
+          <div className="flex w-full justify-end pt-5">
+            <Pagination className="flex w-full justify-end pt-5">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href={`/admin/rooms?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href={`/admin/rooms?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         )}
       </CardContent>
     </Card>

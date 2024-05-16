@@ -18,7 +18,10 @@ export const TableSkeleton: FC<{ cols?: number }> = ({ cols = 5 }) => {
         <TableRow className="!border-b-0">
           {[...Array(cols)].map((_, index) => {
             return (
-              <TableHead key={"header_" + index}>
+              <TableHead
+                key={"header_" + index}
+                className={`${![0, cols - 1].includes(index) ? "hidden sm:table-cell" : ""}`}
+              >
                 <Skeleton className="h-10 w-full rounded-lg bg-gray-300" />
               </TableHead>
             );
@@ -27,10 +30,13 @@ export const TableSkeleton: FC<{ cols?: number }> = ({ cols = 5 }) => {
       </TableHeader>
       <TableBody>
         {[...Array(5)].map((_, index) => (
-          <TableRow key={"row_" + index} className="border-b-0">
+          <TableRow key={"row_" + index} className={"border-b-0"}>
             {[...Array(cols)].map((_, index) => {
               return (
-                <TableCell key={"cell_" + index}>
+                <TableCell
+                  key={"cell_" + index}
+                  className={`${![0, cols - 1].includes(index) ? "hidden sm:table-cell" : ""}`}
+                >
                   <Skeleton className="h-10 w-full rounded-lg" />
                 </TableCell>
               );

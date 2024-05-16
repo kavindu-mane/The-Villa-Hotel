@@ -38,11 +38,11 @@ export const createRoom = async (
 // update room
 export const updateRoom = async (
   id: string,
-  number: number,
   type: RoomType,
   price: number,
   persons: number,
   beds: string[],
+  images: string[],
   features: string[],
 ) => {
   try {
@@ -51,15 +51,17 @@ export const updateRoom = async (
         id,
       },
       data: {
-        number,
         type,
         price,
         persons,
         beds: {
-          set: beds,
+          data: beds,
         },
         features: {
-          set: features,
+          data: features,
+        },
+        images: {
+          data: images,
         },
       },
     });
@@ -80,11 +82,15 @@ export const getRooms = async (page: number, limit: number) => {
     page = pages;
   }
 
+  // if page less than 1, set page to 1
+  if (page < 1) {
+    page = 1;
+  }
+
   try {
     const rooms = await db.rooms.findMany({
       skip: (page - 1) * limit,
       take: limit,
-      cacheStrategy: { ttl: 60 },
     });
     return rooms;
   } catch (e) {
@@ -93,11 +99,25 @@ export const getRooms = async (page: number, limit: number) => {
 };
 
 // get room by id
-export const getRoomById = async (id: number) => {
+export const getRoomById = async (id: string) => {
   try {
     const room = await db.rooms.findUnique({
       where: {
-        number: id,
+        id,
+      },
+    });
+    return room;
+  } catch (e) {
+    return null;
+  }
+};
+
+// get room by room number
+export const getRoomByNumber = async (number: number) => {
+  try {
+    const room = await db.rooms.findUnique({
+      where: {
+        number,
       },
     });
     return room;
