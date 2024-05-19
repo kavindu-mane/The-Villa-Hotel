@@ -138,7 +138,7 @@ export const AdminRoomsTable: FC<{
         {isLoading && <TableSkeleton />}
 
         {/* if rooms data are available */}
-        {rooms.all && !isLoading && (
+        {rooms.all && rooms.all?.length > 0 && !isLoading && (
           <Table>
             <TableHeader>
               <TableRow>
@@ -177,7 +177,7 @@ export const AdminRoomsTable: FC<{
         )}
 
         {/* pagination */}
-        {rooms.all && !isLoading && (
+        {rooms.all && rooms.all?.length > 0 && !isLoading && (
           <div className="flex w-full justify-end pt-5">
             <Pagination className="flex w-full justify-end pt-5">
               <PaginationContent>
