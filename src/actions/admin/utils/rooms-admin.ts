@@ -98,6 +98,7 @@ export const getRooms = async (page: number, limit: number) => {
   }
 };
 
+
 // get room by id
 export const getRoomById = async (id: string) => {
   try {
