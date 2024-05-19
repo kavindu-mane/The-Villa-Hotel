@@ -3,11 +3,13 @@
 import { z } from "zod";
 import {
   createRoom,
+  getRoomById,
   getRoomByNumber,
   getRooms,
   updateRoom,
 } from "./utils/rooms-admin";
 import { RoomFormSchema } from "@/validations";
+import { db } from "@/lib/db";
 
 /**
  * Server action for room crud operations
@@ -39,6 +41,7 @@ export const getRoomsData = async (page: number) => {
 export const addOrUpdateRoom = async (
   values: z.infer<typeof RoomFormSchema>,
   isUpdate: boolean,
+  page: number = 1,
 ) => {
   try {
     // validate data in backend
@@ -98,7 +101,7 @@ export const addOrUpdateRoom = async (
     }
 
     // get updated rooms data
-    const rooms = await getRooms(1, 10);
+    const rooms = await getRooms(page, 10);
 
     // return success message
     return {
@@ -108,6 +111,57 @@ export const addOrUpdateRoom = async (
   } catch (error) {
     return {
       error: "Failed to add room",
+    };
+  }
+};
+
+export const deleteRoomsImages = async (
+  roomId: string,
+  images: string[],
+  page: number,
+) => {
+  try {
+    // get room by id
+    const room = await getRoomById(roomId);
+
+    // if failed to get room
+    if (!room) {
+      return {
+        error: "Failed to delete images",
+      };
+    }
+
+    // delete images from the room
+    const updatedRoom = await db.rooms.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        images: {
+          data: images,
+        },
+      },
+    });
+
+    // get all updated rooms
+    const rooms = await getRooms(page, 10);
+
+    // if failed to update room images
+    if (!updatedRoom) {
+      return {
+        error: "Failed to delete images",
+      };
+    }
+
+    // return success message
+    return {
+      success: "Images deleted successfully",
+      room: updatedRoom,
+      rooms,
+    };
+  } catch (error) {
+    return {
+      error: "Failed to delete images",
     };
   }
 };

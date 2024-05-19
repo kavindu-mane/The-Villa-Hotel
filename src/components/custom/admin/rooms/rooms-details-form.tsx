@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
+  DeleteAlert,
   Form,
   FormControl,
   FormDescription,
@@ -34,17 +35,19 @@ import { useForm } from "react-hook-form";
 import { BsBuildingsFill } from "react-icons/bs";
 import { IoPerson } from "react-icons/io5";
 import { FaDollarSign } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
 import { TbHexagonNumber1Filled } from "react-icons/tb";
 import { z } from "zod";
 import { useEdgeStore } from "@/lib/edgestore";
 import Image from "next/image";
 import { ClipLoader } from "react-magic-spinners";
 import { useToast } from "@/components/ui/use-toast";
-import { addOrUpdateRoom } from "@/actions/admin/rooms-crud";
+import { addOrUpdateRoom, deleteRoomsImages } from "@/actions/admin/rooms-crud";
 import { transferZodErrors } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
 import { setAllRooms, setCurrentRoom } from "@/states/admin";
+import { useSearchParams } from "next/navigation";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -89,6 +92,8 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
   // dispatcher
   const dispatch = useDispatch();
   const rooms = useSelector((state: AdminState) => state.rooms_admin);
+  const params = useSearchParams();
+  const page = params.get("page") || "1";
 
   // file state update handler
   const updateFileProgress = (key: string, progress: FileState["progress"]) => {
@@ -119,18 +124,20 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
   });
 
   const deleteImages = async (image: string) => {
-    await edgestore.publicFiles
-      .delete({
-        url: image,
-      })
-      .then(() => {
-        const updatedImages = form
-          .getValues()
-          .images.filter((img) => img !== image);
-        form.setValue("images", updatedImages);
-        dispatch(
-          setCurrentRoom({ ...rooms.current, images: { data: updatedImages } }),
-        );
+    const images =
+      rooms.current?.images.data.filter((img) => img !== image) || [];
+    const roomId = rooms.current?.id || "";
+    const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
+    setIsLoading(true);
+
+    await deleteRoomsImages(roomId, images, pageNumber)
+      .then(async (res) => {
+        dispatch(setCurrentRoom(res.room));
+        dispatch(setAllRooms(res.rooms));
+
+        await edgestore.publicFiles.delete({
+          url: image,
+        });
       })
       .then(() => {
         toast({
@@ -138,13 +145,23 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
           description: new Date().toLocaleTimeString(),
           className: "bg-green-500 border-primary rounded-md text-white",
         });
-      });
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to delete image!",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   // form submit handler
   const onSubmit = async (data: z.infer<typeof RoomFormSchema>) => {
     setIsLoading(true);
     setErrors(errorDefault);
+    const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
+
     // submit images to edge store
     await Promise.all(
       data.images.map(async (image) => {
@@ -159,6 +176,7 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
           await addOrUpdateRoom(
             data,
             rooms.current?.number ? true : false,
+            rooms.current?.id ? pageNumber : Infinity,
           ).then((res) => {
             if (res.errors) {
               setErrors(transferZodErrors(res.errors).error);
@@ -552,26 +570,40 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
                 />
 
                 {/* show uploaded images */}
-                <div className="">
-                  {rooms.current?.images && (
-                    <FormLabel className="pt-10 text-[0.9rem] text-base">
-                      Current Images
-                    </FormLabel>
+                {rooms.current?.images &&
+                  rooms.current?.images.data.length > 0 && (
+                    <>
+                      <div className="">
+                        {rooms.current?.images && (
+                          <FormLabel className="pt-10 text-[0.9rem] text-base">
+                            Current Images
+                          </FormLabel>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap justify-center gap-2 ">
+                        {rooms.current?.images.data.map((image, index) => (
+                          <div
+                            className="relative flex flex-col"
+                            key={Date.now() + "-" + index}
+                          >
+                            <Image
+                              width={200}
+                              height={200}
+                              src={image + `?${Date.now()}_${index} `}
+                              className="h-32 w-32 rounded-md bg-gray-300 object-cover"
+                              alt="room image"
+                            />
+
+                            <DeleteAlert yesAction={() => deleteImages(image)}>
+                              <div className="absolute right-1 top-1 z-50 flex h-8 w-8 items-center justify-center rounded-lg border border-red-400 bg-transparent p-0 text-red-500 hover:bg-slate-900/10 hover:text-red-600">
+                                <MdDelete className="h-5 w-5 text-2xl" />
+                              </div>
+                            </DeleteAlert>
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
-                </div>
-                <div className="flex flex-wrap justify-center gap-2 ">
-                  {rooms.current?.images.data.map((image, index) => (
-                    <Image
-                      key={Date.now() + "-" + index}
-                      width={200}
-                      height={200}
-                      src={image + `?${Date.now()}_${index} `}
-                      alt="room"
-                      // onClick={() => deleteImages(image)}
-                      className="h-32 w-32 rounded-md object-cover"
-                    />
-                  ))}
-                </div>
               </div>
             </form>
           </Form>
