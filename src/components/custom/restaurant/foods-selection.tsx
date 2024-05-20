@@ -1,10 +1,13 @@
 "use client";
 
 import { Dispatch, FC, SetStateAction } from "react";
-import { Button } from "@/components";
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Textarea } from "@/components";
 import Image from "next/image";
 import { z } from "zod";
-import { RestaurantMenuSchema } from "@/validations";
+import { RestaurantMenuSchema, RestaurantRemarkSchema } from "@/validations";
+import { errorTypes } from "@/types";
+import { UseFormReturn, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 // menu data
 const menuData = [
@@ -71,7 +74,17 @@ export const FoodsSelections: FC<{
   onMenuItemAdd: (id: string) => void;
   onMenuItemRemove: (id: string) => void;
   setCurrentStep: Dispatch<SetStateAction<number>>;
-}> = ({ selectedMenu, onMenuItemAdd, onMenuItemRemove, setCurrentStep }) => {
+  errors: errorTypes
+}> = ({ selectedMenu, onMenuItemAdd, onMenuItemRemove, setCurrentStep, errors }) => {
+  // form hooks
+  const remarkForm = useForm<
+    z.infer<typeof RestaurantRemarkSchema>
+  >({
+    resolver: zodResolver(RestaurantRemarkSchema),
+    defaultValues: {
+      remark: "",
+    },
+  });
   return (
     <div className="">
       <div className="flex flex-wrap justify-center gap-3">
@@ -137,6 +150,37 @@ export const FoodsSelections: FC<{
           );
         })}
       </div>
+      <div className="flex items-center justify-center">
+
+        <Form {...remarkForm}>
+          <form
+            className="mt-8 flex w-full max-w-2xl  items-center justify-center gap-5"
+          >
+            {/* remark */}
+            <FormField
+              control={remarkForm.control}
+              name="remark"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel className="flex w-full items-start justify-between">
+                    Special requirements
+                    <span className="text-xs">{field.value?.length}/500</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      rows={8}
+                      maxLength={500}
+                      className="bg-white"
+                      placeholder="John Doe"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors?.remark && errors?.remark[0]}</FormMessage>
+                </FormItem>
+              )}
+            />
+          </form></Form></div>
+
       <div className="mt-10 flex w-full justify-between">
         {/* back button */}
         <Button

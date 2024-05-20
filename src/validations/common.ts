@@ -188,11 +188,7 @@ export const RestaurantReservationSchema = z.object({
     .refine((val) => val >= 1 && val <= 20, {
       message: "Table number must be between 1 and 20",
     }),
-  remark: z
-    .string()
-    .max(500, { message: "Message should contain maximum 500 characters." })
-    .optional()
-    .or(z.literal("")),
+  
 });
 
 // form schema for restaurant menu selection validation
@@ -207,3 +203,12 @@ export const RestaurantMenuSchema = z.object({
     }),
   ),
 });
+
+//remark validation
+export const RestaurantRemarkSchema=z.object({
+ remark: z
+    .string()
+    .max(500, { message: "Message should contain maximum 500 characters." })
+    .optional()
+    .or(z.literal("")),
+})

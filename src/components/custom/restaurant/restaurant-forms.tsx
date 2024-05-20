@@ -68,7 +68,6 @@ export const RestaurantForm: FC = () => {
       email: "",
       phone: "",
       table: undefined,
-      remark: "",
     },
   });
 
@@ -221,7 +220,8 @@ export const RestaurantForm: FC = () => {
         <FoodsSelections
           onMenuItemAdd={onMenuItemAdd}
           onMenuItemRemove={onMenuItemRemove}
-          selectedMenu={selectedMenu}
+          selectedMenu={selectedMenu} 
+          errors={errors}
           setCurrentStep={setCurrentStep}
         />
       )}
