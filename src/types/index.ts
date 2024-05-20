@@ -1,4 +1,4 @@
-import { RoomType } from "@prisma/client";
+import { RoomType, FoodType } from "@prisma/client";
 import { JsonValue } from "@prisma/client/runtime/library";
 
 // types for validation error
@@ -21,6 +21,9 @@ export type errorTypes = {
   persons?: string[];
   price?: string[];
   images?: string[];
+  foodType?: string[];
+  foodId?: string[];
+  description?: string[];
 };
 
 // types for menu selection
@@ -42,6 +45,21 @@ export type roomsDataTypes = {
   features: {
     data: string[];
   };
+  images: {
+    data: string[];
+  };
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// types for foods data
+export type foodsDataTypes = {
+  id: string;
+  foodId: string;
+  foodType: FoodType;
+  name: string;
+  price: number;
+  description: string;
   images: {
     data: string[];
   };

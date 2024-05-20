@@ -4,3 +4,5 @@ export * from "./table-no-data-available";
 export * from "./rooms";
 export * from "./dashboard";
 export * from "./room-reservations";
+export * from "./restaurant";
+export * from "./table-reservations";

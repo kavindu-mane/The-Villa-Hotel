@@ -38,3 +38,51 @@ export const RoomFormSchema = z.object({
     message: "Please select at least one image",
   }),
 });
+
+export const FoodFormSchema = z.object({
+  foodType: z.enum(
+    [
+      "Fride_Rice",
+      "Kottu",
+      "Soup",
+      "Appetizer",
+      "Nasi_Goraeng",
+      "Pasta",
+      "Desert",
+      "Cheese_Kottu",
+      "Submarine",
+      "Hot",
+      "Mojito",
+      "Milk_Shake",
+      "Fresh_Fruit_juice",
+      "Soft_Drink",
+    ],
+    {
+      errorMap: (_, ctx) => {
+        return {
+          message: ctx.defaultError.split(".")[1],
+        };
+      },
+    },
+  ),
+  foodId: z
+    .string()
+    .min(1, { message: "Food ID field has to be filled." })
+    .max(5, { message: "Food ID should contain maximum 5 characters." }),
+  name: z
+    .string()
+    .min(1, { message: "Name field has to be filled." })
+    .max(50, { message: "Name should contain maximum 50 characters." }),
+
+  price: z.coerce.number().refine((val) => !isNaN(val), {
+    message: "Price must be a number",
+  }),
+  description: z
+    .string()
+    .min(1, { message: "Description field has to be filled." })
+    .max(500, { message: "Message should contain maximum 500 characters." }),
+
+  images: z.array(z.string()).refine((val) => val.length > 0, {
+    message: "Please select at least one image",
+  }),
+});
