@@ -1,5 +1,4 @@
 import { RoomType, FoodType } from "@prisma/client";
-import { JsonValue } from "@prisma/client/runtime/library";
 
 // types for validation error
 export type errorTypes = {
@@ -23,6 +22,8 @@ export type errorTypes = {
   images?: string[];
   foodType?: string[];
   foodId?: string[];
+  room?: string[];
+  offer?: string[];
   description?: string[];
 };
 
@@ -65,4 +66,22 @@ export type foodsDataTypes = {
   };
   createdAt: Date;
   updatedAt: Date;
+};
+
+// types for room reservation data
+export type roomReservationDataTypes = {
+  id: string;
+  room: number;
+  type: RoomType;
+  price: number;
+  offer: number;
+  pendingAmount: number;
+  status: string;
+  bookingType: string;
+  date: {
+    from: Date;
+    to: Date;
+  };
+  beds: string;
+  persons: number;
 };

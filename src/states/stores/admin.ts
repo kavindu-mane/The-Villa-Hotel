@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { foodReducer, roomReducer, } from "../admin";
+import { foodReducer, roomReducer, roomReservationReducer } from "../admin";
 
 export const adminStore = configureStore({
   reducer: {
     rooms_admin: roomReducer,
-    foods_admin:foodReducer,
+    foods_admin: foodReducer,
+    rooms_reservation_admin: roomReservationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

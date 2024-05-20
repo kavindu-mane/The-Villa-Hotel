@@ -246,13 +246,13 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="py-8">
+        <CardContent className="px-3 py-8">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className="relative w-full space-y-5 overflow-hidden"
             >
-              <div className="space-y-5 overflow-auto lg:max-h-[calc(100vh_-_23rem)]">
+              <div className="space-y-5 overflow-auto p-2 lg:max-h-[calc(100vh_-_23rem)]">
                 {/* food id field */}
                 <FormField
                   control={form.control}
@@ -265,6 +265,7 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
                       <FormControl>
                         <Input
                           className="h-10"
+                          placeholder="R-10"
                           disabled={foods.current?.foodId ? true : false}
                           {...field}
                           value={foods.current?.foodId || field.value}

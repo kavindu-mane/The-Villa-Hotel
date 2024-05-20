@@ -89,14 +89,14 @@ export const RestaurantReservationForm: FC<{
               </FormItem>
             )}
           />
-          <div className="flex w-full flex-col items-center justify-center gap-3 md:flex-row">
+          <div className="flex w-full flex-col items-start justify-center gap-3 md:flex-row">
             {/* phone field */}
             <FormField
               control={reservationForm.control}
               name="phone"
               render={({ field }) => (
                 <FormItem className="w-full">
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Phone</FormLabel>
                   <FormControl>
                     <Input
                       className="h-10 bg-white"
