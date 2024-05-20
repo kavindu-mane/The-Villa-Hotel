@@ -23,6 +23,7 @@ import {
   TableRow,
   TableSkeleton,
 } from "@/components";
+import { cn } from "@/lib/utils";
 import { setAllFoods, setCurrentFood } from "@/states/admin/foods-slice";
 import { AdminState } from "@/states/stores";
 import { foodsDataTypes } from "@/types";
@@ -111,7 +112,7 @@ export const AdminFoodsTable: FC<{
   }, [dispatch, foodId, foods]);
 
   return (
-    <Card className="xl:col-span-2">
+    <Card className="overflow-hidden xl:col-span-2">
       <CardHeader>
         <div className="flex w-full justify-between">
           <div className="">
@@ -124,7 +125,7 @@ export const AdminFoodsTable: FC<{
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="px-5">
+      <CardContent className="overflow-hidden px-5">
         {/*  if foods are not available  */}
         {(foods.all?.length == 0 || foods.all == null) &&
           !isLoading &&
@@ -143,7 +144,7 @@ export const AdminFoodsTable: FC<{
 
         {/* if foods data are available */}
         {foods.all && foods.all?.length > 0 && !isLoading && (
-          <Table>
+          <Table className="overflow-hidden">
             <TableHeader>
               <TableRow>
                 {foodsTableHeaders.map((header) => (
@@ -153,16 +154,17 @@ export const AdminFoodsTable: FC<{
                 ))}
               </TableRow>
             </TableHeader>
-            <TableBody>
+            <TableBody className="overflow-hidden">
               {foods.all.map((data, index) => (
                 <TableRow
                   key={index}
-                  className={
-                    data.foodId.toString() === foodId ? "bg-emerald-100" : ""
-                  }
+                  className={cn(
+                    "cursor-pointer",
+                    data.foodId.toString() === foodId ? "bg-emerald-100" : "",
+                  )}
                   onClick={() => setFoodId(data.foodId.toString())}
                 >
-                  <TableCell>
+                  <TableCell className="">
                     <div className="font-medium">{data?.foodId}</div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
@@ -173,8 +175,8 @@ export const AdminFoodsTable: FC<{
                   <TableCell className="hidden sm:table-cell">
                     {data?.name}
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {data?.description}
+                  <TableCell className="hidden max-w-96 sm:table-cell xl:max-w-80 2xl:max-w-96">
+                    <p className="w-full truncate">{data?.description}</p>
                   </TableCell>
                   <TableCell className="text-right">
                     $ {data?.price.toFixed(2)}

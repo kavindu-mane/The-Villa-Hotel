@@ -23,6 +23,7 @@ import {
   TableRow,
   TableSkeleton,
 } from "@/components";
+import { cn } from "@/lib/utils";
 import { setAllRooms, setCurrentRoom } from "@/states/admin/rooms-slice";
 import { AdminState } from "@/states/stores";
 import { roomsDataTypes } from "@/types";
@@ -153,9 +154,10 @@ export const AdminRoomsTable: FC<{
               {rooms.all.map((data, index) => (
                 <TableRow
                   key={index}
-                  className={
-                    data.number.toString() === roomId ? "bg-emerald-100" : ""
-                  }
+                  className={cn(
+                    "cursor-pointer",
+                    data.number.toString() === roomId ? "bg-emerald-100" : "",
+                  )}
                   onClick={() => setRoomId(data.number.toString())}
                 >
                   <TableCell>

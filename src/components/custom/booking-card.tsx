@@ -30,6 +30,7 @@ import { BookingSchema } from "@/validations";
 import { cn } from "@/lib/utils";
 import { oneMonthFromNow, tomorrow } from "@/utils";
 import { useRouter, useSearchParams } from "next/navigation";
+import { RoomType } from "@prisma/client";
 
 export const BookingCard: FC = () => {
   // room types
@@ -43,7 +44,7 @@ export const BookingCard: FC = () => {
   const form = useForm<z.infer<typeof BookingSchema>>({
     resolver: zodResolver(BookingSchema),
     defaultValues: {
-      room_type: searchParams.get("room_type") || "Standard",
+      room_type: searchParams.get("room_type") as RoomType || "Standard",
       persons: Number(searchParams.get("persons")) || 1,
       date: {
         from: new Date(searchParams.get("from") || tomorrow()),
