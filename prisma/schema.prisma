@@ -19,6 +19,23 @@ enum RoomType {
   Superior
 }
 
+enum FoodType {
+  Fride_Rice
+  Kottu
+  Soup
+  Appetizer
+  Nasi_Goraeng
+  Pasta
+  Desert
+  Cheese_Kottu
+  Submarine
+  Hot
+  Mojito
+  Milk_Shake
+  Fresh_Fruit_juice
+  Soft_Drink
+}
+
 enum Status {
   Pending
   Confirmed
@@ -109,6 +126,21 @@ model Rooms {
   updatedAt DateTime  @updatedAt
 
   @@unique([number])
+}
+
+model Foods {
+  id          String   @id @default(cuid())
+  foodId      String
+  name        String
+  foodType    FoodType
+  price       Float
+  description String
+  images      Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([foodId])
 }
 
 model Booking {
