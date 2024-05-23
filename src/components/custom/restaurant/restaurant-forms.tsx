@@ -4,6 +4,7 @@ import {
   AvailabilityForm,
   FoodsSelections,
   RestaurantReservationForm,
+  OrderSummary,
 } from "@/components";
 import { tomorrow } from "@/utils";
 import {
@@ -220,8 +221,14 @@ export const RestaurantForm: FC = () => {
         <FoodsSelections
           onMenuItemAdd={onMenuItemAdd}
           onMenuItemRemove={onMenuItemRemove}
-          selectedMenu={selectedMenu} 
+          selectedMenu={selectedMenu}
           errors={errors}
+          setCurrentStep={setCurrentStep}
+        />
+      )}
+      {/* order summary */}
+      {currentStep === 4 && (
+        <OrderSummary
           setCurrentStep={setCurrentStep}
         />
       )}
