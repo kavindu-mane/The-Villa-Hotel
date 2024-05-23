@@ -50,16 +50,16 @@ enum BookingType {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  username      String?   @unique
-  email         String?   @unique
+  username      String?       @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
   password      String?
-  role          Role      @default(USER)
+  role          Role          @default(USER)
   account       Account?
-  bookings      Booking[]
+  reservation   Reservation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -113,17 +113,17 @@ model PasswordResetToken {
 }
 
 model Rooms {
-  id        String    @id @default(cuid())
-  number    Int
-  type      RoomType
-  price     Float
-  persons   Int
-  beds      Json
-  features  Json
-  images    Json
-  booking   Booking[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String        @id @default(cuid())
+  number      Int
+  type        RoomType
+  price       Float
+  persons     Int
+  beds        Json
+  features    Json
+  images      Json
+  reservation Reservation[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@unique([number])
 }
@@ -143,8 +143,9 @@ model Foods {
   @@unique([foodId])
 }
 
-model Booking {
+model Reservation {
   id             String      @id @default(cuid())
+  reservationNo  Int         @unique @default(autoincrement())
   roomId         String
   total          Float
   offer          Float       @default(0)
@@ -153,7 +154,8 @@ model Booking {
   name           String?
   email          String?
   phone          String?
-  status         Status
+  status         Status      @default(Confirmed)
+  bed            String
   checkIn        DateTime
   checkOut       DateTime
   type           BookingType @default(Online)

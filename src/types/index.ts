@@ -70,18 +70,19 @@ export type foodsDataTypes = {
 
 // types for room reservation data
 export type roomReservationDataTypes = {
-  id: string;
-  room: number;
-  type: RoomType;
-  price: number;
+  reservationNo: number;
+  roomId: string;
+  total: number;
   offer: number;
-  pendingAmount: number;
+  pendingBalance: number;
+  userId?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  bed: string;
   status: string;
-  bookingType: string;
-  date: {
-    from: Date;
-    to: Date;
-  };
-  beds: string;
-  persons: number;
+  type: string;
+  checkIn: Date;
+  checkOut: Date;
+  room: roomsDataTypes;
 };
