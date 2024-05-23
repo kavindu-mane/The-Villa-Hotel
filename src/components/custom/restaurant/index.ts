@@ -4,4 +4,5 @@ export * from "./restaurant-forms";
 export * from "./availability-form";
 export * from "./reservation-form";
 export * from "./foods-selection";
+export * from "./order-summary";
 
