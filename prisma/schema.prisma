@@ -49,6 +49,11 @@ enum BookingType {
   Offline
 }
 
+enum BedTypes {
+  Two_Single_Beds
+  One_Double_Bed
+}
+
 model User {
   id            String        @id @default(cuid())
   name          String?
@@ -155,8 +160,8 @@ model Reservation {
   email          String?
   phone          String?
   status         Status      @default(Confirmed)
-  bed            String
-  checkIn        DateTime
+  bed            BedTypes
+  checkIn        DateTime  
   checkOut       DateTime
   type           BookingType @default(Online)
 

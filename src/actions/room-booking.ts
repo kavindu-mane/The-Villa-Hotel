@@ -2,7 +2,7 @@
 
 import { BookingSchema } from "@/validations";
 import z from "zod";
-import { getAvailableRooms } from "./utils/rooms";
+import { getAllRooms, getAvailableRooms } from "./utils/rooms";
 
 /**
  * Server action for room booking form
@@ -52,6 +52,16 @@ export const roomBooking = async (values: z.infer<typeof BookingSchema>) => {
   // return available rooms
   return {
     rooms: availableRooms,
-    other: otherAvailableRooms ? otherAvailableRooms : "No other rooms available.",
+    other: otherAvailableRooms
+      ? otherAvailableRooms
+      : "No other rooms available.",
+  };
+};
+
+export const getRoomsDetails = async () => {
+  const rooms = await getAllRooms();
+
+  return {
+    rooms,
   };
 };

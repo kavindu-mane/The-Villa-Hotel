@@ -98,7 +98,7 @@ export const RoomReservationFormSchema = z.object({
     .refine((val) => !isNaN(val), {
       message: "Room must be a number",
     }),
-  beds: z.enum(["2 Single Bed", "One Large Double Bed"], {
+  beds: z.enum(["Two_Single_Beds", "One_Double_Bed"], {
     errorMap: (_, ctx) => {
       return {
         message: ctx.defaultError.split(".")[1],

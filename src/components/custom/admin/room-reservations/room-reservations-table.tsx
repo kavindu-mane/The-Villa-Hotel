@@ -1,6 +1,6 @@
 "use client";
 
-import { getRoomsData } from "@/actions/admin/rooms-crud";
+import { getRoomReservationsData } from "@/actions/admin/room-reservations-crud";
 import {
   Badge,
   Button,
@@ -24,9 +24,13 @@ import {
   TableSkeleton,
 } from "@/components";
 import { cn } from "@/lib/utils";
-import { setAllRooms, setCurrentRoom } from "@/states/admin/rooms-slice";
+import {
+  setAllRoomReservations,
+  setCurrentRoomReservation,
+} from "@/states/admin";
 import { AdminState } from "@/states/stores";
-import { roomsDataTypes } from "@/types";
+import { roomReservationDataTypes } from "@/types";
+import { format } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
 import { BiSolidError } from "react-icons/bi";
@@ -35,11 +39,11 @@ import { useDispatch, useSelector } from "react-redux";
 // rooms table column headers
 const roomsTableHeaders = [
   {
-    name: "Number",
+    name: "Reservation No.",
     className: "",
   },
   {
-    name: "Type",
+    name: "Room Type",
     className: "hidden sm:table-cell",
   },
   {
@@ -51,7 +55,7 @@ const roomsTableHeaders = [
     className: "hidden sm:table-cell",
   },
   {
-    name: "Price(USD)",
+    name: "Room Number",
     className: "text-right",
   },
 ];
@@ -66,28 +70,34 @@ export const AdminRoomReservationTable: FC<{
   const [isError, setIsError] = useState(false);
   // dispatcher
   const dispatch = useDispatch();
-  const rooms = useSelector((state: AdminState) => state.rooms_admin);
-  const [roomId, setRoomId] = useState<string>("new");
+  const rooms = useSelector(
+    (state: AdminState) => state.rooms_reservation_admin,
+  );
+  const [reservationId, setReservationId] = useState<string>("new");
 
   // load rooms reservations data
-  const loadRoomsData = useCallback(async () => {
+  const loadReservationsData = useCallback(async () => {
     setIsLoading(true);
     setIsError(false);
     const pageInt = isNaN(Number(page)) ? 1 : Number(page);
     // fetch rooms data from the server
-    await getRoomsData(pageInt)
+    await getRoomReservationsData(pageInt)
       .then((data) => {
-        if (data?.rooms) {
-          dispatch(setAllRooms(data?.rooms as roomsDataTypes[]));
+        if (data?.reservations) {
+          dispatch(
+            setAllRoomReservations(
+              data?.reservations as roomReservationDataTypes[],
+            ),
+          );
         }
         if (data?.error) {
           setIsError(true);
-          dispatch(setAllRooms(null));
+          dispatch(setAllRoomReservations(null));
         }
       })
       .catch(() => {
         setIsError(true);
-        dispatch(setAllRooms(null));
+        dispatch(setAllRoomReservations(null));
       })
       .finally(() => {
         setIsLoading(false);
@@ -96,20 +106,22 @@ export const AdminRoomReservationTable: FC<{
 
   // load rooms reservations data on component mount
   useEffect(() => {
-    loadRoomsData();
-  }, [loadRoomsData]);
+    loadReservationsData();
+  }, [loadReservationsData]);
 
   // change set data
   useEffect(() => {
-    if (rooms.all && roomId) {
-      const room = rooms.all.find((room) => room.number.toString() === roomId);
+    if (rooms.all && reservationId) {
+      const room = rooms.all.find(
+        (room) => room.reservationNo.toString() === reservationId,
+      );
       if (room) {
-        dispatch(setCurrentRoom(room));
+        dispatch(setCurrentRoomReservation(room));
       } else {
-        dispatch(setCurrentRoom(null));
+        dispatch(setCurrentRoomReservation(null));
       }
     }
-  }, [dispatch, roomId, rooms]);
+  }, [dispatch, reservationId, rooms]);
 
   return (
     <Card className="xl:col-span-2">
@@ -122,7 +134,7 @@ export const AdminRoomReservationTable: FC<{
             </CardDescription>
           </div>
 
-          <Button variant="default" onClick={() => setRoomId("new")}>
+          <Button variant="default" onClick={() => setReservationId("new")}>
             Add Reservations
           </Button>
         </div>
@@ -162,24 +174,30 @@ export const AdminRoomReservationTable: FC<{
                   key={index}
                   className={cn(
                     "cursor-pointer",
-                    data.number.toString() === roomId ? "bg-emerald-100" : "",
+                    data.reservationNo.toString() === reservationId
+                      ? "bg-emerald-100"
+                      : "",
                   )}
-                  onClick={() => setRoomId(data.number.toString())}
+                  onClick={() =>
+                    setReservationId(data.reservationNo.toString())
+                  }
                 >
                   <TableCell>
-                    <div className="font-medium">{data?.number}</div>
+                    <div className="font-medium">
+                      {data?.reservationNo.toString().padStart(4, "0")}
+                    </div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <Badge variant="default">{data?.type}</Badge>
+                    <Badge variant="default">{data?.room.type}</Badge>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    {data?.persons}
+                    {format(data?.checkIn, "LLL dd, y")}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    {data?.persons}
+                    {format(data?.checkOut, "LLL dd, y")}
                   </TableCell>
                   <TableCell className="text-right">
-                    $ {data?.price.toFixed(2)}
+                    {data?.room.number}
                   </TableCell>
                 </TableRow>
               ))}

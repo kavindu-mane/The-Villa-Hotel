@@ -1,8 +1,11 @@
+"use server";
+
 import { db } from "@/lib/db";
+import { RoomType } from "@prisma/client";
 
 // get available rooms
 export const getAvailableRooms = async (
-  roomType: "Deluxe" | "Superior" | "Standard",
+  roomType: RoomType,
   startDate: Date,
   endDate: Date,
 ) => {
@@ -10,7 +13,7 @@ export const getAvailableRooms = async (
     const rooms = await db.rooms.findMany({
       where: {
         type: roomType,
-        booking: {
+        reservation: {
           none: {
             OR: [
               {
@@ -33,7 +36,6 @@ export const getAvailableRooms = async (
         type: true,
         _count: true,
       },
-      cacheStrategy: { ttl: 60 },
     });
     return rooms;
   } catch (e) {
@@ -53,7 +55,7 @@ export const getOtherAvailableRooms = async (
         type: {
           not: room_type,
         },
-        booking: {
+        reservation: {
           none: {
             OR: [
               {
@@ -76,7 +78,6 @@ export const getOtherAvailableRooms = async (
         type: true,
         _count: true,
       },
-      cacheStrategy: { ttl: 60 },
     });
     return rooms;
   } catch (e) {
@@ -91,9 +92,18 @@ export const getRoomByNumber = async (number: number) => {
       where: {
         number,
       },
-      cacheStrategy: { ttl: 60 },
     });
     return room;
+  } catch (e) {
+    return null;
+  }
+};
+
+//get all rooms
+export const getAllRooms = async () => {
+  try {
+    const rooms = await db.rooms.findMany();
+    return rooms;
   } catch (e) {
     return null;
   }

@@ -108,7 +108,7 @@ export const addOrUpdateFood = async (
     };
   } catch (error) {
     return {
-      error: "Failed to add food",
+      error: "Failed to add/update food",
     };
   }
 };
