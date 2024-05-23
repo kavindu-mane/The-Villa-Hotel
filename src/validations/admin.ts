@@ -1,3 +1,4 @@
+import { yesterday } from "@/utils";
 import { z } from "zod";
 
 //form schema for add and edit room validation
@@ -109,6 +110,9 @@ export const RoomReservationFormSchema = z.object({
       .number({ invalid_type_error: "Please enter numbers only" })
       .refine((val) => !isNaN(val), {
         message: "Offer must be a number",
+      })
+      .refine((val) => val >= 0 && val <= 100, {
+        message: "Offer must be between 0 and 100",
       }),
   ),
   name: z.string().min(1, { message: "Name field has to be filled." }).max(50, {
@@ -136,11 +140,10 @@ export const RoomReservationFormSchema = z.object({
       return !!date.to;
     }, "Check-out date is required")
     .refine((date) => {
-      return date.from <= date.to;
-    })
+      return date.from < date.to;
+    }, "Check-out date must be greater than check-in date")
     .refine((date) => {
-      const today = new Date();
-      return date.from > today && date.to > today;
+      return date.from > yesterday() && date.to > new Date();
     }, "Dates must be greater than or equal to tomorrow")
     .refine((date) => {
       const lastDay = new Date();
