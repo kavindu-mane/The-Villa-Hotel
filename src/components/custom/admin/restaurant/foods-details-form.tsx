@@ -50,6 +50,7 @@ import { setAllFoods, setCurrentFood } from "@/states/admin";
 import { addOrUpdateFood, deleteFoodsImages } from "@/actions/admin/foods-crud";
 import { useSearchParams } from "next/navigation";
 import { MdDelete } from "react-icons/md";
+import { foodArray } from "@/constants";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -60,24 +61,6 @@ const errorDefault: errorTypes = {
   description: [],
   images: [],
 };
-
-// food types
-const foodTypes = [
-  "Fride_Rice",
-  "Kottu",
-  "Soup",
-  "Appetizer",
-  "Nasi_Goraeng",
-  "Pasta",
-  "Desert",
-  "Cheese_Kottu",
-  "Submarine",
-  "Hot",
-  "Mojito",
-  "Milk_Shake",
-  "Fresh_Fruit_juice",
-  "Soft_Drink",
-];
 
 export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
   isPending,
@@ -298,7 +281,7 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {foodTypes.map((foodType) => (
+                          {foodArray.map((foodType) => (
                             <SelectItem
                               key={foodType}
                               value={foodType}

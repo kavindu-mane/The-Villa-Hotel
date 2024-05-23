@@ -4,12 +4,12 @@ import { z } from "zod";
 import {
   createRoom,
   getRoomById,
-  getRoomByNumber,
   getRooms,
   updateRoom,
 } from "./utils/rooms-admin";
 import { RoomFormSchema } from "@/validations";
 import { db } from "@/lib/db";
+import { getRoomByNumber } from "../utils/rooms";
 
 /**
  * Server action for room crud operations

@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { FoodType } from "@prisma/client";
 
+// create food
 export const createFood = async (
   foodId: string,
   type: FoodType,
@@ -99,7 +100,8 @@ export const getFoodById = async (id: string) => {
     return null;
   }
 };
-// get room by food number
+
+// get food by food number
 export const getFoodByNumber = async (foodId: string) => {
   try {
     const food = await db.foods.findUnique({

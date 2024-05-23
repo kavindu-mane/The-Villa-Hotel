@@ -48,6 +48,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
 import { setAllRooms, setCurrentRoom } from "@/states/admin";
 import { useSearchParams } from "next/navigation";
+import { bedsTypeArray, featuresArray, roomTypeArray } from "@/constants";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -60,25 +61,6 @@ const errorDefault: errorTypes = {
   images: [],
   message: "",
 };
-
-// room types
-const roomTypes = ["Standard", "Deluxe", "Superior"];
-
-//features
-const features = [
-  "Air Conditioning",
-  "Shower",
-  "En-suite Bathroom",
-  "Sea View",
-  "Balcony",
-  "Garden View",
-  "Private Entrance",
-  "Tea/Coffee Maker",
-  "Free Wi-Fi",
-];
-
-// beds options
-const bedsOptions = ["2 Single Bed", "One Large Double Bed"];
 
 export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
   isPending,
@@ -304,7 +286,7 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {roomTypes.map((roomType) => (
+                          {roomTypeArray.map((roomType) => (
                             <SelectItem
                               key={roomType}
                               value={roomType}
@@ -385,7 +367,7 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
                           sections.
                         </FormDescription>
                       </div>
-                      {features.map((item, index) => (
+                      {featuresArray.map((item, index) => (
                         <FormField
                           key={index}
                           control={form.control}
@@ -437,7 +419,7 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
                           options section.
                         </FormDescription>
                       </div>
-                      {bedsOptions.map((item, index) => (
+                      {bedsTypeArray.map((item, index) => (
                         <FormField
                           key={index}
                           control={form.control}
@@ -460,7 +442,7 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-normal">
-                                  {item}
+                                  {item.replaceAll("_", " ")}
                                 </FormLabel>
                               </FormItem>
                             );

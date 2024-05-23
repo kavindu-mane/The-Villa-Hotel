@@ -112,17 +112,3 @@ export const getRoomById = async (id: string) => {
     return null;
   }
 };
-
-// get room by room number
-export const getRoomByNumber = async (number: number) => {
-  try {
-    const room = await db.rooms.findUnique({
-      where: {
-        number,
-      },
-    });
-    return room;
-  } catch (e) {
-    return null;
-  }
-};
