@@ -29,7 +29,7 @@ import {
 import { errorTypes, roomsDataTypes } from "@/types";
 import { RoomReservationFormSchema } from "@/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FC, startTransition, useEffect, useState } from "react";
+import { FC, startTransition, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TbHexagonNumber1Filled } from "react-icons/tb";
 import { z } from "zod";
@@ -37,6 +37,7 @@ import { ClipLoader, GridLoader } from "react-magic-spinners";
 import { useToast } from "@/components/ui/use-toast";
 import {
   oneMonthFromNow,
+  today,
   tomorrow,
   transferZodErrors,
   yesterday,
@@ -53,7 +54,6 @@ import { FaPhoneFlip } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
 import { addOrUpdateRoomReservation } from "@/actions/admin/room-reservations-crud";
 import { setAllRoomReservations } from "@/states/admin";
-import { bedsTypeArray } from "@/constants";
 import { BedTypes } from "@prisma/client";
 import { getRoomsDetails } from "@/actions/room-booking";
 
@@ -92,13 +92,13 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
     resolver: zodResolver(RoomReservationFormSchema),
     defaultValues: {
       room: 1,
-      beds: "One_Double_Bed",
       offer: 0,
+      beds: "One_Double_Bed",
       name: "",
       email: "",
       phone: "",
       date: {
-        from: new Date(),
+        from: today(),
         to: tomorrow(),
       },
     },
@@ -151,7 +151,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
   };
 
   // fetch room details function
-  const fetchAllRooms = async () => {
+  const fetchAllRooms = useCallback(async () => {
     setIsFetching(true);
     await getRoomsDetails()
       .then(({ rooms }) => {
@@ -160,19 +160,22 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       .finally(() => {
         setIsFetching(false);
       });
-  };
+  }, []);
 
   // update if data have values
   useEffect(() => {
     if (reservation.current) {
+      console.log(reservation.current.checkIn);
       form.setValue("room", reservation.current.room.number);
-      form.setValue("beds", reservation.current.bed);
+      form.setValue("beds", reservation.current.bed as BedTypes);
       form.setValue("offer", reservation.current.offer);
       form.setValue("name", reservation.current.name || "");
       form.setValue("email", reservation.current.email || "");
       form.setValue("phone", reservation.current.phone || "");
-      form.setValue("date.from", reservation.current.checkIn);
-      form.setValue("date.to", reservation.current.checkOut);
+      form.setValue("date", {
+        from: new Date(reservation.current.checkIn),
+        to: new Date(reservation.current.checkOut),
+      })
     } else {
       form.reset();
     }
@@ -181,7 +184,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
   // fetch room details
   useEffect(() => {
     fetchAllRooms();
-  }, []);
+  }, [fetchAllRooms]);
 
   // set available bed types with respect to room number
   useEffect(() => {
@@ -235,7 +238,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       <Card className="relative overflow-hidden bg-white">
         {/* fetching spinner */}
         {isFetching && (
-          <div className="absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center backdrop-blur-[1px]">
+          <div className="absolute left-0 top-0 z-20 flex h-full w-full items-center justify-center backdrop-blur-sm">
             <GridLoader color="#10b981" />
           </div>
         )}
@@ -292,8 +295,8 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value.toString()}
                         value={field.value.toString()}
+                        defaultValue={field.value.toString()}
                       >
                         <FormControl>
                           <SelectTrigger className="capitalize">
@@ -330,7 +333,6 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
                         value={field.value}
                       >
                         <FormControl>
@@ -339,7 +341,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {bedsTypeArray.map((bed) => (
+                          {availableBedTypes?.map((bed) => (
                             <SelectItem
                               key={bed}
                               value={bed}
@@ -496,9 +498,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                           placeholder="10"
                           {...field}
                           disabled={!!reservation.current?.room}
-                          defaultValue={
-                            reservation.current?.offer || field.value
-                          }
+                          value={reservation.current?.offer || field.value}
                         />
                       </FormControl>
                       <FormMessage>
