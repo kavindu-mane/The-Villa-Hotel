@@ -101,6 +101,7 @@ export const getReservations = async (page: number, limit: number) => {
       },
       select: {
         room: true,
+        bed: true,
         reservationNo: true,
         roomId: true,
         total: true,
@@ -145,12 +146,32 @@ export const checkRoomAvailability = async (
     const reservation = await db.reservation.findFirst({
       where: {
         roomId,
-        checkIn: {
-          lte: checkOut,
-        },
-        checkOut: {
-          gt: checkIn,
-        },
+        OR: [
+          {
+            checkIn: {
+              gt:checkOut,
+            },
+            checkOut: {
+              lte: checkOut,
+            }
+          },
+          {
+            checkIn: {
+              gte: checkIn,
+            },
+            checkOut: {
+              lt: checkIn,
+            }
+          },
+          {
+            checkIn: {
+              lte: checkIn,
+            },
+            checkOut: {
+              gte: checkOut,
+            }
+          }
+        ],
       },
     });
     return reservation;

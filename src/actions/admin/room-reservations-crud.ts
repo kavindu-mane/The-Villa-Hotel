@@ -10,6 +10,7 @@ import {
 } from "./utils/rooms-reservation-admin";
 import { getRoomByNumber } from "../utils/rooms";
 import { getUserByEmail } from "../utils/user";
+import { tzConvertor } from "../utils/timezone-convertor";
 
 /**
  * Server action for room reservation crud operations
@@ -59,8 +60,8 @@ export const addOrUpdateRoomReservation = async (
     const { room, beds, offer, name, email, phone, date } =
       validatedFields.data;
 
-    const fromDate = new Date(date.from.toISOString().split("T")[0]);
-    const toDate = new Date(date.to.toISOString().split("T")[0]);
+    const fromDate = await tzConvertor(date.from);
+    const toDate = await tzConvertor(date.to);
 
     // get room from room number
     const roomDetails = await getRoomByNumber(room);
@@ -83,7 +84,9 @@ export const addOrUpdateRoomReservation = async (
 
     if (
       (roomAvailability && !isUpdate) ||
-      (isUpdate && roomAvailability?.reservationNo !== reservationNo)
+      (isUpdate &&
+        roomAvailability &&
+        roomAvailability.reservationNo !== reservationNo)
     ) {
       return {
         error: "Room is not available",
