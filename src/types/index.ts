@@ -86,3 +86,20 @@ export type roomReservationDataTypes = {
   checkOut: Date;
   room: roomsDataTypes;
 };
+
+// minimal room reservation data
+export type minimalRoomReservationData = {
+  number: number;
+  type: RoomType;
+  price: number;
+  persons: number;
+  images: {
+    data: string[];
+  };
+  features: {
+    data: string[];
+  };
+  _count: {
+    reservation: number;
+  };
+};
