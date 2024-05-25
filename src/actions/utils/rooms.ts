@@ -6,8 +6,8 @@ import { RoomType } from "@prisma/client";
 // get available rooms
 export const getAvailableRooms = async (
   roomType: RoomType,
-  startDate: Date,
-  endDate: Date,
+  checkIn: Date,
+  checkOut: Date,
 ) => {
   try {
     const rooms = await db.rooms.findMany({
@@ -18,12 +18,10 @@ export const getAvailableRooms = async (
             OR: [
               {
                 checkIn: {
-                  gt: endDate,
+                  lt: checkOut,
                 },
-              },
-              {
                 checkOut: {
-                  lt: startDate,
+                  gt: checkIn,
                 },
               },
             ],
@@ -34,6 +32,9 @@ export const getAvailableRooms = async (
         number: true,
         price: true,
         type: true,
+        features: true,
+        persons: true,
+        images: true,
         _count: true,
       },
     });
@@ -46,8 +47,8 @@ export const getAvailableRooms = async (
 // get other available rooms
 export const getOtherAvailableRooms = async (
   room_type: "Deluxe" | "Superior" | "Standard",
-  startDate: Date,
-  endDate: Date,
+  checkIn: Date,
+  checkOut: Date,
 ) => {
   try {
     const rooms = await db.rooms.findMany({
@@ -60,12 +61,10 @@ export const getOtherAvailableRooms = async (
             OR: [
               {
                 checkIn: {
-                  gt: endDate,
+                  lt: checkOut,
                 },
-              },
-              {
                 checkOut: {
-                  lt: startDate,
+                  gt: checkIn,
                 },
               },
             ],
@@ -76,6 +75,9 @@ export const getOtherAvailableRooms = async (
         number: true,
         price: true,
         type: true,
+        persons: true,
+        features: true,
+        images: true,
         _count: true,
       },
     });

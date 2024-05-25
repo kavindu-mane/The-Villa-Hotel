@@ -13,20 +13,20 @@ export const bookRoom = async (
   remark?: string,
 ) => {
   // Start a transaction
-  const booking = await db.$transaction([
+  const reservation = await db.$transaction([
     // Check if the room is available
     db.rooms.findFirst({
       where: {
         id: roomId,
-        booking: {
+        reservation: {
           none: {
             OR: [{ checkIn: { gt: endDate } }, { checkOut: { lt: startDate } }],
           },
         },
       },
     }),
-    // Create a 'Pending' booking
-    db.booking.create({
+    // Create a 'Pending' reservation
+    db.reservation.create({
       data: {
         roomId,
         userId,
@@ -34,10 +34,10 @@ export const bookRoom = async (
         email,
         name,
         phone,
-        remark,
         checkIn: startDate,
         checkOut: endDate,
         status: "Pending",
+        bed: "One_Double_Bed",
       },
     }),
   ]);
@@ -57,11 +57,11 @@ export const bookRoom = async (
   // }
 };
 
-// confirm booking function
+// confirm reservation function
 const confirmBooking = async (bookingId: string) => {
   try {
     // Find the booking
-    const booking = await db.booking.findUnique({
+    const booking = await db.reservation.findUnique({
       where: { id: bookingId },
       include: { room: true },
     });
@@ -73,7 +73,7 @@ const confirmBooking = async (bookingId: string) => {
     const available = await db.rooms.findFirst({
       where: {
         id: booking.room.id,
-        booking: {
+        reservation: {
           none: {
             OR: [
               { checkIn: { gt: booking.checkOut } },
