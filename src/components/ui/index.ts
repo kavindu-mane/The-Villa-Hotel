@@ -24,3 +24,4 @@ export * from "./separator";
 export * from "./skeleton";
 export * from "./checkbox";
 export * from "./multi-file-dropzone";
+export * from "./tooltip";
