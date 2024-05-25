@@ -2,16 +2,17 @@
 
 import { BookingSchema } from "@/validations";
 import z from "zod";
-import { getAllRooms, getAvailableRooms } from "./utils/rooms";
+import { getAllRooms, getAvailableRooms, getOtherAvailableRooms } from "./utils/rooms";
+import { RoomType } from "@prisma/client";
 
 /**
  * Server action for room booking form
- * @returns {object} - available rooms
+ * @returns - available rooms
  */
 
-type roomTypes = "Deluxe" | "Superior" | "Standard";
-
-export const roomBooking = async (values: z.infer<typeof BookingSchema>) => {
+export const getAllAvailableRooms = async (
+  values: z.infer<typeof BookingSchema>,
+) => {
   // validate data in backend
   const validatedFields = BookingSchema.safeParse(values);
 
@@ -22,39 +23,39 @@ export const roomBooking = async (values: z.infer<typeof BookingSchema>) => {
     };
   }
 
+
   // destructure data from validated fields
   const { date, room_type, persons } = validatedFields.data;
 
   // get available rooms
   const availableRooms = await getAvailableRooms(
-    room_type as roomTypes,
+    room_type as RoomType,
     date.from,
     date.to,
   );
 
   // other available rooms
-  const otherAvailableRooms = await getAvailableRooms(
-    room_type as roomTypes,
+  const otherAvailableRooms = await getOtherAvailableRooms(
+    room_type as RoomType,
     date.from,
     date.to,
   );
 
-  // if no rooms available
-  if (!availableRooms) {
-    return {
-      error: `No ${room_type} rooms available for the selected dates. `,
-      other: otherAvailableRooms
-        ? otherAvailableRooms
-        : "No other rooms available.",
-    };
-  }
+  const error =
+    availableRooms === null || availableRooms.length === 0
+      ? `No ${room_type} rooms available for the selected dates.`
+      : null;
+  const otherError =
+    otherAvailableRooms === null || otherAvailableRooms.length === 0
+      ? "No other rooms available"
+      : null;
 
-  // return available rooms
+  // if no rooms available
   return {
+    error: error,
+    otherError: otherError,
     rooms: availableRooms,
-    other: otherAvailableRooms
-      ? otherAvailableRooms
-      : "No other rooms available.",
+    other: otherAvailableRooms,
   };
 };
 

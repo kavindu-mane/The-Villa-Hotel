@@ -88,7 +88,7 @@ export const TableModel: FC<{
 
   useEffect(() => {
     actions["Object_0"]?.play();
-  }, []);
+  }, [actions]);
 
   return (
     <group ref={ref} {...props} dispose={null}>
