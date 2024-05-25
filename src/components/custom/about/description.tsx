@@ -20,9 +20,9 @@ export const Description: FC = () => {
         Nestled along the pristine white sands of Unawatuna and overlooking the
         majestic Indian Ocean, our hotel offers a perfect blend of modern
         lifestyle and classic colonial charm. Immerse yourself in the elegance
-        of our thoughtfully designed interiors, reminiscent of Sri Lanka's rich
+        of our thoughtfully designed interiors, reminiscent of Sri Lanka&apos;s rich
         colonial past, while enjoying contemporary amenities and unparalleled
-        service. Whether you're here to relax by the beach, indulge in gourmet
+        service. Whether you&apos;re here to relax by the beach, indulge in gourmet
         dining, or explore the local culture, The Villa Hotel & Restaurant
         promises an unforgettable stay.
       </div>
