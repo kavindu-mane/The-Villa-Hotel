@@ -1,5 +1,6 @@
-import nodemailer from "nodemailer";
+"use server";
 
+import nodemailer from "nodemailer";
 
 // send emails function
 export const sendEmails = async ({

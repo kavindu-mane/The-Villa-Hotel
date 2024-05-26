@@ -2,15 +2,15 @@
 import { z } from "zod";
 import { RoomReservationFormSchema } from "@/validations";
 import {
-  checkRoomAvailability,
-  createReservation,
-  getReservationByNumber,
   getReservations,
   updateReservation,
-} from "./utils/rooms-reservation-admin";
-import { getRoomByNumber } from "../utils/rooms";
-import { getUserByEmail } from "../utils/user";
-import { tzConvertor } from "../utils/timezone-convertor";
+} from "@/actions/admin/utils/rooms-reservation-admin";
+import {  checkRoomAvailability,
+  createReservation,
+  getReservationByNumber} from "@/actions/utils/reservations"
+import { getRoomByNumber } from "@/actions/utils/rooms";
+import { getUserByEmail } from "@/actions/utils/user";
+import { tzConvertor } from "@/actions/utils/timezone-convertor";
 
 /**
  * Server action for room reservation crud operations

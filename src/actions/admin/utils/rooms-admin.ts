@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/lib/db";
 import { RoomType } from "@prisma/client";
 
@@ -97,7 +99,6 @@ export const getRooms = async (page: number, limit: number) => {
     return null;
   }
 };
-
 
 // get room by id
 export const getRoomById = async (id: string) => {
