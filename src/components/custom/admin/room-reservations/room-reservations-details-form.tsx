@@ -55,7 +55,7 @@ import { MdEmail } from "react-icons/md";
 import { addOrUpdateRoomReservation } from "@/actions/admin/room-reservations-crud";
 import { setAllRoomReservations } from "@/states/admin";
 import { BedTypes } from "@prisma/client";
-import { getRoomsDetails } from "@/actions/room-booking";
+import { getRoomsDetails } from "@/actions/room-reservations";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -175,7 +175,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       form.setValue("date", {
         from: new Date(reservation.current.checkIn),
         to: new Date(reservation.current.checkOut),
-      })
+      });
     } else {
       form.reset();
     }

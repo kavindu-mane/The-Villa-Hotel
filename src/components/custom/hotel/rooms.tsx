@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllAvailableRooms } from "@/actions/room-booking";
+import { getAllAvailableRooms } from "@/actions/room-reservations";
 import {
   Badge,
   BookingCard,
@@ -206,7 +206,7 @@ const ImageCarousal = ({ data }: { data: string[] }) => {
 
 const RoomCard = ({ room }: { room: minimalRoomReservationData }) => {
   return (
-    <Card className="max-w-sm shadow-md drop-shadow-md rounded-md">
+    <Card className="max-w-sm rounded-md shadow-md drop-shadow-md">
       <div className="flex flex-col gap-4 p-4">
         <div className="flex items-center justify-between">
           <Badge className="bg-primary">{room.type}</Badge>

@@ -1,64 +1,49 @@
-import { db } from "@/lib/db";
+"use server";
 
-// booking room function
-export const bookRoom = async (
+import { db } from "@/lib/db";
+import { BedTypes } from "@prisma/client";
+
+// create reservation from admin
+export const createReservation = async (
   roomId: string,
-  startDate: Date,
-  endDate: Date,
+  userId: string | null,
+  bed: BedTypes,
+  offer: number,
+  name: string,
+  email: string,
+  phone: string,
+  checkIn: Date,
+  checkOut: Date,
   total: number,
-  userId?: string,
-  email?: string,
-  name?: string,
-  phone?: string,
-  remark?: string,
 ) => {
-  // Start a transaction
-  const reservation = await db.$transaction([
-    // Check if the room is available
-    db.rooms.findFirst({
-      where: {
-        id: roomId,
-        reservation: {
-          none: {
-            OR: [{ checkIn: { gt: endDate } }, { checkOut: { lt: startDate } }],
-          },
-        },
-      },
-    }),
-    // Create a 'Pending' reservation
-    db.reservation.create({
+  try {
+    let pendingBalance = total - total * (offer / 100);
+    pendingBalance = Math.round(pendingBalance * 100) / 100;
+
+    const reservation = await db.reservation.create({
       data: {
         roomId,
         userId,
-        total,
-        email,
+        bed,
         name,
+        email,
         phone,
-        checkIn: startDate,
-        checkOut: endDate,
-        status: "Pending",
-        bed: "One_Double_Bed",
+        checkIn,
+        checkOut,
+        total,
+        offer,
+        pendingBalance,
+        type: "Offline",
       },
-    }),
-  ]);
-
-  // Try to confirm the booking
-  // const confirmationResult = await confirmBooking(booking[0]?.id || "");
-
-  // if (confirmationResult.success) {
-  //   // Step 4: If the confirmation is successful, update the booking's status to 'confirmed'
-  //   await db.booking.update({
-  //     where: { id: booking[0]?.id },
-  //     data: { status: "Confirmed" },
-  //   });
-  // } else {
-  //   // If the confirmation fails, delete the 'pending' booking
-  //   await db.booking.delete({ where: { id: booking[0]?.id } });
-  // }
+    });
+    return reservation;
+  } catch (e) {
+    return null;
+  }
 };
 
 // confirm reservation function
-const confirmBooking = async (bookingId: string) => {
+export const confirmReservations = async (bookingId: string) => {
   try {
     // Find the booking
     const booking = await db.reservation.findUnique({
@@ -92,5 +77,63 @@ const confirmBooking = async (bookingId: string) => {
     }
   } catch (e) {
     return { success: false };
+  }
+};
+
+// get reservation by id
+export const getReservationByNumber = async (number: number) => {
+  try {
+    const reservation = await db.reservation.findUnique({
+      where: {
+        reservationNo: number,
+      },
+    });
+    return reservation;
+  } catch (e) {
+    return null;
+  }
+};
+
+// check room availability by room number and check-in and check-out date
+export const checkRoomAvailability = async (
+  roomId: string,
+  checkIn: Date,
+  checkOut: Date,
+) => {
+  try {
+    const reservation = await db.reservation.findFirst({
+      where: {
+        roomId,
+        OR: [
+          {
+            checkIn: {
+              gt: checkOut,
+            },
+            checkOut: {
+              lte: checkOut,
+            },
+          },
+          {
+            checkIn: {
+              gte: checkIn,
+            },
+            checkOut: {
+              lt: checkIn,
+            },
+          },
+          {
+            checkIn: {
+              lte: checkIn,
+            },
+            checkOut: {
+              gte: checkOut,
+            },
+          },
+        ],
+      },
+    });
+    return reservation;
+  } catch (e) {
+    return null;
   }
 };
