@@ -1,11 +1,10 @@
 import { FC } from "react";
 import { FaWifi, FaParking } from "react-icons/fa";
 import { IoFastFood } from "react-icons/io5";
-import { HiLightBulb } from "react-icons/hi";
 import { GiDoubleFish } from "react-icons/gi";
 import { LuAirVent } from "react-icons/lu";
 import { BsCalendarRangeFill } from "react-icons/bs";
-import { MdEmojiFoodBeverage, MdLocalLaundryService } from "react-icons/md";
+import { MdEmojiFoodBeverage, MdLocalLaundryService,MdFitnessCenter } from "react-icons/md";
 
 export const Facilities: FC = () => {
   // features array
@@ -31,8 +30,8 @@ export const Facilities: FC = () => {
       title: "Laundry",
     },
     {
-      icon: <HiLightBulb className="text-4xl" />,
-      title: "24/7 Light",
+      icon: <MdFitnessCenter className="text-4xl" />,
+      title: "Fitness Centre",
     },
     {
       icon: <GiDoubleFish className="text-4xl" />,

@@ -13,7 +13,6 @@ export const Restaurant: FC = () => {
         {/* view table structure and plan */}
         <Tables />
       </div>
-
       {/* restaurant form */}
       <RestaurantForm />
     </section>
