@@ -13,15 +13,18 @@ import {
   CarouselPrevious,
   Headings,
   RoomsLocation,
+  Skeleton,
 } from "@/components";
 import { minimalRoomReservationData } from "@/types";
-import { BookingSchema } from "@/validations";
+import { ReservationsSchema } from "@/validations";
 import { RoomType } from "@prisma/client";
 import { DotIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TbView360Number } from "react-icons/tb";
 import { FC, useCallback, useEffect, useState } from "react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export const Rooms: FC = () => {
   // is structure button state
@@ -44,12 +47,10 @@ export const Rooms: FC = () => {
   const getAvailableRooms = useCallback(async () => {
     if (
       searchParams.has("room_type") &&
-      searchParams.has("persons") &&
       searchParams.has("from") &&
       searchParams.has("to")
     ) {
       const roomType = searchParams.get("room_type");
-      const persons = searchParams.get("persons");
       const from = searchParams.get("from");
       const to = searchParams.get("to");
 
@@ -59,10 +60,9 @@ export const Rooms: FC = () => {
           to: new Date(to!!),
         },
         room_type: roomType as RoomType,
-        persons,
       };
 
-      const validatedData = BookingSchema.safeParse(formData);
+      const validatedData = ReservationsSchema.safeParse(formData);
       if (!validatedData.success) {
         setLoading(false);
         return null;
@@ -97,6 +97,8 @@ export const Rooms: FC = () => {
         .finally(() => {
           setLoading(false);
         });
+    } else {
+      setLoading(false);
     }
   }, [searchParams]);
 
@@ -139,32 +141,59 @@ export const Rooms: FC = () => {
         </Button>
       </div>
 
-      {/* show loaded rooms */}
+      {/* show loaded skeleton*/}
       {loading && (
-        <p className="w-full text-center text-gray-500">Loading...</p>
+        <div className="flex flex-col gap-y-8">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <div key={index} className="">
+              <Skeleton className="mb-5 h-8 w-1/2 max-w-sm" />
+              <div className="flex gap-4">
+                <RoomCardSkeleton className="" />
+                <RoomCardSkeleton className="hidden sm:block" />
+                <RoomCardSkeleton className="hidden lg:block" />
+                <RoomCardSkeleton className="hidden 2xl:block" />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* show rooms */}
       {!loading && (
         <div className="">
-          <h2 className="mb-2 text-lg">
-            {searchParams.get("room_type")} Rooms
-          </h2>
-          <div className="flex flex-wrap gap-3">
+          {(roomError || selectedRoom.length > 0) && (
+            <h2 className="mb-3 text-lg font-medium">
+              {searchParams.get("room_type")} Rooms
+            </h2>
+          )}
+          <div className="flex flex-wrap gap-4">
             {/* show selected rooms */}
             {selectedRoom.map((room, index) => (
-              <RoomCard key={index} room={room} />
+              <RoomCard
+                key={index}
+                room={room}
+                from={new Date(searchParams.get("from")!!)}
+                to={new Date(searchParams.get("to")!!)}
+              />
             ))}
             {/* show error message */}
             {roomError && (
               <p className="w-full text-center text-red-500">{roomError}</p>
             )}
           </div>
-          <h2 className="mb-2 mt-5 text-lg">Other Rooms</h2>
-          <div className="flex flex-wrap gap-3">
+          {/* show error message */}
+          {(otherRoomError || otherRooms.length > 0) && (
+            <h2 className="mb-3 mt-8 text-lg font-medium">Other Rooms</h2>
+          )}
+          <div className="flex flex-wrap gap-4">
             {/* show other rooms */}
             {otherRooms.map((room, index) => (
-              <RoomCard key={index} room={room} />
+              <RoomCard
+                key={index}
+                room={room}
+                from={new Date(searchParams.get("from")!!)}
+                to={new Date(searchParams.get("to")!!)}
+              />
             ))}
           </div>
           {/* show error message */}
@@ -204,9 +233,25 @@ const ImageCarousal = ({ data }: { data: string[] }) => {
   );
 };
 
-const RoomCard = ({ room }: { room: minimalRoomReservationData }) => {
+const RoomCard = ({
+  room,
+  from,
+  to,
+}: {
+  room: minimalRoomReservationData;
+  from: Date;
+  to: Date;
+}) => {
+  // router hook
+  const router = useRouter();
+  const submitHandler = () => {
+    router.push(
+      `/reservations?room_number=${room.number}&from=${format(from, "yyyy-MM-dd")}&to=${format(to, "yyyy-MM-dd")}`,
+    );
+  };
+
   return (
-    <Card className="max-w-sm rounded-md shadow-md drop-shadow-md">
+    <Card className="max-w-md rounded-md shadow-md drop-shadow-md">
       <div className="flex flex-col gap-4 p-4">
         <div className="flex items-center justify-between">
           <Badge className="bg-primary">{room.type}</Badge>
@@ -236,9 +281,49 @@ const RoomCard = ({ room }: { room: minimalRoomReservationData }) => {
             <Button variant={"ghost"}>
               <TbView360Number className="h-6 w-6" />
             </Button>
-            <Button className="bg-gradient-to-r from-fuchsia-600 to-cyan-700 px-5 shadow-md drop-shadow-lg hover:from-cyan-700 hover:to-fuchsia-500">
+            <Button
+              onClick={submitHandler}
+              className="bg-gradient-to-r from-fuchsia-600 to-cyan-700 px-5 shadow-md drop-shadow-lg hover:from-cyan-700 hover:to-fuchsia-500"
+            >
               Book Now
             </Button>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const RoomCardSkeleton = ({ className }: { className?: string }) => {
+  return (
+    <Card className={cn("w-full max-w-md rounded-md shadow-md", className)}>
+      <div className="flex flex-col gap-4 p-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-6 w-20" />
+        </div>
+        {/* Carousal */}
+        <Skeleton className="h-40 w-full" />
+        {/* show features */}
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton
+              key={index}
+              className="h-4"
+              style={{
+                width: `${100 * (1 + Math.random())}px`,
+              }}
+            />
+          ))}
+        </div>
+        {/* persons */}
+        <Skeleton className="h-6 w-28" />
+        {/* price and booking*/}
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-8 w-24" />
+          <div className="flex items-center gap-x-1">
+            <Skeleton className="h-8 w-10" />
+            <Skeleton className="h-8 w-20" />
           </div>
         </div>
       </div>

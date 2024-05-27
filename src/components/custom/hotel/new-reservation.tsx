@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { GridLoader } from "react-magic-spinners";
 import {
   Badge,
@@ -16,8 +16,14 @@ import { z } from "zod";
 import { RoomReservationFormSchema } from "@/validations";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { errorTypes } from "@/types";
+import { errorTypes, pendingReservationResponse } from "@/types";
 import { FaInfoCircle } from "react-icons/fa";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createPendingReservation } from "@/actions/room-reservations";
+import { useToast } from "@/components/ui/use-toast";
+import { Provider } from "react-redux";
+import { sessionStore } from "@/states/stores";
+import { format } from "date-fns";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -31,14 +37,19 @@ const errorDefault: errorTypes = {
 };
 
 export const NewReservations: FC = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<errorTypes>(errorDefault);
+  const [reservation, setReservation] =
+    useState<pendingReservationResponse | null>(null);
+  const { toast } = useToast();
+  // get use search params
+  const searchParams = useSearchParams();
+  // router hook
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof RoomReservationFormSchema>>({
     resolver: zodResolver(RoomReservationFormSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
       beds: "One_Double_Bed",
       room: 1,
       date: {
@@ -53,6 +64,65 @@ export const NewReservations: FC = () => {
     const data = RoomReservationFormSchema.safeParse(form.getValues());
     console.log(data);
   };
+
+  // create pending reservation : this will available for 15 minutes
+  const addPendingReservation = useCallback(async () => {
+    const { room, date } = form.getValues();
+    await createPendingReservation(room, date.from, date.to)
+      .then((res) => {
+        if (res.error) {
+          toast({
+            title: res.error,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-red-500 border-red-600 rounded-md text-white",
+          });
+          // redirect to room page
+          router.push("/rooms", { scroll: false });
+        } else {
+          if (res.reservation) setReservation(res.reservation);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        toast({
+          title: "Something wen wrong",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      });
+  }, [form, router, toast]);
+
+  const checkDateValidity = useCallback(async () => {
+    if (
+      searchParams.has("room_number") &&
+      searchParams.has("from") &&
+      searchParams.has("to")
+    ) {
+      form.setValue("room", Number(searchParams.get("room_number")));
+      form.setValue("date", {
+        from: new Date(searchParams.get("from")!!),
+        to: new Date(searchParams.get("to")!!),
+      });
+      const validatedData = RoomReservationFormSchema.safeParse(
+        form.getValues(),
+      );
+      // redirect to room , if data are not validated
+      if (!validatedData.success) {
+        console.log(validatedData.error.errors);
+        router.push("/rooms");
+      } else {
+        // add pending reservation
+        await addPendingReservation();
+      }
+    } else {
+      // redirect to room
+      router.push("/rooms");
+    }
+  }, [addPendingReservation, form, router, searchParams]);
+
+  useEffect(() => {
+    checkDateValidity();
+  }, [checkDateValidity]);
 
   if (loading) {
     return (
@@ -73,7 +143,9 @@ export const NewReservations: FC = () => {
       <div className="flex w-full flex-col gap-2 lg:flex-row">
         <div className="flex w-full flex-col items-center justify-start pb-10 lg:w-1/2 lg:items-start lg:border-r lg:px-3">
           <h2 className="mb-6 text-xl font-medium">Reservation Information</h2>
-          <RoomReservationForm form={form} errors={errors} />
+          <Provider store={sessionStore}>
+            <RoomReservationForm form={form} errors={errors} />
+          </Provider>
         </div>
         <div className="flex w-full flex-col items-center justify-start pb-10 lg:w-1/2 lg:items-end lg:px-3">
           <h2 className="mb-6 text-xl font-medium">Billing Information</h2>
@@ -81,11 +153,11 @@ export const NewReservations: FC = () => {
           <div className="flex w-full max-w-xl flex-col items-start justify-start gap-2">
             <div className="flex w-full items-center justify-between gap-2">
               <p className="text-gray-500">Room Number</p>
-              <p className="text-gray-800">1</p>
+              <p className="text-gray-800">{form.getValues("room")}</p>
             </div>
             <div className="flex w-full items-center justify-between gap-2">
               <p className="text-gray-500">Room Type</p>
-              <Badge color="primary">Deluxe</Badge>
+              <Badge color="primary">{reservation?.room.type}</Badge>
             </div>
             <div className="flex w-full items-center justify-between gap-2">
               <p className="text-gray-500">Beds</p>
@@ -95,18 +167,23 @@ export const NewReservations: FC = () => {
             </div>
             <div className="flex w-full items-center justify-between gap-2">
               <p className="text-gray-500">Check-in</p>
-              <p className="text-gray-800">2022-10-10</p>
+              <p className="text-gray-800">
+                {format(form.getValues("date.from"), "LLL dd, y")}
+              </p>
             </div>
             <div className="flex w-full items-center justify-between gap-2">
               <p className="text-gray-500">Check-out</p>
-              <p className="text-gray-800">2022-10-12</p>
+              <p className="text-gray-800">
+                {" "}
+                {format(form.getValues("date.to"), "LLL dd, y")}
+              </p>
             </div>
           </div>
           {/* payment details */}
           <div className="mt-5 flex w-full max-w-xl flex-col items-start justify-start gap-2 border-t border-dashed border-slate-500 pt-5">
             <div className="flex w-full items-center justify-between gap-2">
               <p className="text-gray-500">Amount</p>
-              <p className="text-gray-800">$200</p>
+              <p className="text-gray-800">${reservation?.amount}</p>
             </div>
             {/* available offers */}
             <div className="flex w-full items-center justify-between gap-2">

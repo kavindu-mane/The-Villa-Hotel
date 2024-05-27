@@ -2,6 +2,8 @@
 
 import { db } from "@/lib/db";
 import { RoomType } from "@prisma/client";
+import { cookies } from "next/headers";
+import { getReservationById } from "./reservations";
 
 // get available rooms
 export const getAvailableRooms = async (
@@ -38,6 +40,11 @@ export const getAvailableRooms = async (
         _count: true,
       },
     });
+    const roomFromCookie = await getRoomFromCookie();
+    // // add room from cookie to available rooms
+    if (roomFromCookie) {
+      rooms.push(roomFromCookie);
+    }
     return rooms;
   } catch (e) {
     return null;
@@ -82,6 +89,42 @@ export const getOtherAvailableRooms = async (
       },
     });
     return rooms;
+  } catch (e) {
+    return null;
+  }
+};
+
+// get room by id
+export const getRoomFromCookie = async () => {
+  try {
+    // get cookies
+    const cookieStore = cookies();
+    // check pending_reservation cookie if exists
+    const reservation = cookieStore.get("pending_reservation");
+
+    if (reservation) {
+      // check if reservation exists
+      const existingReservation = await getReservationById(reservation.value);
+
+      if (!existingReservation) return null;
+
+      const room = await db.rooms.findUnique({
+        where: {
+          id: existingReservation.roomId,
+        },
+        select: {
+          number: true,
+          price: true,
+          type: true,
+          features: true,
+          persons: true,
+          images: true,
+          _count: true,
+        },
+      });
+      return room;
+    }
+    return null;
   } catch (e) {
     return null;
   }

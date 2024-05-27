@@ -1,39 +1,33 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { BedTypes } from "@prisma/client";
+import { BedTypes, BookingType, Status } from "@prisma/client";
 
 // create reservation from admin
-export const createReservation = async (
-  roomId: string,
-  userId: string | null,
-  bed: BedTypes,
-  offer: number,
-  name: string,
-  email: string,
-  phone: string,
-  checkIn: Date,
-  checkOut: Date,
-  total: number,
-) => {
+export const createReservation = async (data: {
+  roomId: string;
+  offerDiscount: number;
+  checkIn: Date;
+  checkOut: Date;
+  total: number;
+  userId?: string | null;
+  bed?: BedTypes | null;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  status?: Status;
+  type?: BookingType;
+  offerId?: string | null;
+}) => {
   try {
-    let pendingBalance = total - total * (offer / 100);
+    const { total, offerDiscount } = data;
+    let pendingBalance = total - total * (offerDiscount / 100);
     pendingBalance = Math.round(pendingBalance * 100) / 100;
 
     const reservation = await db.reservation.create({
       data: {
-        roomId,
-        userId,
-        bed,
-        name,
-        email,
-        phone,
-        checkIn,
-        checkOut,
-        total,
-        offer,
+        ...data,
         pendingBalance,
-        type: "Offline",
       },
     });
     return reservation;
@@ -80,12 +74,26 @@ export const confirmReservations = async (bookingId: string) => {
   }
 };
 
-// get reservation by id
+// get reservation by reservation number
 export const getReservationByNumber = async (number: number) => {
   try {
     const reservation = await db.reservation.findUnique({
       where: {
         reservationNo: number,
+      },
+    });
+    return reservation;
+  } catch (e) {
+    return null;
+  }
+};
+
+// get reservation by id
+export const getReservationById = async (id: string) => {
+  try {
+    const reservation = await db.reservation.findUnique({
+      where: {
+        id,
       },
     });
     return reservation;
@@ -133,6 +141,39 @@ export const checkRoomAvailability = async (
       },
     });
     return reservation;
+  } catch (e) {
+    return null;
+  }
+};
+
+// delete reservation by id (only if status equals to pending)
+export const deleteReservation = async (id: string) => {
+  try {
+    // get current reservation state and delete if its pending
+    const transaction = await db.$transaction(async (tx) => {
+      const reservation = await db.reservation.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          status: true,
+        },
+      });
+
+      if (reservation) {
+        if (reservation.status === "Pending") {
+          await db.reservation.delete({
+            where: {
+              id,
+            },
+          });
+        }
+      } else {
+        return null;
+      }
+    });
+
+    return transaction;
   } catch (e) {
     return null;
   }

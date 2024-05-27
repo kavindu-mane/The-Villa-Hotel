@@ -168,7 +168,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       console.log(reservation.current.checkIn);
       form.setValue("room", reservation.current.room.number);
       form.setValue("beds", reservation.current.bed as BedTypes);
-      form.setValue("offer", reservation.current.offer);
+      form.setValue("offer", reservation.current.offerDiscount);
       form.setValue("name", reservation.current.name || "");
       form.setValue("email", reservation.current.email || "");
       form.setValue("phone", reservation.current.phone || "");
@@ -498,7 +498,9 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                           placeholder="10"
                           {...field}
                           disabled={!!reservation.current?.room}
-                          value={reservation.current?.offer || field.value}
+                          value={
+                            reservation.current?.offerDiscount || field.value
+                          }
                         />
                       </FormControl>
                       <FormMessage>
