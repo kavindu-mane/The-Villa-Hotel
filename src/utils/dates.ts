@@ -16,6 +16,15 @@ export const tomorrow = () => {
   return tomorrow;
 };
 
+// get day after tomorrow date
+export const dayAfterTomorrow = () => {
+  const dayAfterTomorrow = new Date();
+  dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+  // reset time to 00:00:00
+  dayAfterTomorrow.setHours(0, 0, 0, 0);
+  return dayAfterTomorrow;
+};
+
 // get yesterday date
 export const yesterday = () => {
   const yesterday = new Date();

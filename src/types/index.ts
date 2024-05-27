@@ -68,20 +68,31 @@ export type foodsDataTypes = {
   updatedAt: Date;
 };
 
+// types for offer data
+export type offerDataTypes = {
+  id: string;
+  code: string;
+  description: string;
+  discount: number;
+  validFrom: Date;
+  validTo: Date;
+};
+
 // types for room reservation data
 export type roomReservationDataTypes = {
   reservationNo: number;
   roomId: string;
   total: number;
-  offer: number;
+  offerDiscount: number;
   pendingBalance: number;
   userId?: string;
   name?: string;
   email?: string;
   phone?: string;
-  bed: BedTypes;
   status: string;
   type: string;
+  bed: BedTypes;
+  offer: offerDataTypes;
   checkIn: Date;
   checkOut: Date;
   room: roomsDataTypes;
@@ -102,4 +113,13 @@ export type minimalRoomReservationData = {
   _count: {
     reservation: number;
   };
+};
+
+// pending reservation response data
+export type pendingReservationResponse = {
+  room: {
+    number: number;
+    type: RoomType;
+  };
+  amount: number;
 };

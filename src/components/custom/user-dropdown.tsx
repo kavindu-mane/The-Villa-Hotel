@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -17,13 +17,31 @@ import Link from "next/link";
 import { Session } from "next-auth";
 import { Role } from "@prisma/client";
 import { MdDashboard, MdLogout } from "react-icons/md";
+import { useDispatch, Provider } from "react-redux";
+import { sessionStore } from "@/states/stores";
+import { removeSession, setSession } from "@/states/user";
 
 export const UserDropdown: FC<{ session: Session }> = ({ session }) => {
+  return (
+    <Provider store={sessionStore}>
+      <DropDown session={session} />
+    </Provider>
+  );
+};
+
+const DropDown: FC<{ session: Session }> = ({ session }) => {
+  const dispatch = useDispatch();
   // logout user
   const logout = async () => {
-    await signOut({ callbackUrl: "/auth/login" });
+    await signOut({ callbackUrl: "/auth/login" }).then(() => {
+      dispatch(removeSession());
+    });
   };
 
+  useEffect(() => {
+    dispatch(setSession(session));
+  }, [dispatch, session]);
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="rounded-full !outline-none !ring-0">

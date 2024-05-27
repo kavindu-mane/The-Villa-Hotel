@@ -1,8 +1,7 @@
 "use server";
 
-import { NavigationBar } from "./navigation";
 import getSession from "@/lib/getSession";
-import { UserDropdown } from "./user-dropdown";
+import { UserDropdown, NavigationBar } from "@/components";
 
 export const NavigationWrapper = async () => {
   const session = await getSession();

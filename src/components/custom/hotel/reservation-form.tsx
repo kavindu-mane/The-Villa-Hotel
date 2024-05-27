@@ -13,10 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components";
+import { UserState } from "@/states/stores";
 import { errorTypes } from "@/types";
 import { RoomReservationFormSchema } from "@/validations";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { useSelector } from "react-redux";
 import { z } from "zod";
 
 /**
@@ -28,6 +30,15 @@ export const RoomReservationForm: FC<{
   form: UseFormReturn<z.infer<typeof RoomReservationFormSchema>>;
   errors: errorTypes;
 }> = ({ form, errors }) => {
+  const sessionState = useSelector((state: UserState) => state.session);
+
+  useEffect(() => {
+    if (sessionState) {
+      form.setValue("name", sessionState.session?.user.name || "");
+      form.setValue("email", sessionState.session?.user.email || "");
+    }
+  }, [form, sessionState]);
+
   return (
     <Form {...form}>
       <form className="flex w-full max-w-xl flex-col items-center justify-center gap-5">

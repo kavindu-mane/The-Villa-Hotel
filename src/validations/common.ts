@@ -2,7 +2,7 @@ import { yesterday } from "@/utils";
 import { z } from "zod";
 
 // form schema for room booking validation
-export const BookingSchema = z.object({
+export const ReservationsSchema = z.object({
   room_type: z.enum(["Deluxe", "Superior", "Standard"], {
     errorMap: (_, ctx) => {
       return {
@@ -10,14 +10,6 @@ export const BookingSchema = z.object({
       };
     },
   }),
-  persons: z.coerce
-    .number()
-    .refine((val) => !isNaN(val), {
-      message: "Persons must be a number",
-    })
-    .refine((val) => val >= 1 && val <= 10, {
-      message: "Persons must be between 1 and 10",
-    }),
   date: z
     .object(
       {
@@ -33,11 +25,10 @@ export const BookingSchema = z.object({
       return !!date.to;
     }, "Check-out date is required")
     .refine((date) => {
-      return date.from <= date.to;
-    })
+      return date.from < date.to;
+    }, "Check-out date must be greater than check-in date")
     .refine((date) => {
-      const today = new Date();
-      return date.from > today && date.to > today;
+      return date.from > yesterday() && date.to > new Date();
     }, "Dates must be greater than or equal to tomorrow")
     .refine((date) => {
       const lastDay = new Date();
@@ -244,16 +235,20 @@ export const RoomReservationFormSchema = z.object({
   coins: z.optional(
     z.coerce.number({ invalid_type_error: "Please enter numbers only" }),
   ),
-  name: z.string().min(1, { message: "Name field has to be filled." }).max(50, {
-    message: "Name should contain maximum 50 characters.",
-  }),
-  email: z.string().email({ message: "Invalid email address" }),
-  phone: z
-    .string()
-    .min(10, { message: "Phone number must be 10 characters" })
-    .max(15, {
-      message: "Phone number must be 15 characters",
+  name: z.optional(
+    z.string().min(1, { message: "Name field has to be filled." }).max(50, {
+      message: "Name should contain maximum 50 characters.",
     }),
+  ),
+  email: z.optional(z.string().email({ message: "Invalid email address" })),
+  phone: z.optional(
+    z
+      .string()
+      .min(10, { message: "Phone number must be 10 characters" })
+      .max(15, {
+        message: "Phone number must be 15 characters",
+      }),
+  ),
   date: z
     .object(
       {

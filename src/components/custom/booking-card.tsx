@@ -26,9 +26,9 @@ import { z } from "zod";
 import { BsBuildingsFill } from "react-icons/bs";
 import { IoPerson, IoCalendarSharp } from "react-icons/io5";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { BookingSchema } from "@/validations";
+import { ReservationsSchema } from "@/validations";
 import { cn } from "@/lib/utils";
-import { oneMonthFromNow, tomorrow } from "@/utils";
+import { dayAfterTomorrow, oneMonthFromNow, tomorrow } from "@/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RoomType } from "@prisma/client";
 
@@ -41,38 +41,37 @@ export const BookingCard: FC = () => {
   const searchParams = useSearchParams();
 
   // form hook
-  const form = useForm<z.infer<typeof BookingSchema>>({
-    resolver: zodResolver(BookingSchema),
+  const form = useForm<z.infer<typeof ReservationsSchema>>({
+    resolver: zodResolver(ReservationsSchema),
     defaultValues: {
-      room_type: searchParams.get("room_type") as RoomType || "Standard",
-      persons: Number(searchParams.get("persons")) || 1,
+      room_type: (searchParams.get("room_type") as RoomType) || "Standard",
       date: {
         from: new Date(searchParams.get("from") || tomorrow()),
-        to: new Date(searchParams.get("to") || tomorrow()),
+        to: new Date(searchParams.get("to") || dayAfterTomorrow()),
       },
     },
   });
 
   // submit handler
-  function onSubmit(data: z.infer<typeof BookingSchema>) {
+  function onSubmit(data: z.infer<typeof ReservationsSchema>) {
     router.push(
-      `/rooms?room_type=${data.room_type}&persons=${data.persons}&from=${format(data.date.from, "yyyy-MM-dd")}&to=${format(data.date.to, "yyyy-MM-dd")}`,
+      `/rooms?room_type=${data.room_type}&from=${format(data.date.from, "yyyy-MM-dd")}&to=${format(data.date.to, "yyyy-MM-dd")}`,
     );
   }
 
   return (
-    <div className="">
+    <div className="flex w-full justify-center">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-wrap items-end justify-center gap-3 rounded-lg bg-white px-2 py-8 lg:gap-8 lg:rounded-none"
+          className="flex w-full flex-wrap items-end justify-center gap-3 rounded-lg border bg-white px-2 py-8 shadow lg:gap-8 xl:w-fit xl:flex-nowrap xl:px-10"
         >
           {/* room type */}
           <FormField
             control={form.control}
             name="room_type"
             render={({ field }) => (
-              <FormItem className="w-full max-w-sm lg:max-w-xs">
+              <FormItem className="w-full max-w-sm lg:max-w-xs xl:min-w-[20rem]">
                 <FormLabel className="flex items-center gap-2">
                   <BsBuildingsFill /> Room Type
                 </FormLabel>
@@ -81,7 +80,7 @@ export const BookingCard: FC = () => {
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger className="capitalize">
+                    <SelectTrigger className="bg-white capitalize">
                       <SelectValue placeholder={field.value} />
                     </SelectTrigger>
                   </FormControl>
@@ -102,43 +101,12 @@ export const BookingCard: FC = () => {
             )}
           />
 
-          {/* persons */}
-          <FormField
-            control={form.control}
-            name="persons"
-            render={({ field }) => (
-              <FormItem className="w-full max-w-sm lg:max-w-xs">
-                <FormLabel className="flex items-center gap-2">
-                  <IoPerson /> Persons
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value.toString()}
-                >
-                  <FormControl>
-                    <SelectTrigger className="capitalize">
-                      <SelectValue placeholder={field.value} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Array.from({ length: 10 }, (_, i) => i + 1).map((i) => (
-                      <SelectItem key={i} value={i.toString()}>
-                        {i}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           {/* check in and out */}
           <FormField
             control={form.control}
             name="date"
             render={({ field }) => (
-              <FormItem className="flex w-full max-w-sm flex-col lg:max-w-xs">
+              <FormItem className="flex w-full max-w-sm flex-col lg:max-w-xs xl:min-w-[20rem]">
                 <FormLabel className="flex items-center gap-2">
                   <IoCalendarSharp /> Check In and Out
                 </FormLabel>
@@ -181,7 +149,10 @@ export const BookingCard: FC = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="h-10 w-full max-w-sm lg:max-w-xs">
+          <Button
+            type="submit"
+            className="h-10 w-full max-w-sm lg:max-w-xs xl:min-w-[20rem]"
+          >
             Check Availability
           </Button>
         </form>
