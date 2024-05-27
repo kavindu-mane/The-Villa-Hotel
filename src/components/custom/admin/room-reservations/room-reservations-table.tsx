@@ -208,12 +208,12 @@ export const AdminRoomReservationTable: FC<{
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    href={`/admin/rooms?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
+                    href={`/admin/room-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
-                    href={`/admin/rooms?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
+                    href={`/admin/room-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
                   />
                 </PaginationItem>
               </PaginationContent>

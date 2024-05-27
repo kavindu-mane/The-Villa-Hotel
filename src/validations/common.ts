@@ -1,4 +1,4 @@
-import { yesterday } from "@/utils";
+import { oneMonthFromNow, today, yesterday } from "@/utils";
 import { z } from "zod";
 
 // form schema for room booking validation
@@ -128,14 +128,10 @@ export const RestaurantAvailabilitySchema = z.object({
       return !!date;
     }, "Check-in date is required")
     .refine((date) => {
-      const today = new Date();
-      return date >= today;
+      return date >= today();
     }, "Date must be greater than or equal to tomorrow")
     .refine((date) => {
-      const lastDay = new Date();
-      // 1 months from now
-      lastDay.setMonth(lastDay.getMonth() + 1);
-      return date <= lastDay;
+      return date <= oneMonthFromNow();
     }, "Date must be less than or equal to 1 months from now"),
   time_slot: z.string().min(1, {
     message: "Please select a time slot",
