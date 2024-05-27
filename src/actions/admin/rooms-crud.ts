@@ -105,7 +105,7 @@ export const addOrUpdateRoom = async (
 
     // return success message
     return {
-      success: "Room added/update successfully",
+      success: "Room added/updated successfully",
       data: rooms,
     };
   } catch (error) {
