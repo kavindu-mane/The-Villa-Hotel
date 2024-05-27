@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
-} from "../..";
+} from "@/components";
 import { login } from "@/actions/login";
 import { transferZodErrors } from "@/utils";
 import { useSearchParams } from "next/navigation";
@@ -74,7 +74,7 @@ export const Login: FC = () => {
   return (
     <div className="">
       <div className="mb-10 grid gap-2 text-center">
-        <h1 className="mb-5 text-3xl font-medium">Login</h1>
+        <h1 className="mb-5 text-3xl font-medium">Welcome Back!</h1>
         <p className="text-balance text-sm text-muted-foreground">
           Enter your email and password below to login to your account
         </p>

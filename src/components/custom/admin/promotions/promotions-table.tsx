@@ -1,6 +1,6 @@
 "use client";
 
-import { getRoomReservationsData } from "@/actions/admin/room-reservations-crud";
+import { getPromotionsData } from "@/actions/admin/promotions-crud";
 import {
   Badge,
   Button,
@@ -24,12 +24,8 @@ import {
   TableSkeleton,
 } from "@/components";
 import { cn } from "@/lib/utils";
-import {
-  setAllRoomReservations,
-  setCurrentRoomReservation,
-} from "@/states/admin";
+import { setAllPromotions, setCurrentPromotion } from "@/states/admin";
 import { AdminState } from "@/states/stores";
-import { roomReservationDataTypes } from "@/types";
 import { format } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
@@ -37,30 +33,30 @@ import { BiSolidError } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 
 // rooms table column headers
-const roomsTableHeaders = [
+const promotionsTableHeaders = [
   {
-    name: "Reservation No.",
+    name: "Code",
     className: "",
   },
   {
-    name: "Room Type",
+    name: "Discount",
     className: "hidden sm:table-cell",
   },
   {
-    name: "Check In",
+    name: "Description",
     className: "hidden sm:table-cell",
   },
   {
-    name: "Check Out",
+    name: "Valid From",
     className: "hidden sm:table-cell",
   },
   {
-    name: "Room Number",
+    name: "Valid To",
     className: "text-right",
   },
 ];
 
-export const AdminRoomReservationTable: FC<{
+export const AdminPromotionsTable: FC<{
   isLoading: boolean;
   setIsLoading: (value: boolean) => void;
 }> = ({ isLoading, setIsLoading }) => {
@@ -70,74 +66,72 @@ export const AdminRoomReservationTable: FC<{
   const [isError, setIsError] = useState(false);
   // dispatcher
   const dispatch = useDispatch();
-  const rooms = useSelector(
-    (state: AdminState) => state.rooms_reservation_admin,
-  );
-  const [reservationId, setReservationId] = useState<string>("new");
+  const promotions = useSelector((state: AdminState) => state.promotions_admin);
+  const [promotionsId, setPromotionsId] = useState<string>("new");
 
-  // load rooms reservations data
-  const loadReservationsData = useCallback(async () => {
+  // load promotions data
+  const loadPromotionsData = useCallback(async () => {
     setIsLoading(true);
     setIsError(false);
     const pageInt = isNaN(Number(page)) ? 1 : Number(page);
-    // fetch rooms data from the server
-    await getRoomReservationsData(pageInt)
+    // fetch promotions data from the server
+    await getPromotionsData(pageInt)
       .then((data) => {
-        if (data?.reservations) {
-          dispatch(setAllRoomReservations(data?.reservations));
+        if (data?.promotions) {
+          dispatch(setAllPromotions(data?.promotions));
         }
         if (data?.error) {
           setIsError(true);
-          dispatch(setAllRoomReservations(null));
+          dispatch(setAllPromotions(null));
         }
       })
       .catch(() => {
         setIsError(true);
-        dispatch(setAllRoomReservations(null));
+        dispatch(setAllPromotions(null));
       })
       .finally(() => {
         setIsLoading(false);
       });
   }, [dispatch, page, setIsLoading]);
 
-  // load rooms reservations data on component mount
+  // load promotions data on component mount
   useEffect(() => {
-    loadReservationsData();
-  }, [loadReservationsData]);
+    loadPromotionsData();
+  }, [loadPromotionsData]);
 
   // change set data
   useEffect(() => {
-    if (rooms.all && reservationId) {
-      const room = rooms.all.find(
-        (room) => room.reservationNo.toString() === reservationId,
+    if (promotions.all && promotionsId) {
+      const promotion = promotions.all.find(
+        (promotion) => promotion.id === promotionsId,
       );
-      if (room) {
-        dispatch(setCurrentRoomReservation(room));
+      if (promotion) {
+        dispatch(setCurrentPromotion(promotions));
       } else {
-        dispatch(setCurrentRoomReservation(null));
+        dispatch(setCurrentPromotion(null));
       }
     }
-  }, [dispatch, reservationId, rooms]);
+  }, [dispatch, promotionsId, promotions]);
 
   return (
     <Card className="xl:col-span-2">
       <CardHeader>
         <div className="flex w-full justify-between">
           <div className="">
-            <CardTitle className="text-lg">Rooms Reservation Data</CardTitle>
+            <CardTitle className="text-lg">Promotions Data</CardTitle>
             <CardDescription>
-              Rooms reservation details of The Villa Hotel.
+              Promotional offers details of The Villa Hotel.
             </CardDescription>
           </div>
 
-          <Button variant="default" onClick={() => setReservationId("new")}>
+          <Button variant="default" onClick={() => setPromotionsId("new")}>
             Add Reservations
           </Button>
         </div>
       </CardHeader>
       <CardContent className="px-5">
-        {/*  if rooms are not available  */}
-        {(rooms.all?.length == 0 || rooms.all == null) &&
+        {/*  if promotions are not available  */}
+        {(promotions.all?.length == 0 || promotions.all == null) &&
           !isLoading &&
           !isError && <TableNoDataAvailable />}
 
@@ -149,15 +143,15 @@ export const AdminRoomReservationTable: FC<{
           </div>
         )}
 
-        {/* if rooms data are loading */}
+        {/* if promotions data are loading */}
         {isLoading && <TableSkeleton />}
 
-        {/* if rooms data are available */}
-        {rooms.all && rooms.all?.length > 0 && !isLoading && (
+        {/* if promotions data are available */}
+        {promotions.all && promotions.all?.length > 0 && !isLoading && (
           <Table>
             <TableHeader>
               <TableRow>
-                {roomsTableHeaders.map((header) => (
+                {promotionsTableHeaders.map((header) => (
                   <TableHead key={header.name} className={header.className}>
                     {header.name}
                   </TableHead>
@@ -165,35 +159,29 @@ export const AdminRoomReservationTable: FC<{
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rooms.all.map((data, index) => (
+              {promotions.all.map((data, index) => (
                 <TableRow
                   key={index}
                   className={cn(
                     "cursor-pointer",
-                    data.reservationNo.toString() === reservationId
-                      ? "bg-emerald-100"
-                      : "",
+                    data.id === promotionsId ? "bg-emerald-100" : "",
                   )}
-                  onClick={() =>
-                    setReservationId(data.reservationNo.toString())
-                  }
+                  onClick={() => setPromotionsId(data.id)}
                 >
                   <TableCell>
-                    <div className="font-medium">
-                      {data?.reservationNo.toString().padStart(4, "0")}
-                    </div>
+                    <div className="font-medium">{data?.code}</div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    <Badge variant="default">{data?.room.type}</Badge>
+                    <Badge variant="default">{data?.discount}%</Badge>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    {format(data?.checkIn, "LLL dd, y")}
+                    {data?.description}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    {format(data?.checkOut, "LLL dd, y")}
+                    {format(data?.validFrom, "LLL dd, y")}
                   </TableCell>
                   <TableCell className="text-right">
-                    {data?.room.number}
+                    {format(data?.validTo, "LLL dd, y")}
                   </TableCell>
                 </TableRow>
               ))}
@@ -202,18 +190,18 @@ export const AdminRoomReservationTable: FC<{
         )}
 
         {/* pagination */}
-        {rooms.all && rooms.all?.length > 0 && !isLoading && (
+        {promotions.all && promotions.all?.length > 0 && !isLoading && (
           <div className="flex w-full justify-end pt-5">
             <Pagination className="flex w-full justify-end pt-5">
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    href={`/admin/room-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
+                    href={`/admin/promotions?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
-                    href={`/admin/room-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
+                    href={`/admin/promotions?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
                   />
                 </PaginationItem>
               </PaginationContent>

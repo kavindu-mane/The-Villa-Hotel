@@ -76,6 +76,8 @@ export type offerDataTypes = {
   discount: number;
   validFrom: Date;
   validTo: Date;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 // types for room reservation data

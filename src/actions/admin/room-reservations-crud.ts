@@ -13,7 +13,7 @@ import {
 import { getRoomByNumber } from "@/actions/utils/rooms";
 import { getUserByEmail } from "@/actions/utils/user";
 import { tzConvertor } from "@/actions/utils/timezone-convertor";
-import { getOfferById } from "../utils/offer";
+import { getOfferById } from "../utils/promotions";
 
 /**
  * Server action for room reservation crud operations

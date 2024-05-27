@@ -1,24 +1,10 @@
-"use client";
+"use server";
 
 import { db } from "@/lib/db";
 
-// get offer by id
-export const getOfferById = async (id: string) => {
-  try {
-    const offer = await db.offer.findUnique({
-      where: {
-        id,
-      },
-    });
-    return offer;
-  } catch (e) {
-    return null;
-  }
-};
-
 // create offer
-export const createOffer = async (
-  name: string,
+export const createPromotion = async (
+  code: string,
   description: string,
   discount: number,
   validFrom: Date,
@@ -27,7 +13,7 @@ export const createOffer = async (
   try {
     const offer = await db.offer.create({
       data: {
-        code: name,
+        code,
         description,
         discount,
         validFrom,
@@ -41,9 +27,9 @@ export const createOffer = async (
 };
 
 // update offer
-export const updateOffer = async (
+export const updatePromotion = async (
   id: string,
-  name: string,
+  code: string,
   description: string,
   discount: number,
   validFrom: Date,
@@ -55,7 +41,7 @@ export const updateOffer = async (
         id,
       },
       data: {
-        code: name,
+        code,
         description,
         discount,
         validFrom,
