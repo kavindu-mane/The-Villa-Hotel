@@ -5,31 +5,27 @@ import { BedTypes } from "@prisma/client";
 
 // update reservation
 export const updateReservation = async (
-  id: string,
-  roomId: string,
-  bed: BedTypes,
+  data: {
+    id: string;
+    roomId: string;
+    bed: BedTypes;
+    name: string;
+    email: string;
+    phone: string;
+    checkIn: Date;
+    checkOut: Date;
+    total: number;
+  },
   offer: number,
-  name: string,
-  email: string,
-  phone: string,
-  checkIn: Date,
-  checkOut: Date,
-  total: number,
 ) => {
+  const { id, total } = data;
   try {
     const reservation = await db.reservation.update({
       where: {
         id,
       },
       data: {
-        roomId,
-        bed,
-        name,
-        email,
-        phone,
-        checkIn,
-        checkOut,
-        total,
+        ...data,
         pendingBalance: total - total * (offer / 100),
       },
     });
@@ -59,6 +55,11 @@ export const getReservations = async (page: number, limit: number) => {
     const reservations = await db.reservation.findMany({
       take: limit,
       skip: (page - 1) * limit,
+      where: {
+        NOT: {
+          status: "Pending",
+        },
+      },
       orderBy: {
         checkIn: "desc",
       },
@@ -69,6 +70,7 @@ export const getReservations = async (page: number, limit: number) => {
         roomId: true,
         total: true,
         offer: true,
+        offerDiscount: true,
         pendingBalance: true,
         name: true,
         email: true,

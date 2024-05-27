@@ -5,12 +5,15 @@ import {
   getReservations,
   updateReservation,
 } from "@/actions/admin/utils/rooms-reservation-admin";
-import {  checkRoomAvailability,
+import {
+  checkRoomAvailability,
   createReservation,
-  getReservationByNumber} from "@/actions/utils/reservations"
+  getReservationByNumber,
+} from "@/actions/utils/reservations";
 import { getRoomByNumber } from "@/actions/utils/rooms";
 import { getUserByEmail } from "@/actions/utils/user";
 import { tzConvertor } from "@/actions/utils/timezone-convertor";
+import { getOfferById } from "../utils/offer";
 
 /**
  * Server action for room reservation crud operations
@@ -57,7 +60,7 @@ export const addOrUpdateRoomReservation = async (
     }
 
     // destructure data from validated fields
-    const { room, beds, offer, name, email, phone, date } =
+    const { room, beds, offer, name, email, phone, date, offerID } =
       validatedFields.data;
 
     const fromDate = await tzConvertor(date.from);
@@ -73,7 +76,7 @@ export const addOrUpdateRoomReservation = async (
     }
 
     // get user from email
-    const user = await getUserByEmail(email);
+    const user = await getUserByEmail(email!!);
 
     // check if room is available or not
     const roomAvailability = await checkRoomAvailability(
@@ -102,6 +105,17 @@ export const addOrUpdateRoomReservation = async (
     const total = roomDetails.price * differenceInDays;
     let reservation = null;
 
+    let commonOffer = null;
+    // if offer id is exist
+    if (offerID) {
+      commonOffer = await getOfferById(offerID);
+      if (!commonOffer) {
+        return {
+          error: "Offer not found",
+        };
+      }
+    }
+
     // if update reservation
     if (isUpdate) {
       if (!reservationNo) {
@@ -120,30 +134,35 @@ export const addOrUpdateRoomReservation = async (
       }
 
       reservation = await updateReservation(
-        currentReservation.id,
-        roomDetails.id,
-        beds,
-        offer || 0,
-        name,
-        email,
-        phone,
-        fromDate,
-        toDate,
-        total,
+        {
+          id: currentReservation.id,
+          roomId: roomDetails.id,
+          bed: beds,
+          name: name || "",
+          email: email || "",
+          phone: phone || "",
+          checkIn: fromDate,
+          checkOut: toDate,
+          total,
+        },
+        commonOffer?.discount || offer || 0,
       );
     } else {
-      reservation = await createReservation(
-        roomDetails.id,
-        user?.id || null,
-        beds,
-        offer || 0,
-        name,
-        email,
-        phone,
-        fromDate,
-        toDate,
+      reservation = await createReservation({
+        roomId: roomDetails.id,
+        userId: user?.id || null,
+        bed: beds,
+        offerDiscount: commonOffer?.discount || offer || 0,
+        name: name || null,
+        email: email || null,
+        phone: phone || null,
+        checkIn: fromDate,
+        checkOut: toDate,
         total,
-      );
+        status: "Confirmed",
+        type: "Offline",
+        offerId: offerID || null,
+      });
     }
 
     // if failed to add or update reservation
