@@ -18,7 +18,11 @@ export const Tables: FC = () => {
   }, [isStructureShow]);
 
   return (
-    <section className="flex flex-col items-center justify-center gap-y-4 italic text-gray-700 pb-2 pt-10">
+    <section className="flex flex-col items-center justify-center gap-y-4 pb-2 pt-10 italic text-gray-700">
+      <p className="">
+        Explore the table structure of our VILLA Restaurant and find the perfect
+        table for your meal.
+      </p>
       <Button
         onClick={() => setIsStructureShow(true)}
         className="bg-gradient-to-r from-fuchsia-600 to-cyan-700 px-5 shadow-md drop-shadow-lg hover:from-cyan-700 hover:to-fuchsia-500"
