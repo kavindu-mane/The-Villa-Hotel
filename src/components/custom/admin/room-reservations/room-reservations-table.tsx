@@ -84,11 +84,7 @@ export const AdminRoomReservationTable: FC<{
     await getRoomReservationsData(pageInt)
       .then((data) => {
         if (data?.reservations) {
-          dispatch(
-            setAllRoomReservations(
-              data?.reservations as roomReservationDataTypes[],
-            ),
-          );
+          dispatch(setAllRoomReservations(data?.reservations));
         }
         if (data?.error) {
           setIsError(true);
