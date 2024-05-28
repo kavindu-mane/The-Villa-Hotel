@@ -37,7 +37,7 @@ export const getPromotions = async (page: number, limit: number) => {
       skip: (page - 1) * limit,
       take: limit,
     });
-    return offers;
+    return { offers, pages, page };
   } catch (e) {
     return null;
   }

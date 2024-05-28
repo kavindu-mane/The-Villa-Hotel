@@ -23,6 +23,7 @@ import {
   TableRow,
   TableSkeleton,
 } from "@/components";
+import { defaultPaginationData } from "@/constants";
 import { cn } from "@/lib/utils";
 import { setAllPromotions, setCurrentPromotion } from "@/states/admin";
 import { AdminState } from "@/states/stores";
@@ -68,6 +69,7 @@ export const AdminPromotionsTable: FC<{
   const dispatch = useDispatch();
   const promotions = useSelector((state: AdminState) => state.promotions_admin);
   const [promotionsId, setPromotionsId] = useState<string>("new");
+  const [paginationData, setPaginationData] = useState(defaultPaginationData);
 
   // load promotions data
   const loadPromotionsData = useCallback(async () => {
@@ -79,15 +81,21 @@ export const AdminPromotionsTable: FC<{
       .then((data) => {
         if (data?.promotions) {
           dispatch(setAllPromotions(data?.promotions));
+          setPaginationData({
+            totalPages: data?.totalPages,
+            currentPage: data?.currentPage,
+          });
         }
         if (data?.error) {
           setIsError(true);
           dispatch(setAllPromotions(null));
+          setPaginationData(defaultPaginationData);
         }
       })
       .catch(() => {
         setIsError(true);
         dispatch(setAllPromotions(null));
+        setPaginationData(defaultPaginationData);
       })
       .finally(() => {
         setIsLoading(false);
@@ -106,7 +114,7 @@ export const AdminPromotionsTable: FC<{
         (promotion) => promotion.id === promotionsId,
       );
       if (promotion) {
-        dispatch(setCurrentPromotion(promotions));
+        dispatch(setCurrentPromotion(promotion));
       } else {
         dispatch(setCurrentPromotion(null));
       }
@@ -125,7 +133,7 @@ export const AdminPromotionsTable: FC<{
           </div>
 
           <Button variant="default" onClick={() => setPromotionsId("new")}>
-            Add Reservations
+            Add Promotions
           </Button>
         </div>
       </CardHeader>
@@ -139,7 +147,7 @@ export const AdminPromotionsTable: FC<{
         {isError && (
           <div className="flex flex-col items-center justify-center text-center text-red-500">
             <BiSolidError className="h-20 w-20" />
-            Failed to load rooms reservation data!
+            Failed to load rooms promotion data!
           </div>
         )}
 
@@ -174,8 +182,8 @@ export const AdminPromotionsTable: FC<{
                   <TableCell className="hidden sm:table-cell">
                     <Badge variant="default">{data?.discount}%</Badge>
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {data?.description}
+                  <TableCell className="hidden max-w-96 sm:table-cell xl:max-w-80 2xl:max-w-96">
+                    <p className="w-full truncate">{data?.description}</p>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     {format(data?.validFrom, "LLL dd, y")}
@@ -196,11 +204,15 @@ export const AdminPromotionsTable: FC<{
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
+                    isActive={paginationData.currentPage === 1}
                     href={`/admin/promotions?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
+                    isActive={
+                      paginationData.currentPage === paginationData.totalPages
+                    }
                     href={`/admin/promotions?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
                   />
                 </PaginationItem>

@@ -29,7 +29,6 @@ import {
   setCurrentRoomReservation,
 } from "@/states/admin";
 import { AdminState } from "@/states/stores";
-import { roomReservationDataTypes } from "@/types";
 import { format } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
@@ -44,6 +43,10 @@ const roomsTableHeaders = [
   },
   {
     name: "Room Type",
+    className: "hidden sm:table-cell",
+  },
+  {
+    name: "Status",
     className: "hidden sm:table-cell",
   },
   {
@@ -185,6 +188,14 @@ export const AdminRoomReservationTable: FC<{
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     <Badge variant="default">{data?.room.type}</Badge>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Badge
+                      variant="default"
+                      className={`${data.status === "Cancelled" ? "bg-red-500" : ""}`}
+                    >
+                      {data?.status}
+                    </Badge>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
                     {format(data?.checkIn, "LLL dd, y")}

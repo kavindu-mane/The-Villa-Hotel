@@ -25,6 +25,10 @@ export type errorTypes = {
   room?: string[];
   offer?: string[];
   description?: string[];
+  code?: string[];
+  validFrom?: string[];
+  validTo?: string[];
+  discount?: string[];
 };
 
 // types for menu selection

@@ -205,6 +205,10 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       value: reservation.current?.reservationNo.toString().padStart(4, "0"),
     },
     {
+      title: "Reservation Status",
+      value: reservation.current?.status,
+    },
+    {
       title: "Room Type",
       value: reservation.current?.room.type,
     },

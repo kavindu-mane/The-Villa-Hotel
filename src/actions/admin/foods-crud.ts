@@ -9,6 +9,7 @@ import {
   updateFood,
 } from "./utils/foods-admin";
 import { FoodFormSchema } from "@/validations";
+import { DEFAULT_PAGINATION_SIZE } from "@/constants";
 
 /**
  * Server action for food crud operations
@@ -17,7 +18,7 @@ import { FoodFormSchema } from "@/validations";
 
 export const getFoodsData = async (page: number) => {
   try {
-    const foods = await getFoods(page, 10);
+    const foods = await getFoods(page, DEFAULT_PAGINATION_SIZE);
 
     // if failed to get foods data
     if (!foods) {
@@ -99,7 +100,7 @@ export const addOrUpdateFood = async (
     }
 
     // get updated foods data
-    const foods = await getFoods(page, 10);
+    const foods = await getFoods(page, DEFAULT_PAGINATION_SIZE);
 
     // return success message
     return {
@@ -142,7 +143,7 @@ export const deleteFoodsImages = async (
     });
 
     // get all updated foods
-    const foods = await getFoods(page, 10);
+    const foods = await getFoods(page, DEFAULT_PAGINATION_SIZE);
 
     // if failed to update food images
     if (!updatedFood) {
