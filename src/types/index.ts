@@ -128,4 +128,5 @@ export type pendingReservationResponse = {
     type: RoomType;
   };
   amount: number;
+  offers: offerDataTypes[];
 };

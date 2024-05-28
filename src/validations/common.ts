@@ -240,9 +240,9 @@ export const RoomReservationFormSchema = z.object({
   phone: z.optional(
     z
       .string()
-      .min(10, { message: "Phone number must be 10 characters" })
+      .min(10, { message: "Phone number must be at least 10 characters" })
       .max(15, {
-        message: "Phone number must be 15 characters",
+        message: "Phone number should contain maximum 15 characters.",
       }),
   ),
   date: z
