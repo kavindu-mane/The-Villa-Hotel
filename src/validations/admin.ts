@@ -90,45 +90,51 @@ export const FoodFormSchema = z.object({
 });
 
 // form schema for promotions validations
-export const PromotionsFormSchema = z.object({
-  code: z
-    .string()
-    .min(1, {
-      message: "Offer code field has to be filled.",
-    })
-    .max(20, {
-      message: "Offer code field should contain maximum 20 characters.",
-    }),
-  discount: z.coerce
-    .number({ invalid_type_error: "Discount field has to be filled." })
-    .refine((val) => val !== undefined, {
-      message: "Discount field has to be filled.",
-    })
-    .refine((val) => !isNaN(val), {
-      message: "Discount must be a number",
-    }),
-  description: z
-    .string()
-    .min(1, {
-      message: "Offer code field has to be filled.",
-    })
-    .max(100, {
-      message: "Offer code field should contain maximum 100 characters.",
-    }),
-  validFrom: z
-    .date()
-    .refine((date) => {
-      return !!date;
-    }, "Check-in date is required")
-    .refine((date) => {
-      return date > yesterday();
-    }, "Date must be greater than or equal to today"),
-  validTo: z
-    .date()
-    .refine((date) => {
-      return !!date;
-    }, "Check-in date is required")
-    .refine((date) => {
-      return date > today();
-    }, "Date must be greater than or equal to tomorrow"),
-});
+export const PromotionsFormSchema = z
+  .object({
+    code: z
+      .string()
+      .min(1, {
+        message: "Offer code field has to be filled.",
+      })
+      .max(20, {
+        message: "Offer code field should contain maximum 20 characters.",
+      }),
+    discount: z.coerce
+      .number({ invalid_type_error: "Discount field has to be filled." })
+      .refine((val) => val !== undefined, {
+        message: "Discount field has to be filled.",
+      })
+      .refine((val) => !isNaN(val), {
+        message: "Discount must be a number",
+      }).refine((val) => val >= 1 && val <= 100, {
+        message: "Discount must be between 1 and 100",
+      }),
+    description: z
+      .string()
+      .min(1, {
+        message: "Offer code field has to be filled.",
+      })
+      .max(100, {
+        message: "Offer code field should contain maximum 100 characters.",
+      }),
+    validFrom: z
+      .date()
+      .refine((date) => {
+        return !!date;
+      }, "Check-in date is required")
+      .refine((date) => {
+        return date > yesterday();
+      }, "Date must be greater than or equal to today"),
+    validTo: z
+      .date()
+      .refine((date) => {
+        return !!date;
+      }, "Check-in date is required")
+      .refine((date) => {
+        return date > today();
+      }, "Date must be greater than or equal to tomorrow"),
+  })
+  .refine((data) => {
+    return data.validFrom < data.validTo;
+  }, "Valid from date must be less than valid to date");

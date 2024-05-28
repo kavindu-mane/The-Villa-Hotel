@@ -1,7 +1,16 @@
 "use client";
 
 import { Dispatch, FC, SetStateAction } from "react";
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Textarea } from "@/components";
+import {
+  Button,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Textarea,
+} from "@/components";
 import Image from "next/image";
 import { z } from "zod";
 import { RestaurantMenuSchema, RestaurantRemarkSchema } from "@/validations";
@@ -74,12 +83,16 @@ export const FoodsSelections: FC<{
   onMenuItemAdd: (id: string) => void;
   onMenuItemRemove: (id: string) => void;
   setCurrentStep: Dispatch<SetStateAction<number>>;
-  errors: errorTypes
-}> = ({ selectedMenu, onMenuItemAdd, onMenuItemRemove, setCurrentStep, errors }) => {
+  errors: errorTypes;
+}> = ({
+  selectedMenu,
+  onMenuItemAdd,
+  onMenuItemRemove,
+  setCurrentStep,
+  errors,
+}) => {
   // form hooks
-  const remarkForm = useForm<
-    z.infer<typeof RestaurantRemarkSchema>
-  >({
+  const remarkForm = useForm<z.infer<typeof RestaurantRemarkSchema>>({
     resolver: zodResolver(RestaurantRemarkSchema),
     defaultValues: {
       remark: "",
@@ -151,11 +164,8 @@ export const FoodsSelections: FC<{
         })}
       </div>
       <div className="flex items-center justify-center">
-
         <Form {...remarkForm}>
-          <form
-            className="mt-8 flex w-full max-w-2xl  items-center justify-center gap-5"
-          >
+          <form className="mt-8 flex w-full max-w-2xl  items-center justify-center gap-5">
             {/* remark */}
             <FormField
               control={remarkForm.control}
@@ -175,11 +185,15 @@ export const FoodsSelections: FC<{
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors?.remark && errors?.remark[0]}</FormMessage>
+                  <FormMessage>
+                    {errors?.remark && errors?.remark[0]}
+                  </FormMessage>
                 </FormItem>
               )}
             />
-          </form></Form></div>
+          </form>
+        </Form>
+      </div>
 
       <div className="mt-10 flex w-full justify-between">
         {/* back button */}
