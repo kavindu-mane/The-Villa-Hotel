@@ -13,7 +13,8 @@ import {
 import { getRoomByNumber } from "@/actions/utils/rooms";
 import { getUserByEmail } from "@/actions/utils/user";
 import { tzConvertor } from "@/actions/utils/timezone-convertor";
-import { getOfferById } from "../utils/promotions";
+import { getPromotionByCode } from "../utils/promotions";
+import { DEFAULT_PAGINATION_SIZE } from "@/constants";
 
 /**
  * Server action for room reservation crud operations
@@ -22,7 +23,7 @@ import { getOfferById } from "../utils/promotions";
 
 export const getRoomReservationsData = async (page: number) => {
   try {
-    const reservations = await getReservations(page, 10);
+    const reservations = await getReservations(page, DEFAULT_PAGINATION_SIZE);
 
     // if failed to get reservations data
     if (!reservations) {
@@ -108,7 +109,7 @@ export const addOrUpdateRoomReservation = async (
     let commonOffer = null;
     // if offer id is exist
     if (offerID) {
-      commonOffer = await getOfferById(offerID);
+      commonOffer = await getPromotionByCode(offerID);
       if (!commonOffer) {
         return {
           error: "Offer not found",
@@ -173,7 +174,7 @@ export const addOrUpdateRoomReservation = async (
     }
 
     // get updated reservations data
-    const reservations = await getReservations(page, 10);
+    const reservations = await getReservations(page, DEFAULT_PAGINATION_SIZE);
 
     //return success message
     return {

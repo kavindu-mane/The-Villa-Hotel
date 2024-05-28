@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getPromotionByCode, getPromotions } from "../utils/promotions";
 import { PromotionsFormSchema } from "@/validations";
 import { createPromotion, updatePromotion } from "./utils/promotions-admin";
+import { DEFAULT_PAGINATION_SIZE } from "@/constants";
 
 /**
  * Server action for reservations crud operations
@@ -12,18 +13,22 @@ import { createPromotion, updatePromotion } from "./utils/promotions-admin";
 
 export const getPromotionsData = async (page: number) => {
   try {
-    const promotions = await getPromotions(page, 10);
+    const promotions = await getPromotions(page, DEFAULT_PAGINATION_SIZE);
 
     // if failed to get promotions data
     if (!promotions) {
       return {
         promotions: null,
+        totalPages: 0,
+        currentPage: 0,
       };
     }
 
     // return promotions data
     return {
-      promotions,
+      promotions: promotions.offers,
+      totalPages: promotions.pages,
+      currentPage: promotions.page,
     };
   } catch (error) {
     return {
@@ -92,7 +97,7 @@ export const addOrUpdatePromotion = async (
     }
 
     // get updated promotions
-    const promotions = await getPromotions(page, 10);
+    const promotions = await getPromotions(page, DEFAULT_PAGINATION_SIZE);
 
     // return success message
     return {

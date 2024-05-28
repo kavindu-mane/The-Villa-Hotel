@@ -10,6 +10,7 @@ import {
 import { RoomFormSchema } from "@/validations";
 import { db } from "@/lib/db";
 import { getRoomByNumber } from "../utils/rooms";
+import { DEFAULT_PAGINATION_SIZE } from "@/constants";
 
 /**
  * Server action for room crud operations
@@ -18,7 +19,7 @@ import { getRoomByNumber } from "../utils/rooms";
 
 export const getRoomsData = async (page: number) => {
   try {
-    const rooms = await getRooms(page, 10);
+    const rooms = await getRooms(page, DEFAULT_PAGINATION_SIZE);
 
     // if failed to get rooms data
     if (!rooms) {
@@ -101,7 +102,7 @@ export const addOrUpdateRoom = async (
     }
 
     // get updated rooms data
-    const rooms = await getRooms(page, 10);
+    const rooms = await getRooms(page, DEFAULT_PAGINATION_SIZE);
 
     // return success message
     return {
@@ -144,7 +145,7 @@ export const deleteRoomsImages = async (
     });
 
     // get all updated rooms
-    const rooms = await getRooms(page, 10);
+    const rooms = await getRooms(page, DEFAULT_PAGINATION_SIZE);
 
     // if failed to update room images
     if (!updatedRoom) {
