@@ -32,3 +32,12 @@ export const featuresArray = [
   "Tea/Coffee Maker",
   "Free Wi-Fi",
 ];
+
+// default pagination size 
+export const DEFAULT_PAGINATION_SIZE = 10;
+
+// default pagination data
+export const defaultPaginationData = {
+  currentPage: 1,
+  totalPages: 1,
+};
