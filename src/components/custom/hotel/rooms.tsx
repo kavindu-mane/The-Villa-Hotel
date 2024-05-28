@@ -307,13 +307,7 @@ const RoomCardSkeleton = ({ className }: { className?: string }) => {
         {/* show features */}
         <div className="flex flex-wrap gap-x-3 gap-y-1">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton
-              key={index}
-              className="h-4"
-              style={{
-                width: `${100 * (1 + Math.random())}px`,
-              }}
-            />
+            <Skeleton key={index} className="h-4 w-28" />
           ))}
         </div>
         {/* persons */}

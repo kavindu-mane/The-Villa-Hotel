@@ -15,6 +15,8 @@ export const updateReservation = async (
     checkIn: Date;
     checkOut: Date;
     total: number;
+    userId?: string | null;
+    offerId?: string | null;
   },
   offer: number,
 ) => {

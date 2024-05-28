@@ -172,8 +172,9 @@ model Reservation {
   user  User?  @relation(fields: [userId], references: [id])
   offer Offer? @relation(fields: [offerId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Payments  Payments[]
 }
 
 model Offer {
@@ -185,6 +186,18 @@ model Offer {
   validTo     DateTime
 
   reservation Reservation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payments {
+  id            String      @id @default(cuid())
+  reservationId String
+  amount        Float
+  paymentType   BookingType
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

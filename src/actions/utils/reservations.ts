@@ -37,40 +37,26 @@ export const createReservation = async (data: {
 };
 
 // confirm reservation function
-export const confirmReservations = async (bookingId: string) => {
+export const confirmReservations = async (id: string, payment: number) => {
   try {
-    // Find the booking
-    const booking = await db.reservation.findUnique({
-      where: { id: bookingId },
-      include: { room: true },
-    });
-
-    // Check if the room is still available
-    if (!booking) {
-      return { success: false };
-    }
-    const available = await db.rooms.findFirst({
+    const reservation = await db.reservation.update({
       where: {
-        id: booking.room.id,
-        reservation: {
-          none: {
-            OR: [
-              { checkIn: { gt: booking.checkOut } },
-              { checkOut: { lt: booking.checkIn } },
-            ],
-          },
+        id,
+      },
+      data: {
+        status: "Confirmed",
+        pendingBalance: {
+          decrement: payment,
         },
       },
+      include: {
+        offer: true,
+        room: true,
+      },
     });
-
-    // If the room is available, return success
-    if (available) {
-      return { success: true };
-    } else {
-      return { success: false };
-    }
+    return reservation;
   } catch (e) {
-    return { success: false };
+    return null;
   }
 };
 
@@ -147,7 +133,7 @@ export const checkRoomAvailability = async (
 };
 
 // delete reservation by id (only if status equals to pending)
-export const deleteReservation = async (id: string) => {
+export const deleteReservation = async (id: string, status: Status) => {
   try {
     // get current reservation state and delete if its pending
     const transaction = await db.$transaction(async (tx) => {
@@ -161,7 +147,7 @@ export const deleteReservation = async (id: string) => {
       });
 
       if (reservation) {
-        if (reservation.status === "Pending") {
+        if (reservation.status === status) {
           await db.reservation.delete({
             where: {
               id,
@@ -174,6 +160,23 @@ export const deleteReservation = async (id: string) => {
     });
 
     return transaction;
+  } catch (e) {
+    return null;
+  }
+};
+
+// update status of reservation by id
+export const updateReservationStatus = async (id: string, status: Status) => {
+  try {
+    const reservation = await db.reservation.update({
+      where: {
+        id,
+      },
+      data: {
+        status,
+      },
+    });
+    return reservation;
   } catch (e) {
     return null;
   }
