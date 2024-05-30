@@ -36,6 +36,13 @@ enum FoodType {
   Soft_Drink
 }
 
+enum TableType {
+  One_Seat
+  Two_Seat
+  Four_Seat
+  Six_Seat
+}
+
 enum Status {
   Pending
   Confirmed
@@ -147,6 +154,20 @@ model Foods {
   updatedAt DateTime @updatedAt
 
   @@unique([foodId])
+}
+
+model Tables {
+  id      String @id @default(cuid())
+  tableId String
+  tableType   TableType
+  price       Float
+  description String
+  images      Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tableId])
 }
 
 model Reservation {
