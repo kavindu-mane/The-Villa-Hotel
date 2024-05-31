@@ -1,3 +1,4 @@
+// foods types
 export const foodArray = [
   "Fride_Rice",
   "Kottu",
@@ -15,6 +16,10 @@ export const foodArray = [
   "Soft_Drink",
 ];
 
+// tables types
+export const tableArray = ["One_Seat", "Two_Seat", "Four_Seat", "Six_Seat"];
+
+// beds types
 export const bedsTypeArray = ["Two_Single_Beds", "One_Double_Bed"];
 
 // room types
@@ -33,7 +38,7 @@ export const featuresArray = [
   "Free Wi-Fi",
 ];
 
-// default pagination size 
+// default pagination size
 export const DEFAULT_PAGINATION_SIZE = 10;
 
 // default pagination data

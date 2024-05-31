@@ -89,6 +89,33 @@ export const FoodFormSchema = z.object({
   }),
 });
 
+// form schema for add and edit table validation
+export const TableFormSchema = z.object({
+  tableType: z.enum(["One_Seat", "Two_Seat", "Four_Seat", "Six_Seat"], {
+    errorMap: (_, ctx) => {
+      return {
+        message: ctx.defaultError.split(".")[1],
+      };
+    },
+  }),
+  tableId: z
+    .string()
+    .min(1, { message: "Table ID field has to be filled." })
+    .max(5, { message: "Table ID should contain maximum 5 characters." }),
+
+  price: z.coerce.number().refine((val) => !isNaN(val), {
+    message: "Price must be a number",
+  }),
+  description: z
+    .string()
+    .min(1, { message: "Description field has to be filled." })
+    .max(500, { message: "Message should contain maximum 500 characters." }),
+
+  images: z.array(z.string()).refine((val) => val.length > 0, {
+    message: "Please select at least one image",
+  }),
+});
+
 // form schema for promotions validations
 export const PromotionsFormSchema = z
   .object({
@@ -107,7 +134,8 @@ export const PromotionsFormSchema = z
       })
       .refine((val) => !isNaN(val), {
         message: "Discount must be a number",
-      }).refine((val) => val >= 1 && val <= 100, {
+      })
+      .refine((val) => val >= 1 && val <= 100, {
         message: "Discount must be between 1 and 100",
       }),
     description: z

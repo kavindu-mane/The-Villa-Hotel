@@ -1,4 +1,4 @@
-import { RoomType, FoodType, BedTypes } from "@prisma/client";
+import { RoomType, FoodType, BedTypes, TableType } from "@prisma/client";
 
 // types for validation error
 export type errorTypes = {
@@ -22,6 +22,8 @@ export type errorTypes = {
   images?: string[];
   foodType?: string[];
   foodId?: string[];
+  tableType?: string[];
+  tableId?: string[];
   room?: string[];
   offer?: string[];
   description?: string[];
@@ -63,6 +65,21 @@ export type foodsDataTypes = {
   foodId: string;
   foodType: FoodType;
   name: string;
+  price: number;
+  description: string;
+  images: {
+    data: string[];
+  };
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// types for tables data
+export type tablesDataTypes = {
+  id: string;
+  tableId: string;
+  tableType: TableType;
+
   price: number;
   description: string;
   images: {

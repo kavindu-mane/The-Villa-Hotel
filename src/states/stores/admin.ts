@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import {
   foodReducer,
   roomReducer,
+  tableReducer,
   roomReservationReducer,
   promotionsReducer,
 } from "../admin";
@@ -10,6 +11,7 @@ export const adminStore = configureStore({
   reducer: {
     rooms_admin: roomReducer,
     foods_admin: foodReducer,
+    tables_admin:tableReducer,
     rooms_reservation_admin: roomReservationReducer,
     promotions_admin: promotionsReducer,
   },
