@@ -34,7 +34,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FC, startTransition, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BsBuildingsFill } from "react-icons/bs";
-import { IoPerson } from "react-icons/io5";
 import { FaDollarSign } from "react-icons/fa";
 import { TbHexagonNumber1Filled } from "react-icons/tb";
 import { z } from "zod";
@@ -42,7 +41,6 @@ import { useEdgeStore } from "@/lib/edgestore";
 import Image from "next/image";
 import { ClipLoader } from "react-magic-spinners";
 import { useToast } from "@/components/ui/use-toast";
-
 import { transferZodErrors } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
@@ -99,7 +97,6 @@ export const AdminTablesDetailsForm: FC<{ isPending: boolean }> = ({
     defaultValues: {
       tableType: "Four_Seat",
       tableId: "",
-
       price: 0,
       description: "",
       images: [],
@@ -252,7 +249,6 @@ export const AdminTablesDetailsForm: FC<{ isPending: boolean }> = ({
                           placeholder="R-10"
                           disabled={tables.current?.tableId ? true : false}
                           {...field}
-                          value={tables.current?.tableId || field.value}
                         />
                       </FormControl>
                       <FormMessage>
@@ -298,29 +294,6 @@ export const AdminTablesDetailsForm: FC<{ isPending: boolean }> = ({
                   )}
                 />
 
-                {/* table name field */}
-                {/* <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <TbHexagonNumber1Filled /> Table Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="h-10"
-                          {...field}
-                          defaultValue={tables.current?.tableId || field.value}
-                        />
-                      </FormControl>
-                      <FormMessage>
-                        {errors?.number && errors?.number[0]}
-                      </FormMessage>
-                    </FormItem>
-                  )}
-                /> */}
-
                 {/* table price usd */}
                 <FormField
                   control={form.control}
@@ -362,7 +335,6 @@ export const AdminTablesDetailsForm: FC<{ isPending: boolean }> = ({
                           maxLength={500}
                           placeholder="Enter table description"
                           {...field}
-                          defaultValue={tables.current?.tableId || field.value}
                         />
                       </FormControl>
                       <FormMessage>

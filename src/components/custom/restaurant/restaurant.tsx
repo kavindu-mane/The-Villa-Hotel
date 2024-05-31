@@ -1,7 +1,7 @@
 "use client";
 
 import { FC } from "react";
-import { RestaurantForm, RestaurantHero, Table, Tables } from "@/components";
+import { RestaurantForm, RestaurantHero, Tables } from "@/components";
 
 export const Restaurant: FC = () => {
   return (
