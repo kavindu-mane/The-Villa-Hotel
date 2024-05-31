@@ -62,17 +62,18 @@ enum BedTypes {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  username      String?       @unique
-  email         String?       @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role          @default(USER)
-  coins         Float         @default(0)
-  account       Account?
-  reservation   Reservation[]
+  id               String             @id @default(cuid())
+  name             String?
+  username         String?            @unique
+  email            String?            @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  role             Role               @default(USER)
+  coins            Float              @default(0)
+  account          Account?
+  reservation      Reservation[]
+  tabelReservation TableReservation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -127,7 +128,7 @@ model PasswordResetToken {
 
 model Rooms {
   id          String        @id @default(cuid())
-  number      Int
+  number      Int           @unique
   type        RoomType
   price       Float
   persons     Int
@@ -135,67 +136,111 @@ model Rooms {
   features    Json
   images      Json
   reservation Reservation[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
 
-  @@unique([number])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Foods {
-  id          String   @id @default(cuid())
-  foodId      String
-  name        String
-  foodType    FoodType
-  price       Float
-  description String
-  images      Json
+  id                  String                @id @default(cuid())
+  foodId              String                @unique
+  name                String
+  foodType            FoodType
+  price               Float
+  description         String
+  images              Json
+  FoodReservationItem FoodReservationItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([foodId])
 }
 
 model Tables {
-  id      String @id @default(cuid())
-  tableId String
-  tableType   TableType
-  price       Float
-  description String
-  images      Json
+  id               String             @id @default(cuid())
+  tableId          String             @unique
+  tableType        TableType
+  price            Float
+  description      String
+  images           Json
+  tabelReservation TableReservation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([tableId])
 }
 
 model Reservation {
-  id             String      @id @default(cuid())
-  reservationNo  Int         @unique @default(autoincrement())
-  roomId         String
-  userId         String?
-  offerId        String?
-  name           String?
-  email          String?
-  phone          String?
-  checkIn        DateTime
-  checkOut       DateTime
-  total          Float       @default(0)
-  coins          Float       @default(0)
-  pendingBalance Float       @default(0)
-  offerDiscount  Float       @default(0)
-  status         Status      @default(Confirmed)
-  bed            BedTypes?   @default(One_Double_Bed)
-  type           BookingType @default(Online)
+  id              String            @id @default(cuid())
+  reservationNo   Int               @unique @default(autoincrement())
+  roomId          String
+  userId          String?
+  offerId         String?
+  name            String?
+  email           String?
+  phone           String?
+  checkIn         DateTime
+  checkOut        DateTime
+  total           Float             @default(0)
+  coins           Float             @default(0)
+  pendingBalance  Float             @default(0)
+  offerDiscount   Float             @default(0)
+  status          Status            @default(Confirmed)
+  bed             BedTypes?         @default(One_Double_Bed)
+  type            BookingType       @default(Online)
+  Payments        Payments[]
+  foodReservation FoodReservation[]
 
   room  Rooms  @relation(fields: [roomId], references: [id])
   user  User?  @relation(fields: [userId], references: [id])
   offer Offer? @relation(fields: [offerId], references: [id])
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Payments  Payments[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TableReservation {
+  id                 String   @id @default(cuid())
+  reservationNo      Int      @unique @default(autoincrement())
+  tableId            String
+  userId             String?
+  foodReservationsId String?
+  name               String
+  email              String
+  phone              String
+  date               DateTime
+  timeSlot           String
+  status             Status   @default(Confirmed)
+
+  table            Tables           @relation(fields: [tableId], references: [id])
+  user             User?            @relation(fields: [userId], references: [id])
+  foodReservations FoodReservation? @relation(fields: [foodReservationsId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FoodReservation {
+  id                 String             @id @default(cuid())
+  foodId             String
+  quantity           Int
+  price              Float
+  specialRequirement String?
+  reservation        Reservation[]
+  tableReservation   TableReservation[]
+  foodReservationItems FoodReservationItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FoodReservationItem {
+  id                String @id @default(cuid())
+  foodId            String
+  foodReservationId String
+
+  food            Foods           @relation(fields: [foodId], references: [id])
+  foodReservation FoodReservation @relation(fields: [foodReservationId], references: [id])
+
+  @@unique([foodId, foodReservationId])
 }
 
 model Offer {
