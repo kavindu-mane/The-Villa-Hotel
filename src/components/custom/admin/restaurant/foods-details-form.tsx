@@ -310,7 +310,6 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
                         <Input
                           className="h-10"
                           {...field}
-                          defaultValue={foods.current?.foodId || field.value}
                         />
                       </FormControl>
                       <FormMessage>
@@ -339,7 +338,6 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
                 />
 
                 {/* description */}
-
                 <FormField
                   control={form.control}
                   name="description"
@@ -360,7 +358,6 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
                           maxLength={500}
                           placeholder="Enter food description"
                           {...field}
-                          defaultValue={foods.current?.foodId || field.value}
                         />
                       </FormControl>
                       <FormMessage>

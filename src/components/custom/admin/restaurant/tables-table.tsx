@@ -42,10 +42,6 @@ const tablesTableHeaders = [
     name: "Table Type",
     className: "hidden sm:table-cell",
   },
-//   {
-//     name: "Name",
-//     className: "hidden sm:table-cell",
-//   },
   {
     name: "Description",
     className: "hidden sm:table-cell",

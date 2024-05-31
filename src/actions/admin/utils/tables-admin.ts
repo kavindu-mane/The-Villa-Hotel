@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "@/lib/db";
-
 import { TableType } from "@prisma/client";
 
 // create table
