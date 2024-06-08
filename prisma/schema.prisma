@@ -198,9 +198,10 @@ model Reservation {
 }
 
 model TableReservation {
-  id                 String   @id @default(cuid())
-  reservationNo      Int      @unique @default(autoincrement())
+  id                 String      @id @default(cuid())
+  reservationNo      Int         @unique @default(autoincrement())
   tableId            String
+  offerId            String?
   userId             String?
   foodReservationsId String?
   name               String
@@ -208,24 +209,29 @@ model TableReservation {
   phone              String
   date               DateTime
   timeSlot           String
-  status             Status   @default(Confirmed)
+  total              Float       @default(0)
+  coins              Float       @default(0)
+  offerDiscount      Float       @default(0)
+  status             Status      @default(Confirmed)
+  type               BookingType @default(Online)
 
   table            Tables           @relation(fields: [tableId], references: [id])
   user             User?            @relation(fields: [userId], references: [id])
   foodReservations FoodReservation? @relation(fields: [foodReservationsId], references: [id])
+  offer            Offer?           @relation(fields: [offerId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model FoodReservation {
-  id                 String             @id @default(cuid())
-  foodId             String
-  quantity           Int
-  price              Float
-  specialRequirement String?
-  reservation        Reservation[]
-  tableReservation   TableReservation[]
+  id                   String                @id @default(cuid())
+  foodId               String
+  quantity             Int
+  price                Float
+  specialRequirement   String?
+  reservation          Reservation[]
+  tableReservation     TableReservation[]
   foodReservationItems FoodReservationItem[]
 
   createdAt DateTime @default(now())
@@ -251,7 +257,8 @@ model Offer {
   validFrom   DateTime
   validTo     DateTime
 
-  reservation Reservation[]
+  reservation      Reservation[]
+  tableReservation TableReservation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

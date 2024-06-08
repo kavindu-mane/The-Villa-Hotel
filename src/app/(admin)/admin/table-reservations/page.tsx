@@ -1,4 +1,4 @@
-import { AdminTableReservations } from "@/components";
+import { AdminTableReservation } from "@/components";
 import getSession from "@/lib/getSession";
 import { Role } from "@prisma/client";
 
@@ -20,7 +20,7 @@ const AdminTableReservationsPage = async () => {
 
   return (
     <section className="">
-      <AdminTableReservations />
+      <AdminTableReservation />
     </section>
   );
 };

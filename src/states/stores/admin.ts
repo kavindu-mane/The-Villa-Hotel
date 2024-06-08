@@ -5,14 +5,16 @@ import {
   tableReducer,
   roomReservationReducer,
   promotionsReducer,
+  tableReservationReducer,
 } from "../admin";
 
 export const adminStore = configureStore({
   reducer: {
     rooms_admin: roomReducer,
     foods_admin: foodReducer,
-    tables_admin:tableReducer,
+    tables_admin: tableReducer,
     rooms_reservation_admin: roomReservationReducer,
+    tables_reservation_admin: tableReservationReducer,
     promotions_admin: promotionsReducer,
   },
   middleware: (getDefaultMiddleware) =>

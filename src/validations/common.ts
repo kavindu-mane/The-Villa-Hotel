@@ -1,6 +1,32 @@
 import { oneMonthFromNow, today, yesterday } from "@/utils";
 import { z } from "zod";
 
+
+//form schema for table booking validation
+export const TableReservationsSchema = z.object({
+  table_type: z.enum(["One_Seat", "Two_Seat", "Four_Seat", "Six_Seat"], {
+    errorMap: (_, ctx) => {
+      return {
+        message: ctx.defaultError.split(".")[1],
+      };
+    },
+  }),
+  date: z
+    .date()
+    .refine((date) => {
+      return !!date;
+    }, "Date is required")
+    .refine((date) => {
+      return date >= today();
+    }, "Date must be greater than or equal to tomorrow")
+    .refine((date) => {
+      return date <= oneMonthFromNow();
+    }, "Date must be less than or equal to 1 months from now"),
+  time_slot: z.string().min(1, {
+    message: "Please select a time slot",
+  }),
+});
+
 // form schema for room booking validation
 export const ReservationsSchema = z.object({
   room_type: z.enum(["Deluxe", "Superior", "Standard"], {
@@ -163,8 +189,8 @@ export const RestaurantReservationSchema = z.object({
     .email("This is not a valid email."),
   phone: z
     .string()
-    .min(1, { message: "Phone field has to be filled." })
-    .max(15, { message: "Phone should contain maximum 15 characters." }),
+    .min(10, { message: "Phone number must be at least 10 characters." })
+    .max(15, { message: "Phone number should contain maximum 15 characters." }),
   table: z.coerce
     .number({ invalid_type_error: "Please select a table" })
     .refine((val) => val !== undefined, {
