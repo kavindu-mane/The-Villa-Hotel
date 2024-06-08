@@ -1,4 +1,5 @@
 "use server";
+
 import { z } from "zod";
 import { RoomReservationFormSchema } from "@/validations";
 import {
@@ -135,7 +136,7 @@ export const addOrUpdateRoomReservation = async (
       }
 
       reservation = await updateReservation(
-        {
+        { 
           id: currentReservation.id,
           roomId: roomDetails.id,
           bed: beds,

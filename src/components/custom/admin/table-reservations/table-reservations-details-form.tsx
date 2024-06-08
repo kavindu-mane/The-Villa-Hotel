@@ -26,22 +26,16 @@ import {
   SelectValue,
   Skeleton,
 } from "@/components";
-import { errorTypes, roomsDataTypes } from "@/types";
-import { RoomReservationFormSchema } from "@/validations";
+import { errorTypes, tablesDataTypes } from "@/types";
+import { TableReservationFormSchema } from "@/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FC, startTransition, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TbHexagonNumber1Filled } from "react-icons/tb";
-import { z } from "zod";
+import { string, z } from "zod";
 import { ClipLoader, GridLoader } from "react-magic-spinners";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  oneMonthFromNow,
-  today,
-  tomorrow,
-  transferZodErrors,
-  yesterday,
-} from "@/utils";
+import { oneMonthFromNow, today, transferZodErrors, yesterday } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
 import { useSearchParams } from "next/navigation";
@@ -52,66 +46,69 @@ import { format } from "date-fns";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { FaPhoneFlip } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
-import { addOrUpdateRoomReservation } from "@/actions/admin/room-reservations-crud";
-import { setAllRoomReservations } from "@/states/admin";
-import { BedTypes } from "@prisma/client";
-import { getRoomsDetails } from "@/actions/room-reservations";
+import { addOrUpdateTableReservation } from "@/actions/admin/table-reservations-crud";
+import { setAllTableReservations } from "@/states/admin";
+import { getTablesDetails } from "@/actions/table-reservations";
+import { TableType } from "@prisma/client";
+import { BiTime } from "react-icons/bi";
 
 // default value for errors
 const errorDefault: errorTypes = {
-  room: [],
-  offer: [],
-  beds: [],
-  name: [],
-  email: [],
-  phone: [],
+  tableId: [],
   date: [],
+  time_slot: [],
+  tableType: [],
+  name: [],
+  phone: [],
+  email: [],
+  offer: [],
   message: "",
 };
 
-export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
+export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
   isPending,
 }) => {
   // error state
   const [errors, setErrors] = useState(errorDefault);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [availableBedTypes, setAvailableBedTypes] = useState<BedTypes[]>([]);
-  const [roomDetails, setRoomDetails] = useState<roomsDataTypes[] | null>(null);
+//   const [availableTableTypes, setAvailableTableTypes] = useState<TableType[]>(
+//     [],
+//   );
+  const [tableDetails, setTableDetails] = useState<tablesDataTypes[] | null>(
+    null,
+  );
   const { toast } = useToast();
   // dispatcher
   const dispatch = useDispatch();
   const reservation = useSelector(
-    (state: AdminState) => state.rooms_reservation_admin,
+    (state: AdminState) => state.tables_reservation_admin,
   );
   const params = useSearchParams();
   const page = params.get("page") || "1";
 
   // form hook
-  const form = useForm<z.infer<typeof RoomReservationFormSchema>>({
-    resolver: zodResolver(RoomReservationFormSchema),
+  const form = useForm<z.infer<typeof TableReservationFormSchema>>({
+    resolver: zodResolver(TableReservationFormSchema),
     defaultValues: {
-      room: 1,
+      tableId: "",
       offer: 0,
-      beds: "One_Double_Bed",
       name: "",
       email: "",
       phone: "",
-      date: {
-        from: today(),
-        to: tomorrow(),
-      },
+      date: today(),
+      time_slot: "",
     },
   });
 
   // form submit handler
-  const onSubmit = async (data: z.infer<typeof RoomReservationFormSchema>) => {
+  const onSubmit = async (data: z.infer<typeof TableReservationFormSchema>) => {
     setIsLoading(true);
     setErrors(errorDefault);
     const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
 
     startTransition(async () => {
-      await addOrUpdateRoomReservation(
+      await addOrUpdateTableReservation(
         data,
         reservation.current ? true : false,
         reservation.current ? pageNumber : Infinity,
@@ -134,7 +131,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
               description: new Date().toLocaleTimeString(),
               className: "bg-green-500 border-primary rounded-md text-white",
             });
-            dispatch(setAllRoomReservations(res.data));
+            dispatch(setAllTableReservations(res.data));
           }
         })
         .catch((err) => {
@@ -150,12 +147,12 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
     });
   };
 
-  // fetch room details function
-  const fetchAllRooms = useCallback(async () => {
+  // fetch table details function
+  const fetchAllTables = useCallback(async () => {
     setIsFetching(true);
-    await getRoomsDetails()
-      .then(({ rooms }) => {
-        if (rooms) setRoomDetails(rooms as roomsDataTypes[]);
+    await getTablesDetails()
+      .then(({ tables }) => {
+        if (tables) setTableDetails(tables as tablesDataTypes[]);
       })
       .finally(() => {
         setIsFetching(false);
@@ -165,37 +162,34 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
   // update if data have values
   useEffect(() => {
     if (reservation.current) {
-      form.setValue("room", reservation.current.room.number);
-      form.setValue("beds", reservation.current.bed as BedTypes);
+      form.setValue("tableId", reservation.current.table.tableId);
+      form.setValue("date", reservation.current.date);
+      form.setValue("time_slot", reservation.current.timeSlot);
+      form.setValue("name", reservation.current.name);
+      form.setValue("phone", reservation.current.phone);
+      form.setValue("email", reservation.current.email);
       form.setValue("offer", reservation.current.offerDiscount);
-      form.setValue("name", reservation.current.name || "");
-      form.setValue("email", reservation.current.email || "");
-      form.setValue("phone", reservation.current.phone || "");
-      form.setValue("date", {
-        from: new Date(reservation.current.checkIn),
-        to: new Date(reservation.current.checkOut),
-      });
     } else {
       form.reset();
     }
   }, [form, reservation]);
 
-  // fetch room details
+  // fetch table details
   useEffect(() => {
-    fetchAllRooms();
-  }, [fetchAllRooms]);
+    fetchAllTables();
+  }, [fetchAllTables]);
 
-  // set available bed types with respect to room number
-  useEffect(() => {
-    if (roomDetails) {
-      const room = roomDetails.find(
-        (room) => room.number === Number(form.getValues("room")),
-      );
-      if (room) {
-        setAvailableBedTypes(room.beds.data as BedTypes[]);
-      }
-    }
-  }, [roomDetails, form]);
+  // set available table types with respect to table number
+//   useEffect(() => {
+//     if (tableDetails) {
+//       const table = tableDetails.find(
+//         (table) => table.tableId === form.getValues("tableId"),
+//       );
+//       if (table) {
+//         setAvailableTableTypes(table.tableType);
+//       }
+//     }
+//   }, [tableDetails, form]);
 
   // details array
   const detailsArray = [
@@ -208,20 +202,12 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       value: reservation.current?.status,
     },
     {
-      title: "Room Type",
-      value: reservation.current?.room.type,
-    },
-    {
-      title: "Room Price",
-      value: `$ ${reservation.current?.room.price}`,
+      title: "Table Type",
+      value: reservation.current?.table.tableType.replaceAll("_", " "),
     },
     {
       title: "Total",
-      value: `$ ${reservation.current?.total}`,
-    },
-    {
-      title: "Pending Balance",
-      value: `$ ${reservation.current?.pendingBalance}`,
+      value: reservation.current?.total,
     },
   ];
 
@@ -236,6 +222,14 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       </div>
     );
 
+  //time slots
+  const timeSlots = [
+    "Morning (9:00 AM - 12:00 PM)",
+    "Afternoon (12:00 PM - 3:00 PM)",
+    "Evening (3:00 PM - 6:00 PM)",
+    "Night (6:00 PM - 9:00 PM)",
+  ];
+
   return (
     <div>
       <Card className="relative overflow-hidden bg-white">
@@ -248,7 +242,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
         <CardHeader className="flex flex-row items-start bg-muted/50">
           <div className="grid gap-0.5">
             <CardTitle className="group flex items-center gap-2 text-lg">
-              {!reservation.current ? "Add new" : "Edit"} Room Reservation
+              {!reservation.current ? "Add new" : "Edit"} Table Reservation
             </CardTitle>
             <CardDescription>
               {!reservation.current ? "Add new" : "Edit"} reservation details to
@@ -287,14 +281,14 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
               className="relative w-full space-y-5 overflow-hidden"
             >
               <div className="space-y-5 overflow-auto p-2 lg:max-h-[calc(100vh_-_23rem)]">
-                {/* room number field */}
+                {/* table number field */}
                 <FormField
                   control={form.control}
-                  name="room"
+                  name="tableId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        <TbHexagonNumber1Filled /> Room Number
+                        <TbHexagonNumber1Filled /> Table Number
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -307,69 +301,32 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {roomDetails?.map((room) => (
+                          {tableDetails?.map((table) => (
                             <SelectItem
-                              key={room.number}
-                              value={room.number.toString()}
+                              key={table.tableId}
+                              value={table.tableId.toString()}
                               className="capitalize"
                             >
-                              {room.number}
+                              {table.tableId}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                       <FormMessage>
-                        {errors?.room && errors?.room[0]}
+                        {errors?.tableId && errors?.tableId[0]}
                       </FormMessage>
                     </FormItem>
                   )}
                 />
 
-                {/* beds options */}
-                <FormField
-                  control={form.control}
-                  name="beds"
-                  render={({ field }) => (
-                    <FormItem className="w-full">
-                      <FormLabel className="flex items-center gap-2">
-                        <IoIosBed /> Bed Option
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="capitalize">
-                            <SelectValue placeholder={field.value} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {availableBedTypes?.map((bed) => (
-                            <SelectItem
-                              key={bed}
-                              value={bed}
-                              className="capitalize"
-                            >
-                              {bed.replaceAll("_", " ")}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage>
-                        {errors?.beds && errors?.beds[0]}
-                      </FormMessage>
-                    </FormItem>
-                  )}
-                />
-
-                {/* check in and out */}
+                {/* date */}
                 <FormField
                   control={form.control}
                   name="date"
                   render={({ field }) => (
                     <FormItem className="flex w-full flex-col">
                       <FormLabel className="flex items-center gap-2">
-                        <IoCalendarSharp /> Check In and Out
+                        <IoCalendarSharp /> Date
                       </FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -381,11 +338,8 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                                 !field.value && "text-muted-foreground",
                               )}
                             >
-                              {field.value.from && field.value.to ? (
-                                <>
-                                  {format(field.value.from, "LLL dd, y")} -{" "}
-                                  {format(field.value.to, "LLL dd, y")}
-                                </>
+                              {field.value ? (
+                                format(field.value, "LLL dd, y")
                               ) : (
                                 <span>Pick a date</span>
                               )}
@@ -395,25 +349,59 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
-                            mode="range"
-                            selected={{
-                              from: field.value.from,
-                              to: field.value.to,
-                            }}
-                            defaultMonth={field.value.from}
+                            mode="single"
+                            selected={field.value}
+                            defaultMonth={field.value}
                             onSelect={field.onChange}
                             disabled={(date) =>
-                              date <= yesterday() || date > oneMonthFromNow()
+                              date < new Date() || date > oneMonthFromNow()
                             }
-                            numberOfMonths={2}
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormMessage />
+                      <FormMessage>
+                        {errors?.date && errors?.date[0]}
+                      </FormMessage>
                     </FormItem>
                   )}
                 />
 
+                {/* time slot */}
+                <FormField
+                  control={form.control}
+                  name="time_slot"
+                  render={({ field }) => (
+                    <FormItem className="w-full max-w-sm lg:max-w-xs">
+                      <FormLabel className="flex items-center gap-2">
+                        <BiTime /> Time Slot
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="bg-white capitalize">
+                            <SelectValue placeholder={field.value} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {timeSlots.map((timeSlot) => (
+                            <SelectItem
+                              key={timeSlot}
+                              value={timeSlot}
+                              className="capitalize"
+                            >
+                              {timeSlot}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage>
+                        {errors?.time_slot && errors?.time_slot[0]}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
                 {/* name field */}
                 <FormField
                   control={form.control}
@@ -500,7 +488,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                           max={100}
                           placeholder="10"
                           {...field}
-                          disabled={!!reservation.current?.room}
+                          disabled={!!reservation.current?.table}
                           value={
                             reservation.current?.offerDiscount || field.value
                           }

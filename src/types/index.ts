@@ -147,3 +147,30 @@ export type pendingReservationResponse = {
   amount: number;
   offers: offerDataTypes[];
 };
+
+// types for table reservation data
+export type tableReservationDataTypes = {
+  reservationNo: number;
+  tableId: string;
+  userId?: string;
+  foodReservationsId?: string;
+  name: string;
+  email: string;
+  phone: string;
+  date: Date;
+  timeSlot: string;
+  status: string;
+  offerDiscount: number;
+  total: number;
+  table: tablesDataTypes;
+  food: foodsReservationDataTypes;
+};
+
+//types for food reservation data
+export type foodsReservationDataTypes = {
+  foodId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  specialRequirement: string;
+};

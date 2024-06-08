@@ -1,4 +1,4 @@
-import { today, yesterday } from "@/utils";
+import { oneMonthFromNow, today, yesterday } from "@/utils";
 import { z } from "zod";
 
 //form schema for add and edit room validation
@@ -166,3 +166,51 @@ export const PromotionsFormSchema = z
   .refine((data) => {
     return data.validFrom < data.validTo;
   }, "Valid from date must be less than valid to date");
+
+// form schema for add or edit table reservation validation
+export const TableReservationFormSchema = z.object({
+  tableId: z
+    .string()
+    .min(1, { message: "Table field has to be filled." })
+    .max(5, { message: "Table should contain maximum 5 characters." }),
+  name: z
+    .string()
+    .min(1, { message: "Name field has to be filled." })
+    .max(50, { message: "Name should contain maximum 50 characters." }),
+  email: z
+    .string()
+    .min(1, { message: "Email field has to be filled." })
+    .email("This is not a valid email."),
+  phone: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 characters." })
+    .max(15, { message: "Phone number should contain maximum 15 characters." }),
+  date: z
+    .date()
+    .refine((date) => {
+      return !!date;
+    }, "Check-in date is required")
+    .refine((date) => {
+      return date >= today();
+    }, "Date must be greater than or equal to tomorrow")
+    .refine((date) => {
+      return date <= oneMonthFromNow();
+    }, "Date must be less than or equal to 1 months from now"),
+  time_slot: z.string().min(1, {
+    message: "Please select a time slot",
+  }),
+  offer: z.optional(
+    z.coerce
+      .number({ invalid_type_error: "Please enter numbers only" })
+      .refine((val) => !isNaN(val), {
+        message: "Offer must be a number",
+      })
+      .refine((val) => val >= 0 && val <= 100, {
+        message: "Offer must be between 0 and 100",
+      }),
+  ),
+  offerID: z.optional(z.string()),
+  coins: z.optional(
+    z.coerce.number({ invalid_type_error: "Please enter numbers only" }),
+  ),
+});
