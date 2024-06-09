@@ -1,6 +1,10 @@
 "use server";
 
-import { TableReservationsSchema, TableReservationFormSchema } from "@/validations";
+import {
+  TableReservationsSchema,
+  TableReservationFormSchema,
+  RestaurantAvailabilitySchema,
+} from "@/validations";
 import z from "zod";
 import {
   getAllTables,
@@ -17,11 +21,13 @@ import {
 } from "@/actions/utils/table-reservations";
 import { cookies } from "next/headers";
 import { getPromotionByCode, getPromotions } from "./utils/promotions";
-import { createTableReservation, updateTableReservation } from "./admin/utils/tables-reservation-admin";
+import {
+  createTableReservation,
+  updateTableReservation,
+} from "./admin/utils/tables-reservation-admin";
 import md5 from "md5";
 import { getUserByEmail } from "./utils/user";
 import { addPaymentRecord } from "./utils/payments";
-// import { roomReservationConfirmEmailTemplate } from "@/templates/room-reservation-confirm-email";
 import { sendEmails } from "./utils/email";
 import { Value } from "@radix-ui/react-select";
 import { table } from "console";
@@ -31,49 +37,32 @@ import { table } from "console";
  * @returns - available tables
  */
 
-// export const getAvailableTables = async (values: z.infer<typeof TableReservationFormSchema>) => {
-//   // validate data in backend
-//   const validatedFields = TableReservationsSchema.safeParse(values);
+export const getAllAvailableTables = async (
+  values: z.infer<typeof RestaurantAvailabilitySchema>,
+) => {
+  // validate data in backend
+  const validatedFields = RestaurantAvailabilitySchema.safeParse(values);
 
-//   //check if validation failed and return errors
-//   if (!validatedFields.success) {
-//     return { error: validatedFields.error };
-//   }
+  //check if validation failed and return errors
+  if (!validatedFields.success) {
+    return { error: validatedFields.error };
+  }
 
-//   //destructure data from validated fields
-//   const { table_type, date, time_slot } = validatedFields.data;
+  //destructure data from validated fields
+  const { date, time_slot } = validatedFields.data;
 
-//   //get available tables
-//   const availableTables = await getAvailableTables({
-//     date,
-//     time_slot,
-//     table_type: table_type as TableType,
-//   });
+  //get available tables
+  const availableTables = await getAvailableTables(date, time_slot);
 
-  //other available tables
-  // const otherAvailableTables = await getOtherAllTables({
-  //   date,
-  //   time_slot,
-  //   table_type: table_type as TableType,
-  // });
+  // get all tables
+  const tables = await getAllTables();
 
-//   const error =
-//     availableTables === null || availableTables.length === 0
-//       ? `No ${table_type} tables available for the selected dates and time slots.`
-//       : null;
-//   const otherError =
-//     otherAvailableTables === null || otherAvailableTables.length === 0
-//       ? "No other tables available"
-//       : null;
-
-//       // if no tables available
-//       return {
-//         error:error,
-//         otherError:otherError,
-//         tables: availableTables,
-//         other:otherAvailableTables,
-//       };
-// };
+  // if no tables available
+  return {
+    availableTables,
+    tables,
+  };
+};
 
 export const getTablesDetails = async () => {
   const tables = await getAllTables();
@@ -184,48 +173,48 @@ export const getTablesDetails = async () => {
 //       if (existingReservation && existingReservation.status === "Ongoing")
 //         await deleteTableReservation(reservation.value, "Ongoing");
 //     }
-    // calculate total amount
-    // const totalAmount =
-    //   tableDetails.price *
-      // Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
-    // create new pending reservation
-    // const newTableReservation = await createTableReservation({
-    //   tableId: tableDetails.id,
-    //   offerDiscount: 0,
-    //   total: totalAmount,
-    //   status: "Pending",
-    //   type: "Online",
-    // });
+// calculate total amount
+// const totalAmount =
+//   tableDetails.price *
+// Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
+// create new pending reservation
+// const newTableReservation = await createTableReservation({
+//   tableId: tableDetails.id,
+//   offerDiscount: 0,
+//   total: totalAmount,
+//   status: "Pending",
+//   type: "Online",
+// });
 
-    // if (newTableReservation) {
-    //   // Set a timeout to delete the record after 15 minutes
-    //   setTimeout(
-    //     async () => {
-    //       await deleteTableReservation(newTableReservation.id, "Pending");
-    //     },
-    //     15 * 60 * 1000,
-    //   );
+// if (newTableReservation) {
+//   // Set a timeout to delete the record after 15 minutes
+//   setTimeout(
+//     async () => {
+//       await deleteTableReservation(newTableReservation.id, "Pending");
+//     },
+//     15 * 60 * 1000,
+//   );
 
-      // set cookie for 15 minutes
-      // cookies().set("pending_reservation", newTableReservation.id, {
-      //   path: "/",
-      //   secure: true,
-      //   httpOnly: true,
-      //   sameSite: "strict",
-      //   expires: new Date(Date.now() + 15 * 60 * 1000),
-      // });
+// set cookie for 15 minutes
+// cookies().set("pending_reservation", newTableReservation.id, {
+//   path: "/",
+//   secure: true,
+//   httpOnly: true,
+//   sameSite: "strict",
+//   expires: new Date(Date.now() + 15 * 60 * 1000),
+// });
 
-      // return {
-      //   success: true,
-      //   reservation: {
-      //     room: {
-      //       number: tableDetails.number,
-      //       type: tableDetails.type,
-      //     },
-      //     amount: newTableReservation.total,
-      //     offers: offers?.offers || [],
-      //   },
-      // };
+// return {
+//   success: true,
+//   reservation: {
+//     room: {
+//       number: tableDetails.number,
+//       type: tableDetails.type,
+//     },
+//     amount: newTableReservation.total,
+//     offers: offers?.offers || [],
+//   },
+// };
 //     } else {
 //       return {
 //         error: "Table not available",

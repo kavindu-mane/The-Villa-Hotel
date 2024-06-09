@@ -129,7 +129,7 @@ export const AdminTableReservationTable: FC<{
           <div className="">
             <CardTitle className="text-lg">Table Reservation Data</CardTitle>
             <CardDescription>
-              Table reservation details of The Villa Restaurent.
+              Table reservation details of The Villa Restaurant.
             </CardDescription>
           </div>
 

@@ -7,12 +7,19 @@ export const getAvailableTables = async (date: Date, timeSlot: string) => {
   try {
     const tables = await db.tables.findMany({
       where: {
-        tabelReservation: {
+        tableReservation: {
           none: {
             date,
             timeSlot,
           },
         },
+      },
+      select: {
+        tableId: true,
+        price: true,
+        images: true,
+        tableType: true,
+        description: true,
       },
     });
     return tables;
@@ -28,6 +35,13 @@ export const getTableByNumber = async (tableId: string) => {
       where: {
         tableId,
       },
+      select: {
+        tableId: true,
+        price: true,
+        images: true,
+        tableType: true,
+        description: true,
+      },
     });
     return table;
   } catch (e) {
@@ -38,7 +52,15 @@ export const getTableByNumber = async (tableId: string) => {
 //get all tables
 export const getAllTables = async () => {
   try {
-    const tables = await db.tables.findMany();
+    const tables = await db.tables.findMany({
+      select: {
+        tableId: true,
+        price: true,
+        images: true,
+        tableType: true,
+        description: true,
+      },
+    });
     return tables;
   } catch (e) {
     return null;
