@@ -3,7 +3,6 @@
 import { FC } from "react";
 import { FaWifi, FaParking } from "react-icons/fa";
 import { IoFastFood } from "react-icons/io5";
-import { HiLightBulb } from "react-icons/hi";
 import { GiDoubleFish } from "react-icons/gi";
 import { LuAirVent } from "react-icons/lu";
 import { BsCalendarRangeFill } from "react-icons/bs";
