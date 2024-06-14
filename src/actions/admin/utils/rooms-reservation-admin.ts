@@ -22,7 +22,7 @@ export const updateReservation = async (
 ) => {
   const { id, total } = data;
   try {
-    const reservation = await db.reservation.update({
+    const reservation = await db.roomReservation.update({
       where: {
         id,
       },
@@ -40,7 +40,7 @@ export const updateReservation = async (
 // return all reservations with pagination
 export const getReservations = async (page: number, limit: number) => {
   // get pages count in the database
-  let pages = (await db.reservation.count()) / limit;
+  let pages = (await db.roomReservation.count()) / limit;
   // convert count to integer
   pages = Math.ceil(pages);
   // if page is greater than pages
@@ -54,7 +54,7 @@ export const getReservations = async (page: number, limit: number) => {
   }
 
   try {
-    const reservations = await db.reservation.findMany({
+    const reservations = await db.roomReservation.findMany({
       take: limit,
       skip: (page - 1) * limit,
       where: {

@@ -84,7 +84,7 @@ export const addOrUpdateTableReservation = async (
 
     // check if table is available or not
     const tableAvailability = await checkTableAvailability(
-      tableDetails.id,
+      tableDetails.tableId,
       tableDate,
       time_slot,
     );
@@ -136,7 +136,7 @@ export const addOrUpdateTableReservation = async (
       reservation = await updateTableReservation(
         {
           id: currentReservation.id,
-          tableId: tableDetails.id,
+          tableId: tableDetails.tableId,
           name: name || "",
           email: email || "",
           phone: phone || "",
@@ -149,7 +149,7 @@ export const addOrUpdateTableReservation = async (
       );
     } else {
       reservation = await createTableReservation({
-        tableId: tableDetails.id,
+        tableId: tableDetails.tableId,
         name: name,
         email: email,
         phone: phone,

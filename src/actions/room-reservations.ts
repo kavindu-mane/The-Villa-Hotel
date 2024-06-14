@@ -17,7 +17,7 @@ import {
   getReservationById,
   getReservationByNumber,
   updateReservationStatus,
-} from "@/actions/utils/reservations";
+} from "@/actions/utils/room-reservations";
 import { cookies } from "next/headers";
 import { getPromotionByCode, getPromotions } from "./utils/promotions";
 import { updateReservation } from "./admin/utils/rooms-reservation-admin";

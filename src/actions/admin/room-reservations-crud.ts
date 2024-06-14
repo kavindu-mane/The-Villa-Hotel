@@ -10,7 +10,7 @@ import {
   checkRoomAvailability,
   createReservation,
   getReservationByNumber,
-} from "@/actions/utils/reservations";
+} from "@/actions/utils/room-reservations";
 import { getRoomByNumber } from "@/actions/utils/rooms";
 import { getUserByEmail } from "@/actions/utils/user";
 import { tzConvertor } from "@/actions/utils/timezone-convertor";
@@ -136,7 +136,7 @@ export const addOrUpdateRoomReservation = async (
       }
 
       reservation = await updateReservation(
-        { 
+        {
           id: currentReservation.id,
           roomId: roomDetails.id,
           bed: beds,

@@ -24,7 +24,7 @@ export const createReservation = async (data: {
     let pendingBalance = total - total * (offerDiscount / 100);
     pendingBalance = Math.round(pendingBalance * 100) / 100;
 
-    const reservation = await db.reservation.create({
+    const reservation = await db.roomReservation.create({
       data: {
         ...data,
         pendingBalance,
@@ -39,7 +39,7 @@ export const createReservation = async (data: {
 // confirm reservation function
 export const confirmReservations = async (id: string, payment: number) => {
   try {
-    const reservation = await db.reservation.update({
+    const reservation = await db.roomReservation.update({
       where: {
         id,
       },
@@ -63,7 +63,7 @@ export const confirmReservations = async (id: string, payment: number) => {
 // get reservation by reservation number
 export const getReservationByNumber = async (number: number) => {
   try {
-    const reservation = await db.reservation.findUnique({
+    const reservation = await db.roomReservation.findUnique({
       where: {
         reservationNo: number,
       },
@@ -77,7 +77,7 @@ export const getReservationByNumber = async (number: number) => {
 // get reservation by id
 export const getReservationById = async (id: string) => {
   try {
-    const reservation = await db.reservation.findUnique({
+    const reservation = await db.roomReservation.findUnique({
       where: {
         id,
       },
@@ -95,7 +95,7 @@ export const checkRoomAvailability = async (
   checkOut: Date,
 ) => {
   try {
-    const reservation = await db.reservation.findFirst({
+    const reservation = await db.roomReservation.findFirst({
       where: {
         roomId,
         OR: [
@@ -137,7 +137,7 @@ export const deleteReservation = async (id: string, status: Status) => {
   try {
     // get current reservation state and delete if its pending
     const transaction = await db.$transaction(async (tx) => {
-      const reservation = await db.reservation.findUnique({
+      const reservation = await db.roomReservation.findUnique({
         where: {
           id,
         },
@@ -148,7 +148,7 @@ export const deleteReservation = async (id: string, status: Status) => {
 
       if (reservation) {
         if (reservation.status === status) {
-          await db.reservation.delete({
+          await db.roomReservation.delete({
             where: {
               id,
             },
@@ -168,7 +168,7 @@ export const deleteReservation = async (id: string, status: Status) => {
 // update status of reservation by id
 export const updateReservationStatus = async (id: string, status: Status) => {
   try {
-    const reservation = await db.reservation.update({
+    const reservation = await db.roomReservation.update({
       where: {
         id,
       },
