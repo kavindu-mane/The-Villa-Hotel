@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { RoomType } from "@prisma/client";
 import { cookies } from "next/headers";
-import { getReservationById } from "./reservations";
+import { getReservationById } from "./room-reservations";
 
 // get available rooms
 export const getAvailableRooms = async (
@@ -15,7 +15,7 @@ export const getAvailableRooms = async (
     const rooms = await db.rooms.findMany({
       where: {
         type: roomType,
-        reservation: {
+        roomReservation: {
           none: {
             OR: [
               {
@@ -63,7 +63,7 @@ export const getOtherAvailableRooms = async (
         type: {
           not: room_type,
         },
-        reservation: {
+        roomReservation: {
           none: {
             OR: [
               {

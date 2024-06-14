@@ -134,7 +134,7 @@ export type minimalRoomReservationData = {
     data: string[];
   };
   _count: {
-    reservation: number;
+    roomReservation: number;
   };
 };
 
