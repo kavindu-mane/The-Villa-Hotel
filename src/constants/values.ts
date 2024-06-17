@@ -1,6 +1,6 @@
 // foods types
 export const foodArray = [
-  "Fride_Rice",
+  "Fried_Rice",
   "Kottu",
   "Soup",
   "Appetizer",
@@ -39,7 +39,7 @@ export const featuresArray = [
 ];
 
 // default pagination size
-export const DEFAULT_PAGINATION_SIZE = 10;
+export const DEFAULT_PAGINATION_SIZE = 15;
 
 // default pagination data
 export const defaultPaginationData = {

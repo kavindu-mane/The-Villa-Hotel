@@ -44,7 +44,7 @@ export const RoomFormSchema = z.object({
 export const FoodFormSchema = z.object({
   foodType: z.enum(
     [
-      "Fride_Rice",
+      "Fried_Rice",
       "Kottu",
       "Soup",
       "Appetizer",
