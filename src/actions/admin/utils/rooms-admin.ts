@@ -94,7 +94,7 @@ export const getRooms = async (page: number, limit: number) => {
       skip: (page - 1) * limit,
       take: limit,
     });
-    return rooms;
+    return {rooms , pages, page};
   } catch (e) {
     return null;
   }

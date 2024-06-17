@@ -23,6 +23,7 @@ import {
   TableRow,
   TableSkeleton,
 } from "@/components";
+import { defaultPaginationData } from "@/constants";
 import { cn } from "@/lib/utils";
 import { setAllTables, setCurrentTable } from "@/states/admin/tables-slice";
 import { AdminState } from "@/states/stores";
@@ -64,6 +65,7 @@ export const AdminTablesTable: FC<{
   const dispatch = useDispatch();
   const tables = useSelector((state: AdminState) => state.tables_admin);
   const [tableId, setTableId] = useState<string>("new");
+  const [paginationData, setPaginationData] = useState(defaultPaginationData);
 
   // load tables data
   const loadTablesData = useCallback(async () => {
@@ -75,15 +77,21 @@ export const AdminTablesTable: FC<{
       .then((data) => {
         if (data?.tables) {
           dispatch(setAllTables(data.tables as tablesDataTypes[]));
+          setPaginationData({
+            totalPages: data?.totalPages,
+            currentPage: data?.currentPage,
+          });
         }
         if (data?.error) {
           setIsError(true);
           dispatch(setAllTables(null));
+          setPaginationData(defaultPaginationData);
         }
       })
       .catch(() => {
         setIsError(true);
         dispatch(setAllTables(null));
+        setPaginationData(defaultPaginationData);
       })
       .finally(() => {
         setIsLoading(false);
@@ -113,7 +121,9 @@ export const AdminTablesTable: FC<{
         <div className="flex w-full justify-between">
           <div className="">
             <CardTitle className="text-lg">Tables Data</CardTitle>
-            <CardDescription>Tables details of The Villa Hotel.</CardDescription>
+            <CardDescription>
+              Tables details of The Villa Hotel.
+            </CardDescription>
           </div>
 
           <Button variant="default" onClick={() => setTableId("new")}>
@@ -168,9 +178,6 @@ export const AdminTablesTable: FC<{
                       {data?.tableType.replaceAll("_", " ")}
                     </Badge>
                   </TableCell>
-                  {/* <TableCell className="hidden sm:table-cell">
-                    {data?.name}
-                  </TableCell> */}
                   <TableCell className="hidden max-w-96 sm:table-cell xl:max-w-80 2xl:max-w-96">
                     <p className="w-full truncate">{data?.description}</p>
                   </TableCell>
@@ -190,11 +197,15 @@ export const AdminTablesTable: FC<{
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
+                    isActive={paginationData.currentPage === 1}
                     href={`/admin/restaurant?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
+                    isActive={
+                      paginationData.currentPage === paginationData.totalPages
+                    }
                     href={`/admin/restaurant?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
                   />
                 </PaginationItem>

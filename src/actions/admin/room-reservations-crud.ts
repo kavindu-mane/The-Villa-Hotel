@@ -35,7 +35,9 @@ export const getRoomReservationsData = async (page: number) => {
 
     // return reservations data
     return {
-      reservations,
+      reservations : reservations.reservations,
+      totalPages: reservations.pages,
+      currentPage: reservations.page,
     };
   } catch (error) {
     return {
@@ -47,7 +49,6 @@ export const getRoomReservationsData = async (page: number) => {
 export const addOrUpdateRoomReservation = async (
   values: z.infer<typeof RoomReservationFormSchema>,
   isUpdate: boolean,
-  page: number = 1,
   reservationNo?: number,
 ) => {
   try {
@@ -175,12 +176,12 @@ export const addOrUpdateRoomReservation = async (
     }
 
     // get updated reservations data
-    const reservations = await getReservations(page, DEFAULT_PAGINATION_SIZE);
+    const reservations = await getReservations(Infinity, DEFAULT_PAGINATION_SIZE);
 
     //return success message
     return {
-      success: "Reservation added/update successfully",
-      data: reservations,
+      success: "Reservation added/updated successfully",
+      data: reservations?.reservations || [],
     };
   } catch (error) {
     return {

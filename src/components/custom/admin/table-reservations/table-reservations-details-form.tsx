@@ -32,15 +32,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FC, startTransition, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TbHexagonNumber1Filled } from "react-icons/tb";
-import { string, z } from "zod";
+import { z } from "zod";
 import { ClipLoader, GridLoader } from "react-magic-spinners";
 import { useToast } from "@/components/ui/use-toast";
 import { oneMonthFromNow, today, transferZodErrors, yesterday } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
-import { useSearchParams } from "next/navigation";
 import { IoCalendarSharp } from "react-icons/io5";
-import { IoIosBed, IoMdPerson } from "react-icons/io";
+import {  IoMdPerson } from "react-icons/io";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "@radix-ui/react-icons";
@@ -49,7 +48,6 @@ import { MdEmail } from "react-icons/md";
 import { addOrUpdateTableReservation } from "@/actions/admin/table-reservations-crud";
 import { setAllTableReservations } from "@/states/admin";
 import { getTablesDetails } from "@/actions/table-reservations";
-import { TableType } from "@prisma/client";
 import { BiTime } from "react-icons/bi";
 
 // default value for errors
@@ -72,9 +70,6 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
   const [errors, setErrors] = useState(errorDefault);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
-//   const [availableTableTypes, setAvailableTableTypes] = useState<TableType[]>(
-//     [],
-//   );
   const [tableDetails, setTableDetails] = useState<tablesDataTypes[] | null>(
     null,
   );
@@ -84,20 +79,18 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
   const reservation = useSelector(
     (state: AdminState) => state.tables_reservation_admin,
   );
-  const params = useSearchParams();
-  const page = params.get("page") || "1";
 
   // form hook
   const form = useForm<z.infer<typeof TableReservationFormSchema>>({
     resolver: zodResolver(TableReservationFormSchema),
     defaultValues: {
-      tableId: "",
+      tableId: "A1",
       offer: 0,
       name: "",
       email: "",
       phone: "",
       date: today(),
-      time_slot: "",
+      time_slot: "Morning (9:00 AM - 12:00 PM)",
     },
   });
 
@@ -105,13 +98,11 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
   const onSubmit = async (data: z.infer<typeof TableReservationFormSchema>) => {
     setIsLoading(true);
     setErrors(errorDefault);
-    const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
 
     startTransition(async () => {
       await addOrUpdateTableReservation(
         data,
         reservation.current ? true : false,
-        reservation.current ? pageNumber : Infinity,
         reservation.current?.reservationNo,
       )
         .then((res) => {
@@ -178,18 +169,6 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
   useEffect(() => {
     fetchAllTables();
   }, [fetchAllTables]);
-
-  // set available table types with respect to table number
-//   useEffect(() => {
-//     if (tableDetails) {
-//       const table = tableDetails.find(
-//         (table) => table.tableId === form.getValues("tableId"),
-//       );
-//       if (table) {
-//         setAvailableTableTypes(table.tableType);
-//       }
-//     }
-//   }, [tableDetails, form]);
 
   // details array
   const detailsArray = [
@@ -371,7 +350,7 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
                   control={form.control}
                   name="time_slot"
                   render={({ field }) => (
-                    <FormItem className="w-full max-w-sm lg:max-w-xs">
+                    <FormItem className="w-full">
                       <FormLabel className="flex items-center gap-2">
                         <BiTime /> Time Slot
                       </FormLabel>

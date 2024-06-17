@@ -142,7 +142,6 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
   const onSubmit = async (data: z.infer<typeof RoomFormSchema>) => {
     setIsLoading(true);
     setErrors(errorDefault);
-    const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
 
     // submit images to edge store
     await Promise.all(
@@ -158,7 +157,6 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
           await addOrUpdateRoom(
             data,
             rooms.current?.number ? true : false,
-            rooms.current?.id ? pageNumber : Infinity,
           ).then((res) => {
             if (res.errors) {
               setErrors(transferZodErrors(res.errors).error);

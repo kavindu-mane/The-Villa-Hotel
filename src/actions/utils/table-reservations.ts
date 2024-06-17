@@ -31,7 +31,7 @@ export const getTableReservationById = async (id: string) => {
   }
 };
 
-//check table availability by table number and date and timeslot
+//check table availability by table number and date and time slot
 export const checkTableAvailability = async (
   tableId: string,
   date: Date,

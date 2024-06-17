@@ -83,7 +83,7 @@ export const getTables = async (page: number, limit: number) => {
       skip: (page - 1) * limit,
       take: limit,
     });
-    return tables;
+    return {tables , pages, page};
   } catch (e) {
     return null;
   }

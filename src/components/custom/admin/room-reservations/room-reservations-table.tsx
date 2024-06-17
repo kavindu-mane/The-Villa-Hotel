@@ -23,6 +23,7 @@ import {
   TableRow,
   TableSkeleton,
 } from "@/components";
+import { defaultPaginationData } from "@/constants";
 import { cn } from "@/lib/utils";
 import {
   setAllRoomReservations,
@@ -77,6 +78,7 @@ export const AdminRoomReservationTable: FC<{
     (state: AdminState) => state.rooms_reservation_admin,
   );
   const [reservationId, setReservationId] = useState<string>("new");
+  const [paginationData, setPaginationData] = useState(defaultPaginationData);
 
   // load rooms reservations data
   const loadReservationsData = useCallback(async () => {
@@ -88,15 +90,21 @@ export const AdminRoomReservationTable: FC<{
       .then((data) => {
         if (data?.reservations) {
           dispatch(setAllRoomReservations(data?.reservations));
+          setPaginationData({
+            totalPages: data?.totalPages,
+            currentPage: data?.currentPage,
+          });
         }
         if (data?.error) {
           setIsError(true);
           dispatch(setAllRoomReservations(null));
+          setPaginationData(defaultPaginationData);
         }
       })
       .catch(() => {
         setIsError(true);
         dispatch(setAllRoomReservations(null));
+        setPaginationData(defaultPaginationData);
       })
       .finally(() => {
         setIsLoading(false);
@@ -219,11 +227,15 @@ export const AdminRoomReservationTable: FC<{
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
+                    isActive={paginationData.currentPage === 1}
                     href={`/admin/room-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
+                    isActive={
+                      paginationData.currentPage === paginationData.totalPages
+                    }
                     href={`/admin/room-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
                   />
                 </PaginationItem>

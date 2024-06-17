@@ -72,7 +72,7 @@ export const getTableReservations = async (page: number, limit: number) => {
         foodReservations: true,
       },
     });
-    return tableReservations;
+    return {tableReservations , pages, page};
   } catch (e) {
     return null;
   }

@@ -20,7 +20,7 @@ enum RoomType {
 }
 
 enum FoodType {
-  Fride_Rice
+  Fried_Rice
   Kottu
   Soup
   Appetizer
@@ -72,7 +72,7 @@ model User {
   role             Role               @default(USER)
   coins            Float              @default(0)
   account          Account?
-  rommReservation RoomReservation[]
+  rommReservation  RoomReservation[]
   tableReservation TableReservation[]
 
   createdAt DateTime @default(now())
@@ -127,14 +127,14 @@ model PasswordResetToken {
 }
 
 model Rooms {
-  id          String        @id @default(cuid())
-  number      Int           @unique
-  type        RoomType
-  price       Float
-  persons     Int
-  beds        Json
-  features    Json
-  images      Json
+  id              String            @id @default(cuid())
+  number          Int               @unique
+  type            RoomType
+  price           Float
+  persons         Int
+  beds            Json
+  features        Json
+  images          Json
   roomReservation RoomReservation[]
 
   createdAt DateTime @default(now())
@@ -230,7 +230,7 @@ model FoodReservation {
   quantity             Int
   price                Float
   specialRequirement   String?
-  roomreservation          RoomReservation[]
+  roomreservation      RoomReservation[]
   tableReservation     TableReservation[]
   foodReservationItems FoodReservationItem[]
 
@@ -257,7 +257,7 @@ model Offer {
   validFrom   DateTime
   validTo     DateTime
 
-  rommReservation RoomReservation[]
+  rommReservation  RoomReservation[]
   tableReservation TableReservation[]
 
   createdAt DateTime @default(now())
