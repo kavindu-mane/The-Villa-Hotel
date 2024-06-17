@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction ,useState,useEffect} from "react";
 import {
   Button,
   Form,
@@ -17,66 +17,8 @@ import { RestaurantMenuSchema, RestaurantRemarkSchema } from "@/validations";
 import { errorTypes } from "@/types";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { restaurantMenuSelection, fetchMenuItems } from "@/actions/utils/tableReservation"; // Import the menu selection function
 
-// menu data
-const menuData = [
-  {
-    id: "1",
-    name: "Greek Yoghurt with Strawberries",
-    image: "/images/img_25.jpg",
-    description:
-      "Savor the perfect blend of creamy and fruity with our Strawberry Greek Yogurt. Indulge in velvety Greek yogurt topped with luscious, ripe strawberries for a delightful burst of flavor in every spoonful.",
-  },
-  {
-    id: "2",
-    name: "Strawberry Pancakes",
-    image: "/images/img_26.jpg",
-    description:
-      "Indulge in a stack of fluffy pancakes topped with fresh strawberries and whipped cream. Our Strawberry Pancakes are the perfect way to start your day.",
-  },
-  {
-    id: "3",
-    name: "Strawberry French Toast",
-    image: "/images/img_27.jpg",
-    description:
-      "Treat yourself to a delicious breakfast with our Strawberry French Toast. Made with thick slices of bread soaked in a sweet egg mixture and topped with fresh strawberries, this dish is sure to satisfy your sweet tooth.",
-  },
-  {
-    id: "4",
-    name: "Strawberry Waffles",
-    image: "/images/img_25.jpg",
-    description:
-      "Enjoy a classic breakfast with a twist with our Strawberry Waffles. Crisp on the outside and fluffy on the inside, our waffles are topped with fresh strawberries and whipped cream for a deliciously sweet treat.",
-  },
-  {
-    id: "5",
-    name: "Strawberry Smoothie",
-    image: "/images/img_26.jpg",
-    description:
-      "Cool off with a refreshing Strawberry Smoothie. Made with fresh strawberries, yogurt, and a touch of honey, this smoothie is the perfect way to start your day or enjoy as a midday snack.",
-  },
-  {
-    id: "6",
-    name: "Strawberry Salad",
-    image: "/images/img_27.jpg",
-    description:
-      "Enjoy a light and refreshing meal with our Strawberry Salad. Made with fresh strawberries, mixed greens, feta cheese, and a balsamic vinaigrette, this salad is the perfect balance of sweet and savory.",
-  },
-  {
-    id: "7",
-    name: "Strawberry Chicken",
-    image: "/images/img_25.jpg",
-    description:
-      "Indulge in a flavorful and satisfying meal with our Strawberry Chicken. Tender chicken breasts are smothered in a sweet and tangy strawberry sauce for a dish that is sure to impress.",
-  },
-  {
-    id: "8",
-    name: "Strawberry Pizza",
-    image: "/images/img_26.jpg",
-    description:
-      "Satisfy your pizza cravings with our Strawberry Pizza. Topped with fresh strawberries, mozzarella cheese, and a balsamic glaze, this pizza is a delicious twist on a classic favorite.",
-  },
-];
 
 export const FoodsSelections: FC<{
   selectedMenu: z.infer<typeof RestaurantMenuSchema> | null;
@@ -84,12 +26,18 @@ export const FoodsSelections: FC<{
   onMenuItemRemove: (id: string) => void;
   setCurrentStep: Dispatch<SetStateAction<number>>;
   errors: errorTypes;
+  reservationData: { name: string; email: string; phone: string; table: string } | null;
+  availabilityData: { date: Date; time_slot: string } | null;
+  nextStep: (step: number, data: any) => void; // Function to go to the next step
 }> = ({
   selectedMenu,
   onMenuItemAdd,
   onMenuItemRemove,
   setCurrentStep,
   errors,
+  reservationData,
+  availabilityData,
+  nextStep,
 }) => {
   // form hooks
   const remarkForm = useForm<z.infer<typeof RestaurantRemarkSchema>>({
@@ -98,70 +46,119 @@ export const FoodsSelections: FC<{
       remark: "",
     },
   });
+
+  const [menuItems, setMenuItems] = useState<any[]>([]); // State to store the menu items
+
+  useEffect(() => {
+    // Fetch menu items when the component mounts
+    fetchMenu();
+  }, []);
+
+  // Function to fetch menu items
+  const fetchMenu = async () => {
+    try {
+      const result = await fetchMenuItems(); // Call the fetchMenuItems function
+      if (result.success) {
+        setMenuItems(result.data || []); // Set the fetched menu items in the state
+      } else {
+        console.error("Error fetching menu items:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+    }
+  };
+
+  const [localErrors, setLocalErrors] = useState<errorTypes>({});
+
+  const handleSubmit = async (remarkData: z.infer<typeof RestaurantRemarkSchema>) => {
+    console.log("Reservation form handleSubmit called with data:", remarkData);
+    setLocalErrors({});
+    try {
+      const menuData = {
+        menu: selectedMenu?.menu || [],
+        remark: remarkData.remark,
+      };
+
+      const result = await restaurantMenuSelection(menuData);
+      console.log("Reservation result:", result);
+
+      if (result.success) {
+        // Pass both data to the next step
+        nextStep(4, { menu: selectedMenu?.menu || [], availabilityData, reservationData, remark: remarkData.remark });
+      } else {
+        setLocalErrors({ message: result.message });
+      }
+    } catch (error) {
+      console.error("Error making reservation:", error);
+      setLocalErrors({ message: "Internal server error. Please try again later." });
+    }
+  };
+
   return (
     <div className="">
       <div className="flex flex-wrap justify-center gap-3">
-        {menuData.map((menu) => {
-          return (
-            <div
-              key={menu.id}
-              className="flex w-80 flex-col items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 shadow-lg drop-shadow-lg"
-            >
-              <div className="">
-                <Image
-                  src={menu.image}
-                  alt={menu.name}
-                  width={500}
-                  height={500}
-                  className="h-40 w-full rounded-t-lg object-cover"
-                />
-                <div className="flex flex-col items-start justify-center gap-2">
-                  <h3 className="text-lg font-medium text-gray-800">
-                    {menu.name}
-                  </h3>
-                  <p className="text-sm font-normal text-gray-600">
-                    {menu.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* increase and decrease button */}
-              <div className="mt-5 flex w-full justify-end">
-                <div className="flex">
-                  {/*  add button */}
-                  <Button
-                    disabled={
-                      selectedMenu?.menu.find((m) => m.id === menu.id)
-                        ?.quantity === 5
-                    }
-                    className="h-8 w-8 rounded-e-none rounded-s-lg border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                    onClick={() => onMenuItemAdd(menu.id)}
-                    variant="outline"
-                  >
-                    +
-                  </Button>
-                  {/* quantity */}
-                  <p className="flex h-8 w-8 items-center justify-center bg-gray-200 font-medium">
-                    {selectedMenu?.menu.find((m) => m.id === menu.id)
-                      ?.quantity || 0}
-                  </p>
-                  {/* remove button */}
-                  <Button
-                    disabled={
-                      selectedMenu?.menu.find((m) => m.id === menu.id) ===
-                      undefined
-                    }
-                    className="h-8 w-8 rounded-e-lg rounded-s-none border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                    onClick={() => onMenuItemRemove(menu.id)}
-                    variant="outline"
-                  >
-                    -
-                  </Button>
-                </div>
+        {menuItems.map((menu) => ( // Render menu items
+          <div
+            key={menu.id}
+            className="flex w-80 flex-col items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 shadow-lg drop-shadow-lg"
+          >
+            <div className="">
+              <Image
+                src={menu.images}
+                alt={menu.name}
+                width={500}
+                height={500}
+                className="h-40 w-full rounded-t-lg object-cover"
+              />
+              <div className="flex flex-col items-start justify-center gap-2">
+                <h3 className="text-lg font-medium text-gray-800">
+                  {menu.name}
+                </h3>
+                <p className="text-sm font-normal text-gray-600">
+                  {menu.description}
+                </p>
+                <p className="text-sm font-normal text-gray-600">
+                  Price: ${menu.price.toFixed(2)}
+                </p>
               </div>
             </div>
-          );
-        })}
+
+            {/* Increase and decrease button */}
+            <div className="mt-5 flex w-full justify-end">
+              <div className="flex">
+                {/* Add button */}
+                <Button
+                  disabled={
+                    selectedMenu?.menu.find((m) => m.id === menu.id)
+                      ?.quantity === 5
+                  }
+                  className="h-8 w-8 rounded-e-none rounded-s-lg border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                  onClick={() => onMenuItemAdd(menu.id)}
+                  variant="outline"
+                >
+                  +
+                </Button>
+                {/* Quantity */}
+                <p className="flex h-8 w-8 items-center justify-center bg-gray-200 font-medium">
+                  {selectedMenu?.menu.find((m) => m.id === menu.id)
+                    ?.quantity || 0}
+                </p>
+                {/* Remove button */}
+                <Button
+                  disabled={
+                    selectedMenu?.menu.find((m) => m.id === menu.id) ===
+                    undefined
+                  }
+                  className="h-8 w-8 rounded-e-lg rounded-s-none border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                  onClick={() => onMenuItemRemove(menu.id)}
+                  variant="outline"
+                >
+                  -
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
       <div className="flex items-center justify-center">
         <Form {...remarkForm}>
@@ -205,7 +202,7 @@ export const FoodsSelections: FC<{
         </Button>
 
         <Button
-          onClick={() => setCurrentStep(4)}
+          onClick={remarkForm.handleSubmit(handleSubmit)}
           className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2"
         >
           Next
