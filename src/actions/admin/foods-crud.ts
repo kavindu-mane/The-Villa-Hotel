@@ -29,7 +29,9 @@ export const getFoodsData = async (page: number) => {
 
     // return foods data
     return {
-      foods,
+      foods: foods.foods,
+      totalPages: foods.pages,
+      currentPage: foods.page,
     };
   } catch (error) {
     return {
@@ -41,7 +43,6 @@ export const getFoodsData = async (page: number) => {
 export const addOrUpdateFood = async (
   values: z.infer<typeof FoodFormSchema>,
   isUpdate: boolean,
-  page: number = 1,
 ) => {
   try {
     // validate data in backend
@@ -100,12 +101,12 @@ export const addOrUpdateFood = async (
     }
 
     // get updated foods data
-    const foods = await getFoods(page, DEFAULT_PAGINATION_SIZE);
+    const foods = await getFoods(Infinity, DEFAULT_PAGINATION_SIZE);
 
     // return success message
     return {
       success: "Food added/update successfully",
-      data: foods,
+      data: foods?.foods || [],
     };
   } catch (error) {
     return {

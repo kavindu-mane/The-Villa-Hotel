@@ -38,7 +38,9 @@ export const getTableReservationsData = async (page: number) => {
 
     // return reservations data
     return {
-      reservations,
+      reservations: reservations.tableReservations,
+      totalPages: reservations.pages,
+      currentPage: reservations.page,
     };
   } catch (error) {
     return {
@@ -50,7 +52,6 @@ export const getTableReservationsData = async (page: number) => {
 export const addOrUpdateTableReservation = async (
   values: z.infer<typeof TableReservationFormSchema>,
   isUpdate: boolean,
-  page: number = 1,
   reservationNo?: number,
 ) => {
   try {
@@ -136,7 +137,7 @@ export const addOrUpdateTableReservation = async (
       reservation = await updateTableReservation(
         {
           id: currentReservation.id,
-          tableId: tableDetails.tableId,
+          tableId: tableDetails.id,
           name: name || "",
           email: email || "",
           phone: phone || "",
@@ -149,7 +150,7 @@ export const addOrUpdateTableReservation = async (
       );
     } else {
       reservation = await createTableReservation({
-        tableId: tableDetails.tableId,
+        tableId: tableDetails.id,
         name: name,
         email: email,
         phone: phone,
@@ -164,6 +165,7 @@ export const addOrUpdateTableReservation = async (
         coins: 0,
         foodReservationsId: null,
       });
+      console.log("reservation", reservation)
     }
 
     // if failed to add or update reservation
@@ -175,14 +177,14 @@ export const addOrUpdateTableReservation = async (
 
     // get updated table reservations data
     const reservations = await getTableReservations(
-      page,
+      Infinity,
       DEFAULT_PAGINATION_SIZE,
     );
 
     //return success message
     return {
-      success: "table Reservation added/update successfully",
-      data: reservations,
+      success: "table Reservation added/updated successfully",
+      data: reservations?.tableReservations || [],
     };
   } catch (error) {
     return {

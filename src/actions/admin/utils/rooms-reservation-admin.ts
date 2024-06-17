@@ -83,7 +83,7 @@ export const getReservations = async (page: number, limit: number) => {
         type: true,
       },
     });
-    return reservations;
+    return {reservations , pages, page};
   } catch (e) {
     return null;
   }

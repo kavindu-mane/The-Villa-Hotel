@@ -34,7 +34,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { oneMonthFromNow, today, tomorrow, transferZodErrors } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
-import { useSearchParams } from "next/navigation";
 import { IoCalendarSharp } from "react-icons/io5";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -63,8 +62,6 @@ export const AdminPromotionsDetailsForm: FC<{ isPending: boolean }> = ({
   // dispatcher
   const dispatch = useDispatch();
   const promotion = useSelector((state: AdminState) => state.promotions_admin);
-  const params = useSearchParams();
-  const page = params.get("page") || "1";
 
   // form hook
   const form = useForm<z.infer<typeof PromotionsFormSchema>>({
@@ -82,13 +79,11 @@ export const AdminPromotionsDetailsForm: FC<{ isPending: boolean }> = ({
   const onSubmit = async (data: z.infer<typeof PromotionsFormSchema>) => {
     setIsLoading(true);
     setErrors(errorDefault);
-    const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
 
     startTransition(async () => {
       await addOrUpdatePromotion(
         data,
         promotion.current ? true : false,
-        promotion.current ? pageNumber : Infinity,
       )
         .then((res) => {
           if (res.errors) {

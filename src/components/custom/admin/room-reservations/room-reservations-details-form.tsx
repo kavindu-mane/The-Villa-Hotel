@@ -44,7 +44,6 @@ import {
 } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
-import { useSearchParams } from "next/navigation";
 import { IoCalendarSharp } from "react-icons/io5";
 import { IoIosBed, IoMdPerson } from "react-icons/io";
 import { cn } from "@/lib/utils";
@@ -84,8 +83,6 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
   const reservation = useSelector(
     (state: AdminState) => state.rooms_reservation_admin,
   );
-  const params = useSearchParams();
-  const page = params.get("page") || "1";
 
   // form hook
   const form = useForm<z.infer<typeof RoomReservationFormSchema>>({
@@ -108,13 +105,11 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
   const onSubmit = async (data: z.infer<typeof RoomReservationFormSchema>) => {
     setIsLoading(true);
     setErrors(errorDefault);
-    const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
 
     startTransition(async () => {
       await addOrUpdateRoomReservation(
         data,
         reservation.current ? true : false,
-        reservation.current ? pageNumber : Infinity,
         reservation.current?.reservationNo,
       )
         .then((res) => {

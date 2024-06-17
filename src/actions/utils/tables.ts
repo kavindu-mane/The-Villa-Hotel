@@ -36,6 +36,7 @@ export const getTableByNumber = async (tableId: string) => {
         tableId,
       },
       select: {
+        id: true,
         tableId: true,
         price: true,
         images: true,

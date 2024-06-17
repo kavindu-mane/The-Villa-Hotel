@@ -40,7 +40,6 @@ export const getPromotionsData = async (page: number) => {
 export const addOrUpdatePromotion = async (
   values: z.infer<typeof PromotionsFormSchema>,
   isUpdate: boolean,
-  page: number = 1,
 ) => {
   try {
     // validate data in backend
@@ -97,12 +96,12 @@ export const addOrUpdatePromotion = async (
     }
 
     // get updated promotions
-    const promotions = await getPromotions(page, DEFAULT_PAGINATION_SIZE);
+    const promotions = await getPromotions(Infinity, DEFAULT_PAGINATION_SIZE);
 
     // return success message
     return {
       success: "Promotion added/updated successfully",
-      data: promotions,
+      data: promotions?.offers || [],
     };
   } catch (error) {
     return {

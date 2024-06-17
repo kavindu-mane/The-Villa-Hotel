@@ -95,9 +95,9 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
   const form = useForm<z.infer<typeof FoodFormSchema>>({
     resolver: zodResolver(FoodFormSchema),
     defaultValues: {
-      foodType: "Fride_Rice",
+      foodType: "Fried_Rice",
       foodId: "",
-      name: "Chicken Fride Rice",
+      name: "Chicken Fried Rice",
       price: 0,
       description: "",
       images: [],
@@ -307,10 +307,7 @@ export const AdminFoodsDetailsForm: FC<{ isPending: boolean }> = ({
                         <TbHexagonNumber1Filled /> Food Name
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          className="h-10"
-                          {...field}
-                        />
+                        <Input className="h-10" {...field} />
                       </FormControl>
                       <FormMessage>
                         {errors?.number && errors?.number[0]}

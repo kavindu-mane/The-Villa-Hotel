@@ -23,6 +23,7 @@ import {
   TableRow,
   TableSkeleton,
 } from "@/components";
+import { defaultPaginationData } from "@/constants";
 import { cn } from "@/lib/utils";
 import {
   setAllTableReservations,
@@ -77,6 +78,7 @@ export const AdminTableReservationTable: FC<{
     (state: AdminState) => state.tables_reservation_admin,
   );
   const [tableReservationId, setTableReservationId] = useState<string>("new");
+  const [paginationData, setPaginationData] = useState(defaultPaginationData);
 
   // load tables reservations data
   const loadReservationsData = useCallback(async () => {
@@ -88,15 +90,21 @@ export const AdminTableReservationTable: FC<{
       .then((data) => {
         if (data?.reservations) {
           dispatch(setAllTableReservations(data?.reservations));
+          setPaginationData({
+            totalPages: data?.totalPages,
+            currentPage: data?.currentPage,
+          });
         }
         if (data?.error) {
           setIsError(true);
           dispatch(setAllTableReservations(null));
+          setPaginationData(defaultPaginationData);
         }
       })
       .catch(() => {
         setIsError(true);
         dispatch(setAllTableReservations(null));
+        setPaginationData(defaultPaginationData);
       })
       .finally(() => {
         setIsLoading(false);
@@ -209,7 +217,10 @@ export const AdminTableReservationTable: FC<{
                     {format(data?.date, "LLL dd, y")}
                   </TableCell>
                   <TableCell className="hidden sm:table-cell">
-                    {data?.timeSlot.split("(")[1].replace(")", "").replace("(", "")}
+                    {data?.timeSlot
+                      .split("(")[1]
+                      .replace(")", "")
+                      .replace("(", "")}
                   </TableCell>
                 </TableRow>
               ))}
@@ -224,11 +235,15 @@ export const AdminTableReservationTable: FC<{
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
+                    isActive={paginationData.currentPage === 1}
                     href={`/admin/table-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) - 1}`}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
+                    isActive={
+                      paginationData.currentPage === paginationData.totalPages
+                    }
                     href={`/admin/table-reservations?&page=${isNaN(Number(page)) ? 1 : Number(page) + 1}`}
                   />
                 </PaginationItem>

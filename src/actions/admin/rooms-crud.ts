@@ -30,7 +30,9 @@ export const getRoomsData = async (page: number) => {
 
     // return rooms data
     return {
-      rooms,
+      rooms: rooms.rooms,
+      totalPages: rooms.pages,
+      currentPage: rooms.page,
     };
   } catch (error) {
     return {
@@ -42,7 +44,6 @@ export const getRoomsData = async (page: number) => {
 export const addOrUpdateRoom = async (
   values: z.infer<typeof RoomFormSchema>,
   isUpdate: boolean,
-  page: number = 1,
 ) => {
   try {
     // validate data in backend
@@ -102,12 +103,12 @@ export const addOrUpdateRoom = async (
     }
 
     // get updated rooms data
-    const rooms = await getRooms(page, DEFAULT_PAGINATION_SIZE);
+    const rooms = await getRooms(Infinity, DEFAULT_PAGINATION_SIZE);
 
     // return success message
     return {
       success: "Room added/updated successfully",
-      data: rooms,
+      data: rooms?.rooms || [],
     };
   } catch (error) {
     return {

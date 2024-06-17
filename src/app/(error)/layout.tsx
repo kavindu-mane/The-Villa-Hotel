@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { Footer } from "@/components";
 import "../globals.css";
 
 const poppins = Poppins({
@@ -19,8 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.className} flex justify-center`}>
+      <body
+        className={`${poppins.className} flex h-full min-h-screen flex-col items-center justify-between`}
+      >
         <div className="w-full max-w-screen-2xl">{children}</div>
+        <Footer />
       </body>
     </html>
   );

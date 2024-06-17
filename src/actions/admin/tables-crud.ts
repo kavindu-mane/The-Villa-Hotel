@@ -29,7 +29,9 @@ export const getTablesData = async (page: number) => {
 
     // return tables data
     return {
-      tables,
+      tables: tables.tables,
+      totalPages: tables.pages,
+      currentPage: tables.page,
     };
   } catch (error) {
     return {
@@ -41,7 +43,6 @@ export const getTablesData = async (page: number) => {
 export const addOrUpdateTable = async (
   values: z.infer<typeof TableFormSchema>,
   isUpdate: boolean,
-  page: number = 1,
 ) => {
   try {
     // validate data in backend
@@ -100,12 +101,12 @@ export const addOrUpdateTable = async (
     }
 
     // get updated tables data
-    const tables = await getTables(page, DEFAULT_PAGINATION_SIZE);
+    const tables = await getTables(Infinity, DEFAULT_PAGINATION_SIZE);
 
     // return success message
     return {
       success: "Table added/update successfully",
-      data: tables,
+      data: tables?.tables || [],
     };
   } catch (error) {
     return {
