@@ -31,6 +31,7 @@ const errorDefault: errorTypes = {
   message: "",
 };
 
+
 export const RestaurantForm: FC = () => {
   // is loading state
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +51,14 @@ export const RestaurantForm: FC = () => {
   const [selectedMenu, setSelectedMenu] = useState<z.infer<
     typeof RestaurantMenuSchema
   > | null>(null);
+
+  //states for carrying data to next atep
+  const [formData, setFormData] = useState({
+    availabilityData: null,
+    reservationData: null,
+    selectedMenu: null,
+    remark: "",
+  });
 
   // form hooks
   const availabilityForm = useForm<
@@ -76,16 +85,18 @@ export const RestaurantForm: FC = () => {
   const onAvailabilityFormSubmit = (
     data: z.infer<typeof RestaurantAvailabilitySchema>,
   ) => {
+    console.log("Availability form submitted with data:", data);
     setAvailabilityData(data);
-    setCurrentStep(2);
+    handleNextStep(2, data);
   };
 
   // reservation form submit
   const onReservationFormSubmit = (
     data: z.infer<typeof RestaurantReservationSchema>,
   ) => {
+    console.log("Reservation form submitted with data:", data);
     setReservationData(data);
-    setCurrentStep(3);
+    handleNextStep(3, data);
   };
 
   // reservation form submit
@@ -143,6 +154,15 @@ export const RestaurantForm: FC = () => {
     }
   };
 
+  const handleNextStep = (step: number, data: any) => {
+    console.log(`Moving to step ${step} with data:`, data);
+    setFormData((prevData) => ({
+      ...prevData,
+      ...data,
+    }));
+    setCurrentStep(step);
+  };
+
   return (
     <div
       className="mx-5 flex flex-col items-center justify-center px-4 py-10 sm:px-6 lg:px-8"
@@ -194,7 +214,7 @@ export const RestaurantForm: FC = () => {
           errors={errors}
           isLoading={isLoading}
           onAvailabilityFormSubmit={onAvailabilityFormSubmit}
-        />
+          nextStep={(step, data) => handleNextStep(step, data)}        />
       )}
 
       {/* step 2 */}
@@ -206,6 +226,8 @@ export const RestaurantForm: FC = () => {
           isLoading={isLoading}
           onReservationFormSubmit={onReservationFormSubmit}
           setCurrentStep={setCurrentStep}
+          nextStep={(step, data) => handleNextStep(step, data)}
+          availabilityData={availabilityData} // Pass availability data
         />
       )}
 
@@ -224,12 +246,19 @@ export const RestaurantForm: FC = () => {
           selectedMenu={selectedMenu}
           errors={errors}
           setCurrentStep={setCurrentStep}
+          nextStep={(step, data) => handleNextStep(step, { ...data, selectedMenu })}
+          reservationData={reservationData}
+          availabilityData={availabilityData}
         />
       )}
       {/* order summary */}
       {currentStep === 4 && (
         <OrderSummary
           setCurrentStep={setCurrentStep}
+          selectedMenu={selectedMenu?.menu || []}
+          reservationData={reservationData}
+          availabilityData={availabilityData}
+          remark={formData.remark || ""} // Pass remark to OrderSummary
         />
       )}
     </div>
