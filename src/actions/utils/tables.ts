@@ -61,6 +61,9 @@ export const getAllTables = async () => {
         tableType: true,
         description: true,
       },
+      orderBy:{
+        tableId: 'asc'
+      }
     });
     return tables;
   } catch (e) {

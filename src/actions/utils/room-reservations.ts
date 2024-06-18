@@ -20,14 +20,9 @@ export const createReservation = async (data: {
   offerId?: string | null;
 }) => {
   try {
-    const { total, offerDiscount } = data;
-    let pendingBalance = total - total * (offerDiscount / 100);
-    pendingBalance = Math.round(pendingBalance * 100) / 100;
-
     const reservation = await db.roomReservation.create({
       data: {
         ...data,
-        pendingBalance,
       },
     });
     return reservation;
@@ -45,8 +40,8 @@ export const confirmReservations = async (id: string, payment: number) => {
       },
       data: {
         status: "Confirmed",
-        pendingBalance: {
-          decrement: payment,
+        paidAmount: {
+          increment: payment,
         },
       },
       include: {
@@ -95,24 +90,20 @@ export const checkRoomAvailability = async (
   checkOut: Date,
 ) => {
   try {
-    const reservation = await db.roomReservation.findFirst({
+    const reservation = await db.roomReservation.findMany({
       where: {
         roomId,
         OR: [
           {
-            checkIn: {
-              gt: checkOut,
-            },
             checkOut: {
+              gt: checkIn,
               lte: checkOut,
             },
           },
           {
             checkIn: {
               gte: checkIn,
-            },
-            checkOut: {
-              lt: checkIn,
+              lt: checkOut,
             },
           },
           {

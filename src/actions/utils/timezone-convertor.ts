@@ -2,8 +2,9 @@
 
 export const tzConvertor = async (date: Date) => {
   const timeZoneOffset = date.getTimezoneOffset();
+  const utcHours = date.getUTCHours();
   // add one day , if timezone offset is negative
-  if (timeZoneOffset < 0) {
+  if (timeZoneOffset < 0 && utcHours !== 0) {
     date.setDate(date.getDate() + 1);
   }
 

@@ -4,23 +4,20 @@ import { db } from "@/lib/db";
 import { BedTypes } from "@prisma/client";
 
 // update reservation
-export const updateReservation = async (
-  data: {
-    id: string;
-    roomId: string;
-    bed: BedTypes;
-    name: string;
-    email: string;
-    phone: string;
-    checkIn: Date;
-    checkOut: Date;
-    total: number;
-    userId?: string | null;
-    offerId?: string | null;
-  },
-  offer: number,
-) => {
-  const { id, total } = data;
+export const updateReservation = async (data: {
+  id: string;
+  roomId: string;
+  bed: BedTypes;
+  name: string;
+  email: string;
+  phone: string;
+  checkIn: Date;
+  checkOut: Date;
+  total: number;
+  userId?: string | null;
+  offerId?: string | null;
+}) => {
+  const { id } = data;
   try {
     const reservation = await db.roomReservation.update({
       where: {
@@ -28,7 +25,6 @@ export const updateReservation = async (
       },
       data: {
         ...data,
-        pendingBalance: total - total * (offer / 100),
       },
     });
     return reservation;
@@ -58,12 +54,10 @@ export const getReservations = async (page: number, limit: number) => {
       take: limit,
       skip: (page - 1) * limit,
       where: {
-        NOT: {
-          status: "Pending",
-        },
+        status: "Confirmed"
       },
       orderBy: {
-        checkIn: "desc",
+        checkIn: "asc",
       },
       select: {
         room: true,
@@ -73,7 +67,6 @@ export const getReservations = async (page: number, limit: number) => {
         total: true,
         offer: true,
         offerDiscount: true,
-        pendingBalance: true,
         name: true,
         email: true,
         phone: true,
@@ -83,7 +76,7 @@ export const getReservations = async (page: number, limit: number) => {
         type: true,
       },
     });
-    return {reservations , pages, page};
+    return { reservations, pages, page };
   } catch (e) {
     return null;
   }

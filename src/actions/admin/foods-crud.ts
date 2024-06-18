@@ -157,7 +157,7 @@ export const deleteFoodsImages = async (
     return {
       success: "Images deleted successfully",
       food: updatedFood,
-      foods,
+      foods : foods?.foods || [],
     };
   } catch (error) {
     return {

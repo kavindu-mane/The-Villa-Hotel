@@ -186,7 +186,7 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
     },
     {
       title: "Total",
-      value: reservation.current?.total,
+      value: `$ ${reservation.current?.total}`,
     },
   ];
 

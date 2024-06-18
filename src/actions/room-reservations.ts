@@ -335,8 +335,7 @@ export const generatePaymentKeys = async (
       total: existingReservation.total,
       offerId: offer,
       userId: user ? user.id : null,
-    },
-    offerPercentage,
+    }
   );
 
   // if update unsuccessful
@@ -350,7 +349,7 @@ export const generatePaymentKeys = async (
   const hash = md5(
     process.env.PAYHERE_MERCHANT_ID!! +
       updatedReservation.reservationNo +
-      (updatedReservation.pendingBalance * 0.1).toFixed(2) +
+      (updatedReservation.total * 0.1).toFixed(2) +
       "USD" +
       md5(process.env.PAYHERE_SECRET!!).toUpperCase(),
   ).toUpperCase();
@@ -365,7 +364,7 @@ export const generatePaymentKeys = async (
       order_id: updatedReservation.reservationNo,
       items: "Room Reservation - " + updatedReservation.reservationNo,
       currency: "USD",
-      amount: (updatedReservation.pendingBalance * 0.1).toFixed(2),
+      amount: (updatedReservation.total * 0.1).toFixed(2),
       first_name: name,
       last_name: "",
       email: email,
@@ -438,7 +437,7 @@ export const completePayment = async (order_id: number, payment: number) => {
     updatedReservation.total.toFixed(2),
     offerValue.toFixed(2),
     payment.toFixed(2),
-    updatedReservation.pendingBalance.toFixed(2),
+    (updatedReservation.total - payment).toFixed(2),
     process.env.WEBSITE_URL +
       "/view-reservations/" +
       updatedReservation.reservationNo,

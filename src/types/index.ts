@@ -107,7 +107,7 @@ export type roomReservationDataTypes = {
   roomId: string;
   total: number;
   offerDiscount: number;
-  pendingBalance: number;
+  paidAmount: number;
   userId?: string;
   name?: string;
   email?: string;

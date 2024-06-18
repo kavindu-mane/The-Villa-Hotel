@@ -5,7 +5,7 @@ export const roomReservationConfirmEmailTemplate = (
   checkOutDate: string,
   totalAmount: string,
   offerAmount: string,
-  payedAmount: string,
+  paidAmount: string,
   pendingAmount: string,
   reservationLink: string,
   roomType: string,
@@ -73,7 +73,7 @@ export const roomReservationConfirmEmailTemplate = (
           </tr>
           <tr>
             <td style="font-size: 16px; color: #333">Payed Amount:</td>
-            <td style="font-size: 16px; color: #333">$${payedAmount}</td>
+            <td style="font-size: 16px; color: #333">$${paidAmount}</td>
           </tr>
           <tr>
             <td style="font-size: 16px; color: #111">Pending Amount:</td>

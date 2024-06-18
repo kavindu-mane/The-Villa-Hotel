@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import "../globals.css";
+import "../../globals.css";
 import { BackToTop, Footer, NavigationWrapper } from "@/components";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
@@ -26,8 +26,10 @@ async function RootLayout({
     <html lang="en">
       <body className={`${poppins.className} flex flex-col items-center`}>
         <Suspense fallback={<Loading />}>
-          <main className="w-full max-w-screen-2xl">
-            <NavigationWrapper />
+          <main className="flex w-full flex-col items-center">
+            <div className="absolute z-[999] flex w-full max-w-screen-2xl justify-center rounded-b-xl bg-white">
+              <NavigationWrapper />
+            </div>
             {children}
             <Toaster />
           </main>

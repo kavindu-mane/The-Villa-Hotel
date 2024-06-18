@@ -216,7 +216,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
     },
     {
       title: "Pending Balance",
-      value: `$ ${reservation.current?.pendingBalance}`,
+      value: `$ ${(reservation.current?.total || 0) - (reservation.current?.paidAmount || 0)}`,
     },
   ];
 
