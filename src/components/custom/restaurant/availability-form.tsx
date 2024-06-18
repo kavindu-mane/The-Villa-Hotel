@@ -23,12 +23,13 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { BiTime } from "react-icons/bi";
 import { IoCalendarSharp } from "react-icons/io5";
 import { format } from "date-fns";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { errorTypes } from "@/types";
 import { ClipLoader } from "react-magic-spinners";
 import { cn } from "@/lib/utils";
 import { RestaurantAvailabilitySchema } from "@/validations";
+import { checkRestaurantAvailability } from '@/actions/utils/tableReservation';
 import { z } from "zod";
 
 export const AvailabilityForm: FC<{
@@ -38,8 +39,29 @@ export const AvailabilityForm: FC<{
     z.infer<typeof RestaurantAvailabilitySchema>
   >;
   errors: errorTypes;
-}> = ({ availabilityForm, isLoading, onAvailabilityFormSubmit, errors }) => {
-  //time slots
+  nextStep: (step: number, data: any) => void; // Add nextStep prop to handle navigation
+}> = ({ availabilityForm, isLoading, onAvailabilityFormSubmit, errors, nextStep }) => {
+  const [localErrors, setLocalErrors] = useState<errorTypes>({});
+
+  const handleSubmit = async (data: any) => {
+    console.log("Availability form handleSubmit called with data:", data);
+    setLocalErrors({});
+    try {
+      const result = await checkRestaurantAvailability(data.date, data.time_slot);
+      console.log("Availability check result:", result);
+      if (result.success) {
+        onAvailabilityFormSubmit(data);
+        nextStep(2, result.data); // Proceed to the next step (step 2) with validated data
+      } else {
+        setLocalErrors({ message: result.message });
+      }
+    } catch (error) {
+      console.error("Error checking availability:", error);
+      setLocalErrors({ message: "Internal server error. Please try again later." });
+    }
+  };
+
+  // time slots
   const timeSlots = [
     "Morning (9:00 AM - 12:00 PM)",
     "Afternoon (12:00 PM - 3:00 PM)",
@@ -50,7 +72,7 @@ export const AvailabilityForm: FC<{
   return (
     <Form {...availabilityForm}>
       <form
-        onSubmit={availabilityForm.handleSubmit(onAvailabilityFormSubmit)}
+        onSubmit={availabilityForm.handleSubmit(handleSubmit)}
         className="mt-8 flex w-full max-w-2xl flex-col items-center justify-center gap-5"
       >
         <div className="flex w-full flex-col items-center justify-center gap-3 md:flex-row md:items-start">
