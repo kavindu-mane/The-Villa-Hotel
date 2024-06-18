@@ -35,7 +35,7 @@ export const getRoomReservationsData = async (page: number) => {
 
     // return reservations data
     return {
-      reservations : reservations.reservations,
+      reservations: reservations.reservations,
       totalPages: reservations.pages,
       currentPage: reservations.page,
     };
@@ -90,9 +90,10 @@ export const addOrUpdateRoomReservation = async (
 
     if (
       (roomAvailability && !isUpdate) ||
+      (roomAvailability && roomAvailability.length > 1) ||
       (isUpdate &&
         roomAvailability &&
-        roomAvailability.reservationNo !== reservationNo)
+        roomAvailability[0].reservationNo !== reservationNo)
     ) {
       return {
         error: "Room is not available",
@@ -119,6 +120,9 @@ export const addOrUpdateRoomReservation = async (
       }
     }
 
+    const finalizedTotal =
+      ((100 - (commonOffer?.discount || offer || 0)) * total) / 100;
+
     // if update reservation
     if (isUpdate) {
       if (!reservationNo) {
@@ -136,20 +140,17 @@ export const addOrUpdateRoomReservation = async (
         };
       }
 
-      reservation = await updateReservation(
-        {
-          id: currentReservation.id,
-          roomId: roomDetails.id,
-          bed: beds,
-          name: name || "",
-          email: email || "",
-          phone: phone || "",
-          checkIn: fromDate,
-          checkOut: toDate,
-          total,
-        },
-        commonOffer?.discount || offer || 0,
-      );
+      reservation = await updateReservation({
+        id: currentReservation.id,
+        roomId: roomDetails.id,
+        bed: beds,
+        name: name || "",
+        email: email || "",
+        phone: phone || "",
+        checkIn: fromDate,
+        checkOut: toDate,
+        total: finalizedTotal,
+      });
     } else {
       reservation = await createReservation({
         roomId: roomDetails.id,
@@ -161,7 +162,7 @@ export const addOrUpdateRoomReservation = async (
         phone: phone || null,
         checkIn: fromDate,
         checkOut: toDate,
-        total,
+        total: finalizedTotal,
         status: "Confirmed",
         type: "Offline",
         offerId: offerID || null,
@@ -176,7 +177,10 @@ export const addOrUpdateRoomReservation = async (
     }
 
     // get updated reservations data
-    const reservations = await getReservations(Infinity, DEFAULT_PAGINATION_SIZE);
+    const reservations = await getReservations(
+      Infinity,
+      DEFAULT_PAGINATION_SIZE,
+    );
 
     //return success message
     return {

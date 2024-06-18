@@ -11,11 +11,15 @@ export default function Home() {
       {/* hero section */}
       <HeroSection />
       {/* facilities */}
-      <Facilities />
+      <div className="z-10 h-full max-w-screen-2xl">
+        <Facilities />
+      </div>
       {/* rooms details */}
       <RoomsDetails />
       {/* testimonies */}
-      <Testimonies />
+      <div className="w-full max-w-screen-2xl">
+        <Testimonies />
+      </div>
     </section>
   );
 }

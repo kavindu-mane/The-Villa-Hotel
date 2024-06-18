@@ -13,15 +13,25 @@ const dancingScript = Dancing_Script({
 
 export const HeroSection: FC = () => {
   return (
-    <section className="relative flex h-full w-full flex-col gap-5 overflow-x-hidden lg:flex-row lg:px-5">
-      {/* left side */}
-      <div className="absolute top-0 flex h-full w-full flex-col items-center justify-center px-2 pb-56 text-white md:pb-36 lg:relative lg:h-auto lg:w-1/2 lg:items-start lg:px-0 lg:text-slate-900">
+    <section className="relative flex h-screen w-screen flex-col justify-center gap-5 overflow-x-hidden">
+      {/* image */}
+      <div className="absolute -z-10 w-full overflow-hidden bg-slate-900">
+        <Image
+          src="/images/home_image.jpg"
+          alt="hero"
+          className="h-screen w-full object-cover opacity-40"
+          width={1080}
+          height={675}
+        />
+      </div>
+      {/* text content */}
+      <div className="my-20 flex w-full flex-col items-center justify-center px-2 text-white">
         <h2
           className={cn("mb-5 text-2xl font-semibold", dancingScript.className)}
         >
           The Villa Hotel
         </h2>
-        <h1 className="max-w-xl text-center text-5xl font-medium lg:max-w-lg lg:text-start lg:text-6xl">
+        <h1 className="text-center text-5xl font-medium lg:text-6xl">
           Hotel for Every Moment rich in emotion.
         </h1>
         <p className="my-4 text-center italic">
@@ -41,18 +51,8 @@ export const HeroSection: FC = () => {
           </Link>
         </div>
       </div>
-      {/* right side */}
-      <div className="-z-10 w-full overflow-hidden bg-slate-900 lg:w-1/2 lg:rounded-md">
-        <Image
-          src="/images/img_19.jpg"
-          alt="hero"
-          className="h-[55rem] w-full object-cover opacity-30 2xl:h-[50rem] lg:rounded-md lg:opacity-100"
-          width={500}
-          height={300}
-        />
-      </div>
       {/* bookings */}
-      <div className="absolute bottom-10 end-1 start-1 md:end-5 md:start-5 lg:bottom-20">
+      <div className="h-fit px-5">
         <BookingCard />
       </div>
     </section>

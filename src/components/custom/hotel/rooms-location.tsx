@@ -27,8 +27,6 @@ export const RoomsLocation: FC<{
   const [isCollapse, setIsCollapse] = useState<boolean>(true);
   // room id state
   const [roomId, setRoomId] = useState<number>(1);
-  // is loading state
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // modifiers coming from backend
   const modifiers = {
@@ -160,6 +158,7 @@ export const RoomsLocation: FC<{
               enableRotate={false}
               enablePan={false}
               enableZoom
+              position={[0, 0, 0]}
               rotation={[0.1, 0, 0]}
               maxDistance={200}
               minDistance={20}

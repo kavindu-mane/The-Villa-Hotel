@@ -1,7 +1,7 @@
 "use client";
 
 import * as THREE from "three";
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef } from "react";
 import { useBounds, useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { useThree } from "@react-three/fiber";

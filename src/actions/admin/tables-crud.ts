@@ -157,7 +157,7 @@ export const deleteTablesImages = async (
     return {
       success: "Images deleted successfully",
       table: updatedTable,
-      tables,
+      tables : tables?.tables || [],
     };
   } catch (error) {
     return {

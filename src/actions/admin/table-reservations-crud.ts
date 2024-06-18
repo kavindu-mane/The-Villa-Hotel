@@ -83,9 +83,11 @@ export const addOrUpdateTableReservation = async (
     // get user from email
     const user = await getUserByEmail(email!!);
 
+    console.log(tableDetails.tableId, tableDate, time_slot)
+
     // check if table is available or not
     const tableAvailability = await checkTableAvailability(
-      tableDetails.tableId,
+      tableDetails.id,
       tableDate,
       time_slot,
     );
@@ -116,6 +118,9 @@ export const addOrUpdateTableReservation = async (
       }
     }
 
+    const finalizedTotal =
+      ((100 - (commonOffer?.discount || offer || 0)) * total) / 100;
+
     // if update table reservation
     if (isUpdate) {
       if (!reservationNo) {
@@ -143,7 +148,7 @@ export const addOrUpdateTableReservation = async (
           phone: phone || "",
           date: tableDate,
           userId: user?.id || null,
-          total,
+          total: finalizedTotal,
           timeSlot: time_slot,
         },
         commonOffer?.discount || offer || 0,
@@ -156,7 +161,7 @@ export const addOrUpdateTableReservation = async (
         phone: phone,
         date: tableDate,
         userId: user?.id || null,
-        total,
+        total: finalizedTotal,
         timeSlot: time_slot,
         offerDiscount: commonOffer?.discount || offer || 0,
         offerId: offerID || null,
@@ -165,7 +170,6 @@ export const addOrUpdateTableReservation = async (
         coins: 0,
         foodReservationsId: null,
       });
-      console.log("reservation", reservation)
     }
 
     // if failed to add or update reservation

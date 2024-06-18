@@ -49,7 +49,7 @@ export const Facilities: FC = () => {
 
   return (
     <section className="px-5 z-10">
-      <div className="w-full bg-white pt-14 pb-20 text-center">
+      <div className="w-full pt-14 pb-20 text-center">
         {/* title */}
         <h2 className="text-3xl">Our Facilities</h2>
         {/* description */}

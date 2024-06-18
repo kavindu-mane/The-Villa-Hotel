@@ -181,7 +181,7 @@ model RoomReservation {
   checkOut        DateTime
   total           Float             @default(0)
   coins           Float             @default(0)
-  pendingBalance  Float             @default(0)
+  paidAmount      Float             @default(0)
   offerDiscount   Float             @default(0)
   status          Status            @default(Confirmed)
   bed             BedTypes?         @default(One_Double_Bed)

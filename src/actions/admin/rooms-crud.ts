@@ -159,7 +159,7 @@ export const deleteRoomsImages = async (
     return {
       success: "Images deleted successfully",
       room: updatedRoom,
-      rooms,
+      rooms : rooms?.rooms || [],
     };
   } catch (error) {
     return {

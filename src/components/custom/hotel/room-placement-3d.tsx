@@ -2,13 +2,11 @@
 
 import { HotelModel } from "@/components";
 import {
-  Html,
   MeshReflectorMaterial,
   PresentationControls,
   Stage,
 } from "@react-three/drei";
-import { FC, Suspense } from "react";
-import { GridLoader } from "react-magic-spinners";
+import { FC } from "react";
 
 export const RoomsPlacement: FC<{
   isTopView: boolean;
@@ -19,19 +17,11 @@ export const RoomsPlacement: FC<{
     <PresentationControls speed={1.5} polar={[0, 0]}>
       <Stage environment={"city"} intensity={0.3} shadows={false}>
         {/* models */}
-        <Suspense
-          fallback={
-            <Html>
-              <GridLoader color="#10b981" />
-            </Html>
-          }
-        >
-          <HotelModel
-            setIsTopView={setIsTopView}
-            isTopView={isTopView}
-            setRoomId={setRoomId}
-          />
-        </Suspense>
+        <HotelModel
+          setIsTopView={setIsTopView}
+          isTopView={isTopView}
+          setRoomId={setRoomId}
+        />
       </Stage>
       <mesh rotation={[-Math.PI / 2 + 0.02, 0, 0.36]} position={[0, -3.75, 0]}>
         <planeGeometry args={[100, 100]} />

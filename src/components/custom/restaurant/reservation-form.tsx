@@ -10,34 +10,76 @@ import {
   FormMessage,
   Input,
   RadioGroupItem,
-  Textarea,
 } from "@/components";
 import { errorTypes } from "@/types";
 import { RestaurantReservationSchema } from "@/validations";
 import { ClipLoader } from "react-magic-spinners";
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction, useState, useEffect } from "react";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
+import { reserveRestaurantTable, getAvailableTables } from "@/actions/utils/tableReservation";
 
 export const RestaurantReservationForm: FC<{
   reservationForm: UseFormReturn<z.infer<typeof RestaurantReservationSchema>>;
   setCurrentStep: Dispatch<SetStateAction<number>>;
-  onReservationFormSubmit: SubmitHandler<
-    z.infer<typeof RestaurantReservationSchema>
-  >;
+  onReservationFormSubmit: SubmitHandler<z.infer<typeof RestaurantReservationSchema>>;
   isLoading: boolean;
   errors: errorTypes;
+  nextStep: (step: number, data: any) => void;
+  availabilityData: any;
 }> = ({
   reservationForm,
   setCurrentStep,
   onReservationFormSubmit,
   isLoading,
   errors,
+  nextStep,
+  availabilityData,
 }) => {
+    const [localErrors, setLocalErrors] = useState<errorTypes>({});
+    const [availableTables, setAvailableTables] = useState<any[]>([]);
+
+    useEffect(() => {
+      async function fetchAvailableTables() {
+        const { date, time_slot } = availabilityData;
+        const result = await getAvailableTables(new Date(date), time_slot);
+        const tables = result.data?.map((table) => ({
+          tableId: table.tableId,
+          isAvailable: table.isAvailable,
+        })) ?? [];
+        setAvailableTables(tables);
+
+        if (!result.success) {
+          console.error(result.message);
+        }
+      }
+
+      fetchAvailableTables();
+    }, [availabilityData]);
+
+    const handleSubmit = async (data: any) => {
+      console.log("Reservation form handleSubmit called with data:", data);
+      setLocalErrors({});
+      try {
+        const result = await reserveRestaurantTable(data);
+        console.log("Reservation result:", result);
+
+        if (result.success) {
+          onReservationFormSubmit(data);
+          nextStep(3, { ...result.data, availabilityData });
+        } else {
+          setLocalErrors({ message: result.message });
+        }
+      } catch (error) {
+        console.error("Error making reservation:", error);
+        setLocalErrors({ message: "Internal server error. Please try again later." });
+      }
+    };
+
     return (
       <Form {...reservationForm}>
         <form
-          onSubmit={reservationForm.handleSubmit(onReservationFormSubmit)}
+          onSubmit={reservationForm.handleSubmit(handleSubmit)}
           className="flex w-full max-w-2xl flex-col items-center justify-center gap-5 pt-8"
         >
           {/* available table numbers */}
@@ -50,21 +92,30 @@ export const RestaurantReservationForm: FC<{
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
+                    value={field.value}
                     className="flex flex-wrap justify-center gap-3"
                   >
-                    {Array.from({ length: 20 }, (_, i) => (
-                      <FormItem key={i} className="flex items-center">
-                        <FormLabel className="w-28 cursor-pointer rounded-lg bg-slate-600 py-3 text-center font-normal text-white disabled:bg-gray-300 has-[:checked]:bg-primary">
-                          <FormControl>
-                            <RadioGroupItem
-                              value={(i + 1).toString()}
-                              className="peer sr-only"
-                            />
-                          </FormControl>
-                          Table {(i + 1).toString().padStart(2, "0")}
-                        </FormLabel>
-                      </FormItem>
-                    ))}
+                    {availableTables.map((table, i) => {
+                      const tableId = table.tableId;
+                      const isAvailable = table.isAvailable;
+                      return (
+                        <FormItem key={i} className="flex items-center">
+                          <FormLabel
+                            className={`w-28 cursor-pointer rounded-lg py-3 text-center font-normal text-white ${isAvailable ? "bg-slate-600" : "bg-gray-300"
+                              } ${field.value === tableId ? "bg-primary" : ""}`}
+                          >
+                            <FormControl>
+                              <RadioGroupItem
+                                value={tableId}
+                                className="peer sr-only"
+                                disabled={!isAvailable}
+                              />
+                            </FormControl>
+                            Table {tableId}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    })}
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -128,8 +179,6 @@ export const RestaurantReservationForm: FC<{
               )}
             />
           </div>
-
-
 
           <div className="flex w-full justify-between">
             {/* back button */}
