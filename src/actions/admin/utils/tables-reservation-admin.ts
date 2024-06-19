@@ -69,7 +69,7 @@ export const getTableReservations = async (page: number, limit: number) => {
         offer: true,
         offerDiscount: true,
         status: true,
-        foodReservations: true,
+        foodReservation: true,
       },
     });
     return {tableReservations , pages, page};
@@ -78,31 +78,3 @@ export const getTableReservations = async (page: number, limit: number) => {
   }
 };
 
-//create table reservation from admin
-export const createTableReservation = async (data: {
-  tableId: string;
-  name: string;
-  email: string;
-  phone: string;
-  date: Date;
-  timeSlot: string;
-  total: number;
-  coins: number;
-  offerDiscount: number;
-  status: Status;
-  type: BookingType;
-  offerId: string | null;
-  userId?: string | null;
-  foodReservationsId: string | null;
-}) => {
-  try {
-    const tableReservation = await db.tableReservation.create({
-      data: {
-        ...data,
-      },
-    });
-    return tableReservation;
-  } catch (e) {
-    return null;
-  }
-};

@@ -1,9 +1,8 @@
 "use server";
 
 import {
-  TableReservationsSchema,
-  TableReservationFormSchema,
   RestaurantAvailabilitySchema,
+  RestaurantReservationSchema,
 } from "@/validations";
 import z from "zod";
 import {
@@ -11,26 +10,20 @@ import {
   getAvailableTables,
   getTableByNumber,
 } from "@/actions/utils/tables";
-import { TableType } from "@prisma/client";
 import {
   checkTableAvailability,
   deleteTableReservation,
   getTableReservationById,
-  getTableReservationByNumber,
-  updateTableReservationStatus,
+  createTableReservation,
+  updateTableReservation,
 } from "@/actions/utils/table-reservations";
 import { cookies } from "next/headers";
 import { getPromotionByCode, getPromotions } from "./utils/promotions";
 import {
-  createTableReservation,
-  updateTableReservation,
-} from "./admin/utils/tables-reservation-admin";
-import md5 from "md5";
-import { getUserByEmail } from "./utils/user";
-import { addPaymentRecord } from "./utils/payments";
-import { sendEmails } from "./utils/email";
-import { Value } from "@radix-ui/react-select";
-import { table } from "console";
+  updateFoodReservationStatus,
+  updateFoodReservationTotals,
+} from "./utils/foods";
+import { tzConvertor } from "./utils/timezone-convertor";
 
 /**
  * Create action for table booking form
@@ -45,22 +38,21 @@ export const getAllAvailableTables = async (
 
   //check if validation failed and return errors
   if (!validatedFields.success) {
-    return { error: validatedFields.error };
+    return { errors: validatedFields.error };
   }
 
   //destructure data from validated fields
-  const { date, time_slot } = validatedFields.data;
+  const { date, timeSlot } = validatedFields.data;
+
+  // converted date
+  const dateConverted = await tzConvertor(date); 
 
   //get available tables
-  const availableTables = await getAvailableTables(date, time_slot);
-
-  // get all tables
-  const tables = await getAllTables();
+  const availableTables = await getAvailableTables(date, timeSlot);
 
   // if no tables available
   return {
     availableTables,
-    tables,
   };
 };
 
@@ -73,374 +65,249 @@ export const getTablesDetails = async () => {
 };
 
 // create pending reservation for 15 minutes
-// export const createPendingReservation = async (
-//   tableNumber: number,
-//   userId: number,
-//   date: Date,
-//   timeSlot: string,
-// ) => {
-//   // get cookies
-//   const cookieStore = cookies();
-//   // check if room number is valid
-//   if (tableNumber === null) {
-//     return {
-//       error: "Invalid table number",
-//     };
-//   }
+export const createPendingTableReservation = async (
+  availability: z.infer<typeof RestaurantAvailabilitySchema>,
+  data: z.infer<typeof RestaurantReservationSchema>,
+) => {
+  // validate data in backend
+  const validatedAvailabilityFields =
+    RestaurantAvailabilitySchema.safeParse(availability);
+  const validatedReservationFields =
+    RestaurantReservationSchema.safeParse(data);
 
-//   //check if dates are valid
-//   if (date === null) {
-//     return {
-//       error: "Invalid date",
-//     };
-//   }
+  //check if validation failed and return errors
+  if (!validatedAvailabilityFields.success) {
+    return { errors: validatedAvailabilityFields.error };
+  }
+  if (!validatedReservationFields.success) {
+    return { errors: validatedReservationFields.error };
+  }
 
-//   // get table from table number
-//   const tableDetails = await getTableByNumber(tableId);
+  //destructure data from validated fields
+  const { date, timeSlot } = validatedAvailabilityFields.data;
+  const { table, name, email, phone } = validatedReservationFields.data;
 
-//   if (!tableDetails) {
-//     return {
-//       error: "Table not found",
-//     };
-//   }
+  // convert date to ISO string
+  const dateConverted = await tzConvertor(date);
 
-//   // check if table is available or not
-//   const tableAvailability = await checkTableAvailability(
-//     tableDetails.id,
-//     date,
-//     timeSlot,
-//   );
+  // get cookies
+  const cookieStore = cookies();
+  // check if room number is valid
+  if (table === null) {
+    return {
+      error: "Invalid table number",
+    };
+  }
 
-//   // check pending_reservation cookie if exists
-//   const reservation = cookieStore.get("pending_reservation");
+  //check if dates are valid
+  if (dateConverted === null) {
+    return {
+      error: "Invalid date",
+    };
+  }
 
-//   // get available offers
-//   const offers = await getPromotions(1, 5, {
-//     code: true,
-//     description: true,
-//     discount: true,
-//   });
+  // get table from table number
+  const tableDetails = await getTableByNumber(table);
 
-//   if (tableAvailability) {
-//     // if reservation cookie not exists
-//     if (!reservation) {
-//       return {
-//         error: "Table not available",
-//       };
-//     }
-//     // check if reservation exists
-//     const existingReservation = await getTableReservationById(reservation.value);
-//     if (!existingReservation) {
-//       return {
-//         error: "Reservation not found",
-//       };
-//     }
+  if (!tableDetails) {
+    return {
+      error: "Table not found",
+    };
+  }
 
-//     // check reservation status
-//     if (
-//       existingReservation.status !== "Pending" &&
-//       existingReservation.status !== "Ongoing"
-//     ) {
-//       return {
-//         error: "Reservation already exists",
-//       };
-//     }
+  // check if table is available or not
+  const tableAvailability = await checkTableAvailability(
+    table,
+    dateConverted,
+    timeSlot,
+  );
 
-//     // check room numbers are mismatched
-//     if (existingReservation.tableId !== tableDetails.id) {
-//       return {
-//         error: "Table numbers mismatch",
-//       };
-//     }
+  // check pending_reservation cookie if exists
+  const reservation = cookieStore.get("pending_table_reservation");
 
-//     return {
-//       success: true,
-//       reservation: {
-//         room: {
-//           number: tableDetails.number,
-//           type: tableDetails.type,
-//         },
-//         amount: existingReservation.total,
-//         offers: offers?.offers || [],
-//       },
-//     };
-//   } else {
-//     // delete existing pending reservation
-//     if (reservation) {
-//       const existingReservation = await getTableReservationById(reservation.value);
-//       if (existingReservation && existingReservation.status === "Pending")
-//         await deleteTableReservation(reservation.value, "Pending");
-//       if (existingReservation && existingReservation.status === "Ongoing")
-//         await deleteTableReservation(reservation.value, "Ongoing");
-//     }
-// calculate total amount
-// const totalAmount =
-//   tableDetails.price *
-// Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
-// create new pending reservation
-// const newTableReservation = await createTableReservation({
-//   tableId: tableDetails.id,
-//   offerDiscount: 0,
-//   total: totalAmount,
-//   status: "Pending",
-//   type: "Online",
-// });
+  if (tableAvailability) {
+    // if reservation cookie not exists
+    if (!reservation) {
+      return {
+        error: "Table not available",
+      };
+    }
+    // check if reservation exists
+    const existingReservation = await getTableReservationById(
+      reservation.value,
+    );
+    if (!existingReservation) {
+      return {
+        error: "Reservation not found",
+      };
+    }
 
-// if (newTableReservation) {
-//   // Set a timeout to delete the record after 15 minutes
-//   setTimeout(
-//     async () => {
-//       await deleteTableReservation(newTableReservation.id, "Pending");
-//     },
-//     15 * 60 * 1000,
-//   );
+    // check reservation status
+    if (existingReservation.status !== "Ongoing") {
+      return {
+        error: "Reservation already exists",
+      };
+    }
 
-// set cookie for 15 minutes
-// cookies().set("pending_reservation", newTableReservation.id, {
-//   path: "/",
-//   secure: true,
-//   httpOnly: true,
-//   sameSite: "strict",
-//   expires: new Date(Date.now() + 15 * 60 * 1000),
-// });
+    // check room numbers are mismatched
+    if (existingReservation.tableId !== tableDetails.id) {
+      return {
+        error: "Table numbers mismatch",
+      };
+    }
 
-// return {
-//   success: true,
-//   reservation: {
-//     room: {
-//       number: tableDetails.number,
-//       type: tableDetails.type,
-//     },
-//     amount: newTableReservation.total,
-//     offers: offers?.offers || [],
-//   },
-// };
-//     } else {
-//       return {
-//         error: "Table not available",
-//       };
-//     }
-//   }
-// };
+    return {
+      success: true,
+    };
+  } else {
+    // delete existing pending reservation
+    if (reservation) {
+      const existingReservation = await getTableReservationById(
+        reservation.value,
+      );
 
-// generate payment keys for pending reservation
-// export const generatePaymentKeys = async (
-//   values: z.infer<typeof TableReservationFormSchema>,
-// ) => {
-//   // get cookies
-//   const cookieStore = cookies();
-//   // validate data in backend
-//   const validatedFields = TableReservationFormSchema.safeParse(values);
+      if (existingReservation && existingReservation.status === "Ongoing")
+        await deleteTableReservation(reservation.value, "Ongoing");
+    }
+    // create new pending reservation
+    const newTableReservation = await createTableReservation({
+      tableId: tableDetails.id,
+      date,
+      timeSlot,
+      offerDiscount: 0,
+      total: tableDetails.price,
+      status: "Ongoing",
+      type: "Online",
+      name,
+      email,
+      phone,
+    });
 
-//   // check if validation failed and return errors
-//   if (!validatedFields.success) {
-//     return {
-//       errors: validatedFields.error.errors,
-//     };
-//   }
+    if (newTableReservation) {
+      // Set a timeout to delete the record after 15 minutes
+      setTimeout(
+        async () => {
+          await deleteTableReservation(newTableReservation.id, "Ongoing");
+        },
+        15 * 60 * 1000,
+      );
 
-//   // destructure data from validated fields
-//   const { name, email, phone, tableId, offerID } = validatedFields.data;
+      // set cookie for 15 minutes
+      cookies().set("pending_table_reservation", newTableReservation.id, {
+        path: "/",
+        secure: true,
+        httpOnly: true,
+        sameSite: "strict",
+        expires: new Date(Date.now() + 15 * 60 * 1000),
+      });
 
-//   if (!email || !name || !phone) {
-//     return {
-//       error: "Invalid user details",
-//     };
-//   }
+      return {
+        success: true,
+      };
+    } else {
+      return {
+        error: "Table not available",
+      };
+    }
+  }
+};
 
-//   // check pending_reservation cookie if exists
-//   const reservation = cookieStore.get("pending_reservation");
+// complete table reservation
+export const completeTableReservation = async (offerID?: string) => {
+  // get cookies
+  const cookieStore = cookies();
+  // check pending_reservation cookie if exists
+  const reservation = cookieStore.get("pending_table_reservation");
 
-//   // if reservation cookie not exists
-//   if (!reservation) {
-//     return {
-//       error: "Reservation not found",
-//     };
-//   }
+  if (!reservation) {
+    return {
+      error: "Reservation not found",
+    };
+  }
 
-//   // check if reservation exists
-//   const existingReservation = await updateTableReservationStatus(
-//     reservation.value,
-//     "Ongoing",
-//   );
+  // check if reservation exists
+  const existingReservation = await getTableReservationById(reservation.value);
 
-//   if (!existingReservation) {
-//     return {
-//       error: "Reservation not found",
-//     };
-//   }
+  if (!existingReservation) {
+    return {
+      error: "Reservation not found",
+    };
+  }
 
-//   // extend cookie time for 15 minutes
-//   cookieStore.set("pending_reservation", reservation.value, {
-//     path: "/",
-//     secure: true,
-//     httpOnly: true,
-//     sameSite: "strict",
-//     expires: new Date(Date.now() + 15 * 60 * 1000),
-//   });
+  // check if reservation status is pending
+  if (existingReservation.status !== "Ongoing") {
+    return {
+      error: "Reservation already exists",
+    };
+  }
 
-//   // Set a timeout to delete the record after 15 minutes
-//   setTimeout(
-//     async () => {
-//       await deleteTableReservation(existingReservation.id, "Ongoing");
-//     },
-//     15 * 60 * 1000,
-//   );
+  if (offerID) {
+    // get offer details by offer ID
+    const offer = await getPromotionByCode(offerID);
+    if (!offer) {
+      return {
+        error: "Offer not found",
+      };
+    }
 
-//   // get promotion from code
-//   let offerPercentage = 0;
-//   let offer = null;
-//   if (offerID) {
-//     const promotion = await getPromotionByCode(offerID);
-//     if (!promotion) {
-//       return {
-//         error: "Invalid promotion code",
-//       };
-//     }
-//     offerPercentage = promotion.discount;
-//     offer = promotion.id;
-//   }
+    // calculate total after discount
+    const total = (existingReservation.total * (100 - offer.discount)) / 100;
 
-//   // get user by email
-//   const user = await getUserByEmail(email);
+    // update reservation with offer details
+    await updateTableReservation(existingReservation.id, {
+      offerDiscount: offer.discount,
+      total,
+    });
 
-//   // update reservation with user details
-//   const updatedReservation = await updateTableReservation(
-//     {
-//       name,
-//       email,
-//       phone,
-//       userId: user?.id,
-//       offer,
-//     },
-//     offerPercentage,
-//   );
+    // food array
+    const foodArray: {
+      foodId: string;
+      quantity: number;
+      total: number;
+      offerId: string;
+      offerDiscount: number;
+    }[] = [];
+    const menu = existingReservation.foodReservation[0].foodReservationItems;
 
-//   // if update unsuccessful
-//   if (!updatedReservation) {
-//     return {
-//       error: "Failed to make reservation",
-//     };
-//   }
+    // loop through menu and create food array
+    menu.forEach(async (item) => {
+      const total = (item.total * (100 - offer.discount)) / 100;
+      foodArray.push({
+        foodId: item.foodId,
+        quantity: item.quantity,
+        total: total,
+        offerId: offer.id,
+        offerDiscount: offer.discount,
+      });
+    });
 
-//   // generate payment credentials and return
-//   const hash = md5(
-//     process.env.PAYHERE_MERCHANT_ID!! +
-//       updatedReservation.reservationNo +
-//       (updatedReservation.pendingBalance * 0.1).toFixed(2) +
-//       "USD" +
-//       md5(process.env.PAYHERE_SECRET!!).toUpperCase(),
-//   ).toUpperCase();
+    // update food reservation with offer details
+    const updatedFoodReservation = await updateFoodReservationTotals(
+      existingReservation.foodReservation[0].id,
+      foodArray,
+    );
 
-//   return {
-//     success: true,
-//     payment: {
-//       merchant_id: process.env.PAYHERE_MERCHANT_ID!!,
-//       return_url: process.env.PAYHERE_RETURN_URL!!,
-//       cancel_url: process.env.PAYHERE_CANCEL_URL!!,
-//       notify_url: process.env.PAYHERE_NOTIFY_URL!!,
-//       order_id: updatedReservation.reservationNo,
-//       items: "Table Reservation - " + updatedReservation.reservationNo,
-//       currency: "USD",
-//       amount: (updatedReservation.pendingBalance * 0.1).toFixed(2),
-//       first_name: name,
-//       last_name: "",
-//       email: email,
-//       phone: phone,
-//       address: "",
-//       city: "",
-//       country: "",
-//       hash: hash,
-//     },
-//   };
-// };
+    if (!updatedFoodReservation) {
+      return {
+        error: "Error updating food reservation",
+      };
+    }
+  }
 
-// // complete payment and update reservation status
-// export const completePayment = async (order_id: number, payment: number) => {
-//   // check if order_id is valid
-//   if (!order_id) {
-//     return {
-//       error: "Invalid order id",
-//     };
-//   }
+  // update reservation status to confirm
+  await updateTableReservation(existingReservation.id, {
+    status: "Confirmed",
+  });
+  // update food reservation status to confirm
+  await updateFoodReservationStatus(
+    existingReservation.foodReservation[0].id,
+    "Confirmed",
+  );
 
-//   // get reservation by order_id
-//   const reservation = await getTableReservationById(order_id);
+  // delete pending_reservation cookie
+  cookieStore.delete("pending_table_reservation");
 
-//   // check if reservation exists
-//   if (!reservation) {
-//     return {
-//       error: "Reservation not found",
-//     };
-//   }
-
-//   // update reservation status
-//   const updatedReservation = await confirmTableReservations(reservation.id, payment);
-
-//   // if update unsuccessful
-//   if (!updatedReservation) {
-//     return {
-//       error: "Failed to confirm reservation",
-//     };
-//   }
-
-//   // add payment record to database
-//   const paymentRecord = await addPaymentRecord(
-//     updatedReservation.id,
-//     payment,
-//     "Online",
-//   );
-
-//   // if payment record not added
-//   if (!paymentRecord) {
-//     return {
-//       error: "Failed to add payment record",
-//     };
-//   }
-
-//   // remove pending_reservation cookie
-//   cookies().delete("pending_reservation");
-
-//   // calculate offer value
-//   const offerValue =
-//     (updatedReservation.total * (updatedReservation.offer?.discount || 0)) /
-//     100;
-
-//   // setup email template
-//   const template = tableReservationConfirmEmailTemplate(
-//     updatedReservation.name || "",
-//     updatedReservation.reservationNo,
-//     updatedReservation.time_slot,
-//     updatedReservation.date,
-//     updatedReservation.total.toFixed(2),
-//     offerValue.toFixed(2),
-//     payment.toFixed(2),
-//     updatedReservation.pendingBalance.toFixed(2),
-//     process.env.WEBSITE_URL +
-//       "/view-reservations/" +
-//       updatedReservation.reservationNo,
-//     updatedReservation.table.type,
-//     updatedReservation.table.number,
-//   );
-
-//   //get reply to email from env
-//   const replyTo = process.env.CONTACT_US_EMAIL;
-
-//   const isSend = await sendEmails({
-//     to: updatedReservation.email!!,
-//     replyTo,
-//     subject: "Reservation Confirmation - The Villa Hotel",
-//     body: template,
-//   });
-
-//   // if email not sent
-//   if (!isSend) {
-//     return {
-//       error: "Order confirmed but email not sent",
-//     };
-//   }
-
-//   return {
-//     success: true,
-//   };
-// };
+  return {
+    success: true,
+  };
+};

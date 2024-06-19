@@ -6,7 +6,7 @@ import {
   RestaurantReservationForm,
   OrderSummary,
 } from "@/components";
-import { tomorrow } from "@/utils";
+import { tomorrow, transferZodErrors } from "@/utils";
 import {
   RestaurantAvailabilitySchema,
   RestaurantMenuSchema,
@@ -16,12 +16,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { errorTypes } from "@/types";
+import {
+  errorTypes,
+  minimalTableData,
+  offerDataTypes,
+  tableReservationOrderSummery,
+} from "@/types";
+import {
+  completeTableReservation,
+  createPendingTableReservation,
+  getAllAvailableTables,
+} from "@/actions/table-reservations";
+import { useToast } from "@/components/ui/use-toast";
+import { createPendingFoodReservation } from "@/actions/food-reservations";
+import { Provider } from "react-redux";
+import { sessionStore } from "@/states/stores";
 
 // default value for errors
 const errorDefault: errorTypes = {
   date: [],
-  time_slot: [],
+  timeSlot: [],
   name: [],
   email: [],
   remark: [],
@@ -31,7 +45,6 @@ const errorDefault: errorTypes = {
   message: "",
 };
 
-
 export const RestaurantForm: FC = () => {
   // is loading state
   const [isLoading, setIsLoading] = useState(false);
@@ -39,38 +52,27 @@ export const RestaurantForm: FC = () => {
   const [errors, setErrors] = useState(errorDefault);
   //current step
   const [currentStep, setCurrentStep] = useState(1);
-  // availability data
-  const [availabilityData, setAvailabilityData] = useState<z.infer<
-    typeof RestaurantAvailabilitySchema
-  > | null>(null);
-  // reservation data
-  const [reservationData, setReservationData] = useState<z.infer<
-    typeof RestaurantReservationSchema
-  > | null>(null);
-  // menu data
-  const [selectedMenu, setSelectedMenu] = useState<z.infer<
-    typeof RestaurantMenuSchema
-  > | null>(null);
+  // available table data
+  const [availableTableData, setAvailableTableData] = useState<
+    minimalTableData[] | null
+  >(null);
+  const [orderSummary, setOrderSummary] =
+    useState<tableReservationOrderSummery | null>(null);
+  const [offers, setOffers] = useState<offerDataTypes[] | null>(null);
+  const { toast } = useToast();
 
-  //states for carrying data to next atep
-  const [formData, setFormData] = useState({
-    availabilityData: null,
-    reservationData: null,
-    selectedMenu: null,
-    remark: "",
-  });
-
-  // form hooks
+  // availability form hook for get availability data
   const availabilityForm = useForm<
     z.infer<typeof RestaurantAvailabilitySchema>
   >({
     resolver: zodResolver(RestaurantAvailabilitySchema),
     defaultValues: {
       date: tomorrow(),
-      time_slot: "Morning (9:00 AM - 12:00 PM)",
+      timeSlot: "Morning (9:00 AM - 12:00 PM)",
     },
   });
 
+  // reservation form for hook for get user details
   const reservationForm = useForm<z.infer<typeof RestaurantReservationSchema>>({
     resolver: zodResolver(RestaurantReservationSchema),
     defaultValues: {
@@ -81,30 +83,154 @@ export const RestaurantForm: FC = () => {
     },
   });
 
+  // foods selection form hook for get selected menu
+  const menuSelectionForm = useForm<z.infer<typeof RestaurantMenuSchema>>({
+    resolver: zodResolver(RestaurantMenuSchema),
+    defaultValues: {
+      menu: [],
+      remark: "",
+    },
+  });
+
   // availability form submit
-  const onAvailabilityFormSubmit = (
+  const onAvailabilityFormSubmit = async (
     data: z.infer<typeof RestaurantAvailabilitySchema>,
   ) => {
-    console.log("Availability form submitted with data:", data);
-    setAvailabilityData(data);
-    handleNextStep(2, data);
+    setIsLoading(true);
+    await getAllAvailableTables(data)
+      .then((res) => {
+        if (res.availableTables) {
+          setAvailableTableData(res.availableTables as minimalTableData[]);
+          setCurrentStep(2);
+        }
+        if (res.errors) {
+          setErrors(transferZodErrors(res.errors).error);
+        }
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to get available tables",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   // reservation form submit
-  const onReservationFormSubmit = (
+  const onReservationFormSubmit = async (
     data: z.infer<typeof RestaurantReservationSchema>,
   ) => {
-    console.log("Reservation form submitted with data:", data);
-    setReservationData(data);
-    handleNextStep(3, data);
+    setIsLoading(true);
+    await createPendingTableReservation(availabilityForm.getValues(), data)
+      .then((res) => {
+        if (res.success) {
+          setCurrentStep(3);
+        }
+        if (res.errors) {
+          setErrors(transferZodErrors(res.errors).error);
+        }
+        if (res.error) {
+          toast({
+            title: res.error,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-red-500 border-red-600 rounded-md text-white",
+          });
+        }
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to create table reservation",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  // food selection form submit
+  const onMenuSelectionFormSubmit = async (
+    data: z.infer<typeof RestaurantMenuSchema>,
+  ) => {
+    setIsLoading(true);
+    await createPendingFoodReservation(data)
+      .then((res) => {
+        if (res.errors) {
+          setErrors(transferZodErrors(res.errors).error);
+        }
+        if (res.data) {
+          setOrderSummary(res.data as tableReservationOrderSummery);
+        }
+        if (res.offers) {
+          setOffers(res.offers);
+        }
+        if (res.success) {
+          setCurrentStep(4);
+        }
+        if (res.error) {
+          toast({
+            title: res.error,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-red-500 border-red-600 rounded-md text-white",
+          });
+        }
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to create food reservation",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  // complete table reservation
+  const onCompleteTableReservation = async (offerId?: string) => {
+    setIsLoading(true);
+    // create food reservation
+    await completeTableReservation(offerId)
+      .then((res) => {
+        if (res.success) {
+          toast({
+            title: "Table reservation completed successfully",
+            description: new Date().toLocaleTimeString(),
+            className: "bg-green-500 border-green-600 rounded-md text-white",
+          });
+        }
+        if (res.error) {
+          toast({
+            title: res.error,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-red-500 border-red-600 rounded-md text-white",
+          });
+        }
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to create food reservation",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   // reservation form submit
   const onMenuItemAdd = (id: string) => {
+    const selectedMenu = menuSelectionForm.getValues("menu");
     // check given ide is available in menu data
-    let menuItem = selectedMenu?.menu.find((menu) => menu.id === id);
+    let menuItem = selectedMenu?.find((menu) => menu.id === id);
     // copy of selected menu
-    let selectedMenuCopy = selectedMenu?.menu || [];
+    let selectedMenuCopy = selectedMenu || [];
     // if menu item is available
     if (menuItem) {
       menuItem = {
@@ -112,7 +238,7 @@ export const RestaurantForm: FC = () => {
         quantity: menuItem.quantity + 1,
       };
       // index of menu item
-      let index = selectedMenu?.menu.findIndex((menu) => menu.id === id) || 0;
+      let index = selectedMenu?.findIndex((menu) => menu.id === id) || 0;
       selectedMenuCopy[index] = menuItem;
     } else {
       menuItem = {
@@ -123,17 +249,16 @@ export const RestaurantForm: FC = () => {
     }
 
     // add menuItem to selected menu
-    setSelectedMenu({
-      menu: selectedMenuCopy,
-    });
+    menuSelectionForm.setValue("menu", selectedMenuCopy);
   };
 
   // menu item decrease and remove
   const onMenuItemRemove = (id: string) => {
+    const selectedMenu = menuSelectionForm.getValues("menu");
     // check given id is available in menu data
-    let menuItem = selectedMenu?.menu.find((menu) => menu.id === id);
+    let menuItem = selectedMenu?.find((menu) => menu.id === id);
     // copy of selected menu
-    let selectedMenuCopy = selectedMenu?.menu || [];
+    let selectedMenuCopy = selectedMenu || [];
     // if menu item is available
     if (menuItem && menuItem.quantity > 1) {
       menuItem = {
@@ -141,26 +266,14 @@ export const RestaurantForm: FC = () => {
         quantity: menuItem.quantity - 1,
       };
       // index of menu item
-      let index = selectedMenu?.menu.findIndex((menu) => menu.id === id) || 0;
+      let index = selectedMenu?.findIndex((menu) => menu.id === id) || 0;
       selectedMenuCopy[index] = menuItem;
       // add menuItem to selected menu
-      setSelectedMenu({
-        menu: selectedMenuCopy,
-      });
+      menuSelectionForm.setValue("menu", selectedMenuCopy);
     } else if (menuItem && menuItem.quantity === 1) {
-      setSelectedMenu({
-        menu: selectedMenu?.menu.filter((menu) => menu.id !== id) || [],
-      });
+      const filteredMenu = selectedMenu?.filter((menu) => menu.id !== id) || [];
+      menuSelectionForm.setValue("menu", filteredMenu);
     }
-  };
-
-  const handleNextStep = (step: number, data: any) => {
-    console.log(`Moving to step ${step} with data:`, data);
-    setFormData((prevData) => ({
-      ...prevData,
-      ...data,
-    }));
-    setCurrentStep(step);
   };
 
   return (
@@ -211,24 +324,25 @@ export const RestaurantForm: FC = () => {
       {currentStep === 1 && (
         <AvailabilityForm
           availabilityForm={availabilityForm}
+          onAvailabilityFormSubmit={onAvailabilityFormSubmit}
           errors={errors}
           isLoading={isLoading}
-          onAvailabilityFormSubmit={onAvailabilityFormSubmit}
-          nextStep={(step, data) => handleNextStep(step, data)}        />
+        />
       )}
 
       {/* step 2 */}
       {/* booking form */}
       {currentStep === 2 && (
-        <RestaurantReservationForm
-          reservationForm={reservationForm}
-          errors={errors}
-          isLoading={isLoading}
-          onReservationFormSubmit={onReservationFormSubmit}
-          setCurrentStep={setCurrentStep}
-          nextStep={(step, data) => handleNextStep(step, data)}
-          availabilityData={availabilityData} // Pass availability data
-        />
+        <Provider store={sessionStore}>
+          <RestaurantReservationForm
+            reservationForm={reservationForm}
+            onReservationFormSubmit={onReservationFormSubmit}
+            errors={errors}
+            isLoading={isLoading}
+            availableTableData={availableTableData}
+            setCurrentStep={setCurrentStep}
+          />
+        </Provider>
       )}
 
       {/* step 3 */}
@@ -241,24 +355,20 @@ export const RestaurantForm: FC = () => {
       )}
       {currentStep === 3 && (
         <FoodsSelections
-          onMenuItemAdd={onMenuItemAdd}
+          menuSelectionForm={menuSelectionForm}
+          onMenuSelectionFormSubmit={onMenuSelectionFormSubmit}
           onMenuItemRemove={onMenuItemRemove}
-          selectedMenu={selectedMenu}
+          onMenuItemAdd={onMenuItemAdd}
           errors={errors}
           setCurrentStep={setCurrentStep}
-          nextStep={(step, data) => handleNextStep(step, { ...data, selectedMenu })}
-          reservationData={reservationData}
-          availabilityData={availabilityData}
         />
       )}
       {/* order summary */}
       {currentStep === 4 && (
         <OrderSummary
           setCurrentStep={setCurrentStep}
-          selectedMenu={selectedMenu?.menu || []}
-          reservationData={reservationData}
-          availabilityData={availabilityData}
-          remark={formData.remark || ""} // Pass remark to OrderSummary
+          orderSummary={orderSummary}
+          onCompleteTableReservation={onCompleteTableReservation}
         />
       )}
     </div>

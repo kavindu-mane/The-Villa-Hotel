@@ -39,7 +39,7 @@ import { oneMonthFromNow, today, transferZodErrors, yesterday } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
 import { IoCalendarSharp } from "react-icons/io5";
-import {  IoMdPerson } from "react-icons/io";
+import { IoMdPerson } from "react-icons/io";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "@radix-ui/react-icons";
@@ -54,7 +54,7 @@ import { BiTime } from "react-icons/bi";
 const errorDefault: errorTypes = {
   tableId: [],
   date: [],
-  time_slot: [],
+  timeSlot: [],
   tableType: [],
   name: [],
   phone: [],
@@ -90,7 +90,7 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
       email: "",
       phone: "",
       date: today(),
-      time_slot: "Morning (9:00 AM - 12:00 PM)",
+      timeSlot: "Morning (9:00 AM - 12:00 PM)",
     },
   });
 
@@ -155,7 +155,7 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
     if (reservation.current) {
       form.setValue("tableId", reservation.current.table.tableId);
       form.setValue("date", reservation.current.date);
-      form.setValue("time_slot", reservation.current.timeSlot);
+      form.setValue("timeSlot", reservation.current.timeSlot);
       form.setValue("name", reservation.current.name);
       form.setValue("phone", reservation.current.phone);
       form.setValue("email", reservation.current.email);
@@ -348,7 +348,7 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
                 {/* time slot */}
                 <FormField
                   control={form.control}
-                  name="time_slot"
+                  name="timeSlot"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormLabel className="flex items-center gap-2">
@@ -376,7 +376,7 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
                         </SelectContent>
                       </Select>
                       <FormMessage>
-                        {errors?.time_slot && errors?.time_slot[0]}
+                        {errors?.timeSlot && errors?.timeSlot[0]}
                       </FormMessage>
                     </FormItem>
                   )}

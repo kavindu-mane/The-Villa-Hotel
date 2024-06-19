@@ -94,7 +94,7 @@ export const getOtherAvailableRooms = async (
   }
 };
 
-// get room by id
+// get room by cookie
 export const getRoomFromCookie = async () => {
   try {
     // get cookies

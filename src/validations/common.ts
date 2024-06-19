@@ -1,7 +1,6 @@
 import { oneMonthFromNow, today, yesterday } from "@/utils";
 import { z } from "zod";
 
-
 //form schema for table booking validation
 export const TableReservationsSchema = z.object({
   table_type: z.enum(["One_Seat", "Two_Seat", "Four_Seat", "Six_Seat"], {
@@ -22,7 +21,7 @@ export const TableReservationsSchema = z.object({
     .refine((date) => {
       return date <= oneMonthFromNow();
     }, "Date must be less than or equal to 1 months from now"),
-  time_slot: z.string().min(1, {
+  timeSlot: z.string().min(1, {
     message: "Please select a time slot",
   }),
 });
@@ -159,7 +158,7 @@ export const RestaurantAvailabilitySchema = z.object({
     .refine((date) => {
       return date <= oneMonthFromNow();
     }, "Date must be less than or equal to 1 months from now"),
-  time_slot: z.string().min(1, {
+  timeSlot: z.string().min(1, {
     message: "Please select a time slot",
   }),
   // .refine((value) => {
@@ -191,9 +190,8 @@ export const RestaurantReservationSchema = z.object({
     .string()
     .min(10, { message: "Phone number must be at least 10 characters." })
     .max(15, { message: "Phone number should contain maximum 15 characters." }),
-  table: z.coerce
-    .string({ invalid_type_error: "Please select a table" })
-    /*.refine((val) => val !== undefined, {
+  table: z.coerce.string({ invalid_type_error: "Please select a table" }),
+  /*.refine((val) => val !== undefined, {
       message: "Table field has to be filled.",
     })
     .refine((val) => !isNaN(val), {
@@ -201,7 +199,7 @@ export const RestaurantReservationSchema = z.object({
     })
     .refine((val) => val >= 1 && val <= 20, {
       message: "Table number must be between 1 and 20",
-    })*/,
+    })*/
 });
 
 // form schema for restaurant menu selection validation
@@ -215,10 +213,6 @@ export const RestaurantMenuSchema = z.object({
         .min(1, { message: "Quantity must be at least 1" }),
     }),
   ),
-});
-
-//remark validation
-export const RestaurantRemarkSchema = z.object({
   remark: z
     .string()
     .max(500, { message: "Message should contain maximum 500 characters." })

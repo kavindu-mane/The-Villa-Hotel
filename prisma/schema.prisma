@@ -198,53 +198,61 @@ model RoomReservation {
 }
 
 model TableReservation {
-  id                 String      @id @default(cuid())
-  reservationNo      Int         @unique @default(autoincrement())
-  tableId            String
-  offerId            String?
-  userId             String?
-  foodReservationsId String?
-  name               String
-  email              String
-  phone              String
-  date               DateTime
-  timeSlot           String
-  total              Float       @default(0)
-  coins              Float       @default(0)
-  offerDiscount      Float       @default(0)
-  status             Status      @default(Confirmed)
-  type               BookingType @default(Online)
+  id            String      @id @default(cuid())
+  reservationNo Int         @unique @default(autoincrement())
+  tableId       String
+  offerId       String?
+  userId        String?
+  name          String?
+  email         String?
+  phone         String?
+  date          DateTime
+  timeSlot      String
+  total         Float       @default(0)
+  coins         Float       @default(0)
+  offerDiscount Float       @default(0)
+  status        Status      @default(Confirmed)
+  type          BookingType @default(Online)
 
-  table            Tables           @relation(fields: [tableId], references: [id])
-  user             User?            @relation(fields: [userId], references: [id])
-  foodReservations FoodReservation? @relation(fields: [foodReservationsId], references: [id])
-  offer            Offer?           @relation(fields: [offerId], references: [id])
+  foodReservation FoodReservation[]
+
+  table Tables @relation(fields: [tableId], references: [id])
+  user  User?  @relation(fields: [userId], references: [id])
+  offer Offer? @relation(fields: [offerId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model FoodReservation {
-  id                   String                @id @default(cuid())
-  foodId               String
-  quantity             Int
-  price                Float
-  specialRequirement   String?
-  roomreservation      RoomReservation[]
-  tableReservation     TableReservation[]
+  id                 String      @id @default(cuid())
+  roomReservationId  String?
+  tableReservationId String?
+  specialRequirement String?
+  status             Status      @default(Confirmed)
+  type               BookingType @default(Online)
+
   foodReservationItems FoodReservationItem[]
+
+  roomReservation  RoomReservation?  @relation(fields: [roomReservationId], references: [id], onDelete: Cascade)
+  tableReservation TableReservation? @relation(fields: [tableReservationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model FoodReservationItem {
-  id                String @id @default(cuid())
+  id                String  @id @default(cuid())
   foodId            String
+  offerId           String?
+  offerDiscount     Float  @default(0)
   foodReservationId String
+  quantity          Int
+  total             Float
 
   food            Foods           @relation(fields: [foodId], references: [id])
-  foodReservation FoodReservation @relation(fields: [foodReservationId], references: [id])
+  foodReservation FoodReservation @relation(fields: [foodReservationId], references: [id], onDelete: Cascade)
+  offer           Offer?          @relation(fields: [offerId], references: [id])
 
   @@unique([foodId, foodReservationId])
 }
@@ -257,8 +265,9 @@ model Offer {
   validFrom   DateTime
   validTo     DateTime
 
-  rommReservation  RoomReservation[]
-  tableReservation TableReservation[]
+  rommReservation     RoomReservation[]
+  tableReservation    TableReservation[]
+  foodReservationItem FoodReservationItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

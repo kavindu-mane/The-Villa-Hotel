@@ -29,7 +29,6 @@ import { errorTypes } from "@/types";
 import { ClipLoader } from "react-magic-spinners";
 import { cn } from "@/lib/utils";
 import { RestaurantAvailabilitySchema } from "@/validations";
-import { checkRestaurantAvailability } from '@/actions/utils/tableReservation';
 import { z } from "zod";
 
 export const AvailabilityForm: FC<{
@@ -39,28 +38,7 @@ export const AvailabilityForm: FC<{
     z.infer<typeof RestaurantAvailabilitySchema>
   >;
   errors: errorTypes;
-  nextStep: (step: number, data: any) => void; // Add nextStep prop to handle navigation
-}> = ({ availabilityForm, isLoading, onAvailabilityFormSubmit, errors, nextStep }) => {
-  const [localErrors, setLocalErrors] = useState<errorTypes>({});
-
-  const handleSubmit = async (data: any) => {
-    console.log("Availability form handleSubmit called with data:", data);
-    setLocalErrors({});
-    try {
-      const result = await checkRestaurantAvailability(data.date, data.time_slot);
-      console.log("Availability check result:", result);
-      if (result.success) {
-        onAvailabilityFormSubmit(data);
-        nextStep(2, result.data); // Proceed to the next step (step 2) with validated data
-      } else {
-        setLocalErrors({ message: result.message });
-      }
-    } catch (error) {
-      console.error("Error checking availability:", error);
-      setLocalErrors({ message: "Internal server error. Please try again later." });
-    }
-  };
-
+}> = ({ availabilityForm, isLoading, onAvailabilityFormSubmit, errors }) => {
   // time slots
   const timeSlots = [
     "Morning (9:00 AM - 12:00 PM)",
@@ -72,7 +50,7 @@ export const AvailabilityForm: FC<{
   return (
     <Form {...availabilityForm}>
       <form
-        onSubmit={availabilityForm.handleSubmit(handleSubmit)}
+        onSubmit={availabilityForm.handleSubmit(onAvailabilityFormSubmit)}
         className="mt-8 flex w-full max-w-2xl flex-col items-center justify-center gap-5"
       >
         <div className="flex w-full flex-col items-center justify-center gap-3 md:flex-row md:items-start">
@@ -124,7 +102,7 @@ export const AvailabilityForm: FC<{
           {/* time slot */}
           <FormField
             control={availabilityForm.control}
-            name="time_slot"
+            name="timeSlot"
             render={({ field }) => (
               <FormItem className="w-full max-w-sm lg:max-w-xs">
                 <FormLabel className="flex items-center gap-2">
@@ -152,7 +130,7 @@ export const AvailabilityForm: FC<{
                   </SelectContent>
                 </Select>
                 <FormMessage>
-                  {errors?.time_slot && errors?.time_slot[0]}
+                  {errors?.timeSlot && errors?.timeSlot[0]}
                 </FormMessage>
               </FormItem>
             )}
@@ -165,7 +143,7 @@ export const AvailabilityForm: FC<{
           <Button
             type="submit"
             disabled={isLoading}
-            className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2"
+            className="flex h-10 w-full max-w-44 items-center justify-center gap-x-2"
           >
             {isLoading && <ClipLoader size={20} color="#fff" />} Check
             Availability
