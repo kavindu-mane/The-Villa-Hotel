@@ -196,7 +196,7 @@ export const TableReservationFormSchema = z.object({
     .refine((date) => {
       return date <= oneMonthFromNow();
     }, "Date must be less than or equal to 1 months from now"),
-  time_slot: z.string().min(1, {
+  timeSlot: z.string().min(1, {
     message: "Please select a time slot",
   }),
   offer: z.optional(

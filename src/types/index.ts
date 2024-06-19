@@ -12,7 +12,7 @@ export type errorTypes = {
   table?: string[];
   menu?: string[];
   date?: string[];
-  time_slot?: string[];
+  timeSlot?: string[];
   number?: string[];
   room_type?: string[];
   beds?: string[];
@@ -74,6 +74,18 @@ export type foodsDataTypes = {
   updatedAt: Date;
 };
 
+// type for minimal food data
+export type minimalFoodData = {
+  foodId: string;
+  foodType: FoodType;
+  name: string;
+  price: number;
+  description: string;
+  images: {
+    data: string[];
+  };
+};
+
 // types for tables data
 export type tablesDataTypes = {
   id: string;
@@ -87,6 +99,18 @@ export type tablesDataTypes = {
   };
   createdAt: Date;
   updatedAt: Date;
+};
+
+// types for minimal table data
+export type minimalTableData = {
+  tableId: string;
+  tableType: TableType;
+  price: number;
+  description: string;
+  isAvailable: boolean;
+  images: {
+    data: string[];
+  };
 };
 
 // types for offer data
@@ -173,4 +197,27 @@ export type foodsReservationDataTypes = {
   price: number;
   quantity: number;
   specialRequirement: string;
+};
+
+//type for table reservation order summery
+export type tableReservationOrderSummery = {
+  date: Date;
+  coins: number;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  foodReservation: {
+    specialRequirement: string | null;
+    foodReservationItems: {
+      total: number;
+      foodId: string;
+      quantity: number;
+    }[];
+  }[];
+  total: number;
+  timeSlot: string;
+  table: {
+    tableId: string;
+    tableType: TableType;
+  };
 };

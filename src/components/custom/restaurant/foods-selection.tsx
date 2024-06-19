@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, FC, SetStateAction ,useState,useEffect} from "react";
+import { Dispatch, FC, SetStateAction, useState, useEffect } from "react";
 import {
   Button,
   Form,
@@ -13,98 +13,60 @@ import {
 } from "@/components";
 import Image from "next/image";
 import { z } from "zod";
-import { RestaurantMenuSchema, RestaurantRemarkSchema } from "@/validations";
-import { errorTypes } from "@/types";
-import { UseFormReturn, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { restaurantMenuSelection, fetchMenuItems } from "@/actions/utils/tableReservation"; // Import the menu selection function
-
+import { RestaurantMenuSchema } from "@/validations";
+import { errorTypes, minimalFoodData } from "@/types";
+import { SubmitHandler, UseFormReturn } from "react-hook-form";
+import { getAllAvailableFoods } from "@/actions/food-reservations";
 
 export const FoodsSelections: FC<{
-  selectedMenu: z.infer<typeof RestaurantMenuSchema> | null;
+  menuSelectionForm: UseFormReturn<z.infer<typeof RestaurantMenuSchema>>;
+  onMenuSelectionFormSubmit: SubmitHandler<
+    z.infer<typeof RestaurantMenuSchema>
+  >;
   onMenuItemAdd: (id: string) => void;
   onMenuItemRemove: (id: string) => void;
   setCurrentStep: Dispatch<SetStateAction<number>>;
   errors: errorTypes;
-  reservationData: { name: string; email: string; phone: string; table: string } | null;
-  availabilityData: { date: Date; time_slot: string } | null;
-  nextStep: (step: number, data: any) => void; // Function to go to the next step
 }> = ({
-  selectedMenu,
+  menuSelectionForm,
+  onMenuSelectionFormSubmit,
   onMenuItemAdd,
   onMenuItemRemove,
   setCurrentStep,
   errors,
-  reservationData,
-  availabilityData,
-  nextStep,
 }) => {
-  // form hooks
-  const remarkForm = useForm<z.infer<typeof RestaurantRemarkSchema>>({
-    resolver: zodResolver(RestaurantRemarkSchema),
-    defaultValues: {
-      remark: "",
-    },
-  });
-
-  const [menuItems, setMenuItems] = useState<any[]>([]); // State to store the menu items
-
-  useEffect(() => {
-    // Fetch menu items when the component mounts
-    fetchMenu();
-  }, []);
+  // State to store the menu items
+  const [menuItems, setMenuItems] = useState<minimalFoodData[]>([]);
 
   // Function to fetch menu items
   const fetchMenu = async () => {
-    try {
-      const result = await fetchMenuItems(); // Call the fetchMenuItems function
-      if (result.success) {
-        setMenuItems(result.data || []); // Set the fetched menu items in the state
-      } else {
-        console.error("Error fetching menu items:", result.message);
-      }
-    } catch (error) {
-      console.error("Error fetching menu items:", error);
-    }
+    await getAllAvailableFoods()
+      .then((response) => {
+        if (response) {
+          setMenuItems(response as minimalFoodData[]);
+        }
+      })
+      .catch(() => {
+        setMenuItems([]);
+      });
   };
 
-  const [localErrors, setLocalErrors] = useState<errorTypes>({});
-
-  const handleSubmit = async (remarkData: z.infer<typeof RestaurantRemarkSchema>) => {
-    console.log("Reservation form handleSubmit called with data:", remarkData);
-    setLocalErrors({});
-    try {
-      const menuData = {
-        menu: selectedMenu?.menu || [],
-        remark: remarkData.remark,
-      };
-
-      const result = await restaurantMenuSelection(menuData);
-      console.log("Reservation result:", result);
-
-      if (result.success) {
-        // Pass both data to the next step
-        nextStep(4, { menu: selectedMenu?.menu || [], availabilityData, reservationData, remark: remarkData.remark });
-      } else {
-        setLocalErrors({ message: result.message });
-      }
-    } catch (error) {
-      console.error("Error making reservation:", error);
-      setLocalErrors({ message: "Internal server error. Please try again later." });
-    }
-  };
+  // Fetch menu items when the component mounts
+  useEffect(() => {
+    fetchMenu();
+  }, []);
 
   return (
-    <div className="">
+    <div className="w-full max-w-2xl">
       <div className="flex flex-wrap justify-center gap-3">
-        {menuItems.map((menu) => ( // Render menu items
+        {menuItems.map((menu) => (
           <div
-            key={menu.id}
+            key={menu.foodId}
             className="flex w-80 flex-col items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 shadow-lg drop-shadow-lg"
           >
             <div className="">
               <Image
-                src={menu.images}
+                src={menu.images?.data[0]}
                 alt={menu.name}
                 width={500}
                 height={500}
@@ -129,28 +91,31 @@ export const FoodsSelections: FC<{
                 {/* Add button */}
                 <Button
                   disabled={
-                    selectedMenu?.menu.find((m) => m.id === menu.id)
-                      ?.quantity === 5
+                    menuSelectionForm
+                      .getValues("menu")
+                      .find((m) => m.id === menu.foodId)?.quantity === 5
                   }
                   className="h-8 w-8 rounded-e-none rounded-s-lg border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                  onClick={() => onMenuItemAdd(menu.id)}
+                  onClick={() => onMenuItemAdd(menu.foodId)}
                   variant="outline"
                 >
                   +
                 </Button>
                 {/* Quantity */}
                 <p className="flex h-8 w-8 items-center justify-center bg-gray-200 font-medium">
-                  {selectedMenu?.menu.find((m) => m.id === menu.id)
-                    ?.quantity || 0}
+                  {menuSelectionForm
+                    .getValues("menu")
+                    ?.find((m) => m.id === menu.foodId)?.quantity || 0}
                 </p>
                 {/* Remove button */}
                 <Button
                   disabled={
-                    selectedMenu?.menu.find((m) => m.id === menu.id) ===
-                    undefined
+                    menuSelectionForm
+                      .getValues("menu")
+                      ?.find((m) => m.id === menu.foodId) === undefined
                   }
                   className="h-8 w-8 rounded-e-lg rounded-s-none border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                  onClick={() => onMenuItemRemove(menu.id)}
+                  onClick={() => onMenuItemRemove(menu.foodId)}
                   variant="outline"
                 >
                   -
@@ -160,12 +125,12 @@ export const FoodsSelections: FC<{
           </div>
         ))}
       </div>
-      <div className="flex items-center justify-center">
-        <Form {...remarkForm}>
-          <form className="mt-8 flex w-full max-w-2xl  items-center justify-center gap-5">
-            {/* remark */}
+
+      <Form {...menuSelectionForm}>
+        <form className="mt-8 flex w-full max-w-2xl flex-col items-center justify-center gap-5">
+          <div className="flex w-full flex-col items-center justify-center gap-3 md:flex-row md:items-start">
             <FormField
-              control={remarkForm.control}
+              control={menuSelectionForm.control}
               name="remark"
               render={({ field }) => (
                 <FormItem className="w-full">
@@ -188,9 +153,9 @@ export const FoodsSelections: FC<{
                 </FormItem>
               )}
             />
-          </form>
-        </Form>
-      </div>
+          </div>
+        </form>
+      </Form>
 
       <div className="mt-10 flex w-full justify-between">
         {/* back button */}
@@ -202,7 +167,7 @@ export const FoodsSelections: FC<{
         </Button>
 
         <Button
-          onClick={remarkForm.handleSubmit(handleSubmit)}
+          onClick={menuSelectionForm.handleSubmit(onMenuSelectionFormSubmit)}
           className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2"
         >
           Next

@@ -5,11 +5,11 @@ import { TableReservationFormSchema } from "@/validations";
 import {
   getTableReservations,
   updateTableReservation,
-  createTableReservation,
 } from "@/actions/admin/utils/tables-reservation-admin";
 import {
   checkTableAvailability,
   getTableReservationByNumber,
+  createTableReservation,
 } from "@/actions/utils/table-reservations";
 import { getTableByNumber } from "@/actions/utils/tables";
 import { getUserByEmail } from "@/actions/utils/user";
@@ -66,7 +66,7 @@ export const addOrUpdateTableReservation = async (
     }
 
     // destructure data from validated fields
-    const { tableId, name, email, phone, date, time_slot, offerID, offer } =
+    const { tableId, name, email, phone, date, timeSlot, offerID, offer } =
       validatedFields.data;
 
     const tableDate = await tzConvertor(date);
@@ -83,13 +83,13 @@ export const addOrUpdateTableReservation = async (
     // get user from email
     const user = await getUserByEmail(email!!);
 
-    console.log(tableDetails.tableId, tableDate, time_slot)
+    console.log(tableDetails.tableId, tableDate, timeSlot);
 
     // check if table is available or not
     const tableAvailability = await checkTableAvailability(
       tableDetails.id,
       tableDate,
-      time_slot,
+      timeSlot,
     );
 
     if (
@@ -149,7 +149,7 @@ export const addOrUpdateTableReservation = async (
           date: tableDate,
           userId: user?.id || null,
           total: finalizedTotal,
-          timeSlot: time_slot,
+          timeSlot: timeSlot,
         },
         commonOffer?.discount || offer || 0,
       );
@@ -162,7 +162,7 @@ export const addOrUpdateTableReservation = async (
         date: tableDate,
         userId: user?.id || null,
         total: finalizedTotal,
-        timeSlot: time_slot,
+        timeSlot: timeSlot,
         offerDiscount: commonOffer?.discount || offer || 0,
         offerId: offerID || null,
         status: "Confirmed",
