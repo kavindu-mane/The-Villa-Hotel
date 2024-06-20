@@ -328,7 +328,7 @@ export const NewReservations: FC = () => {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <p className="text-gray-800">100</p>
+              <p className="text-gray-800">0</p>
             </div>
 
             {/* available offers */}

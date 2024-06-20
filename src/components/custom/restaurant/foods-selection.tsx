@@ -17,6 +17,7 @@ import { RestaurantMenuSchema } from "@/validations";
 import { errorTypes, minimalFoodData } from "@/types";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { getAllAvailableFoods } from "@/actions/food-reservations";
+import { ClipLoader } from "react-magic-spinners";
 
 export const FoodsSelections: FC<{
   menuSelectionForm: UseFormReturn<z.infer<typeof RestaurantMenuSchema>>;
@@ -27,6 +28,7 @@ export const FoodsSelections: FC<{
   onMenuItemRemove: (id: string) => void;
   setCurrentStep: Dispatch<SetStateAction<number>>;
   errors: errorTypes;
+  isLoading: boolean;
 }> = ({
   menuSelectionForm,
   onMenuSelectionFormSubmit,
@@ -34,6 +36,7 @@ export const FoodsSelections: FC<{
   onMenuItemRemove,
   setCurrentStep,
   errors,
+  isLoading
 }) => {
   // State to store the menu items
   const [menuItems, setMenuItems] = useState<minimalFoodData[]>([]);
@@ -161,15 +164,16 @@ export const FoodsSelections: FC<{
         {/* back button */}
         <Button
           onClick={() => setCurrentStep(2)}
-          className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2 border border-primary bg-transparent text-primary hover:text-white"
+          className="flex h-10 w-full max-w-48 items-center justify-center gap-x-2 border border-primary bg-transparent text-primary hover:text-white"
         >
           Previous
         </Button>
 
         <Button
           onClick={menuSelectionForm.handleSubmit(onMenuSelectionFormSubmit)}
-          className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2"
+          className="flex h-10 w-full max-w-48 items-center justify-center gap-x-2"
         >
+          {isLoading && <ClipLoader size={20} color="#fff" />}
           Next
         </Button>
       </div>

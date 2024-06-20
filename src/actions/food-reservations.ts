@@ -39,23 +39,6 @@ export const createPendingFoodReservation = async (
   //destructuring data from validated fields
   const { menu, remark } = validatedFields.data;
 
-  // food array
-  const foodArray: {
-    foodId: string;
-    quantity: number;
-    total: number;
-  }[] = [];
-
-  // loop through menu and create food array
-  menu.forEach(async (item) => {
-    const foods = await getFoodDetailsById(item.id);
-    foodArray.push({
-      foodId: item.id,
-      quantity: item.quantity,
-      total: (foods?.price || 0) * item.quantity,
-    });
-  });
-
   // check pending_reservation cookie if exists
   const reservation = cookieStore.get("pending_table_reservation");
 
@@ -67,27 +50,46 @@ export const createPendingFoodReservation = async (
   // check if reservation exists
   const existingReservation = await getTableReservationById(reservation.value);
 
-  // create pending food reservation
-  const foodReservation = await createFoodReservation(
-    {
-      specialRequirement: remark,
-      status: "Ongoing",
-      tableReservationId: existingReservation?.id,
-    },
-    foodArray,
-  );
+  if (menu.length > 0) {
+    // food array
+    const foodArray: {
+      foodId: string;
+      quantity: number;
+      total: number;
+    }[] = [];
 
-  if (!foodReservation) {
-    return { error: "Failed to create food reservation - 1" };
-  }
-
-  // get total of all food items
-  const sumOfTotal = foodArray.reduce((acc, item) => acc + item.total, 0);
-  // if total grater than 5 times of the table price update table price to 0
-  if (sumOfTotal > existingReservation?.total! * 5) {
-    await updateTableReservation(existingReservation?.id!, {
-      total: 0,
+    // loop through menu and create food array
+    menu.forEach(async (item) => {
+      const foods = await getFoodDetailsById(item.id);
+      foodArray.push({
+        foodId: item.id,
+        quantity: item.quantity,
+        total: (foods?.price || 0) * item.quantity,
+      });
     });
+
+    // create pending food reservation
+    const foodReservation = await createFoodReservation(
+      {
+        specialRequirement: remark,
+        status: "Ongoing",
+        tableReservationId: existingReservation?.id,
+      },
+      foodArray,
+    );
+
+    if (!foodReservation) {
+      return { error: "Failed to create food reservation" };
+    }
+
+    // get total of all food items
+    const sumOfTotal = foodArray.reduce((acc, item) => acc + item.total, 0);
+    // if total grater than 5 times of the table price update table price to 0
+    if (sumOfTotal > existingReservation?.total! * 5) {
+      await updateTableReservation(existingReservation?.id!, {
+        total: 0,
+      });
+    }
   }
   const reservationDetails = await getTableReservationDetails(
     existingReservation?.id!,
@@ -95,7 +97,7 @@ export const createPendingFoodReservation = async (
 
   // if reservation details not found
   if (!reservationDetails) {
-    return { error: "Failed to get reservation details - 2" };
+    return { error: "Failed to get reservation details" };
   }
 
   // get offers from the database

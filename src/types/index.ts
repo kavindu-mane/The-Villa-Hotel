@@ -212,6 +212,9 @@ export type tableReservationOrderSummery = {
       total: number;
       foodId: string;
       quantity: number;
+      food: {
+        name: string;
+      };
     }[];
   }[];
   total: number;

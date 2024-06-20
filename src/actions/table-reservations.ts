@@ -45,12 +45,12 @@ export const getAllAvailableTables = async (
   const { date, timeSlot } = validatedFields.data;
 
   // converted date
-  const dateConverted = await tzConvertor(date); 
+  const dateConverted = await tzConvertor(date);
 
   //get available tables
-  const availableTables = await getAvailableTables(date, timeSlot);
+  const availableTables = await getAvailableTables(dateConverted, timeSlot);
 
-  // if no tables available
+  // return available tables
   return {
     availableTables,
   };
@@ -259,38 +259,40 @@ export const completeTableReservation = async (offerID?: string) => {
       total,
     });
 
-    // food array
-    const foodArray: {
-      foodId: string;
-      quantity: number;
-      total: number;
-      offerId: string;
-      offerDiscount: number;
-    }[] = [];
-    const menu = existingReservation.foodReservation[0].foodReservationItems;
+    if (existingReservation.foodReservation[0]) {
+      // food array
+      const foodArray: {
+        foodId: string;
+        quantity: number;
+        total: number;
+        offerId: string;
+        offerDiscount: number;
+      }[] = [];
+      const menu = existingReservation.foodReservation[0].foodReservationItems;
 
-    // loop through menu and create food array
-    menu.forEach(async (item) => {
-      const total = (item.total * (100 - offer.discount)) / 100;
-      foodArray.push({
-        foodId: item.foodId,
-        quantity: item.quantity,
-        total: total,
-        offerId: offer.id,
-        offerDiscount: offer.discount,
+      // loop through menu and create food array
+      menu.forEach(async (item) => {
+        const total = (item.total * (100 - offer.discount)) / 100;
+        foodArray.push({
+          foodId: item.foodId,
+          quantity: item.quantity,
+          total: total,
+          offerId: offer.id,
+          offerDiscount: offer.discount,
+        });
       });
-    });
 
-    // update food reservation with offer details
-    const updatedFoodReservation = await updateFoodReservationTotals(
-      existingReservation.foodReservation[0].id,
-      foodArray,
-    );
+      // update food reservation with offer details
+      const updatedFoodReservation = await updateFoodReservationTotals(
+        existingReservation.foodReservation[0].id,
+        foodArray,
+      );
 
-    if (!updatedFoodReservation) {
-      return {
-        error: "Error updating food reservation",
-      };
+      if (!updatedFoodReservation) {
+        return {
+          error: "Error updating food reservation",
+        };
+      }
     }
   }
 
@@ -299,10 +301,12 @@ export const completeTableReservation = async (offerID?: string) => {
     status: "Confirmed",
   });
   // update food reservation status to confirm
-  await updateFoodReservationStatus(
-    existingReservation.foodReservation[0].id,
-    "Confirmed",
-  );
+  if (existingReservation.foodReservation[0]) {
+    await updateFoodReservationStatus(
+      existingReservation.foodReservation[0].id,
+      "Confirmed",
+    );
+  }
 
   // delete pending_reservation cookie
   cookieStore.delete("pending_table_reservation");
