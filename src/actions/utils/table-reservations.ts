@@ -174,6 +174,11 @@ export const getTableReservationDetails = async (id: string) => {
                 foodId: true,
                 quantity: true,
                 total: true,
+                food: {
+                  select: {
+                    name: true,
+                  },
+                },
               },
             },
           },

@@ -44,7 +44,7 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
       </div>
       <ul
         className={cn(
-          "hidden gap-x-5 md:flex",
+          "hidden gap-x-8 md:flex",
           pathname === "/admin" ? "md:hidden" : "",
         )}
       >

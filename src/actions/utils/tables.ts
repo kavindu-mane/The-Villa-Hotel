@@ -127,6 +127,11 @@ export const getTableFromCookie = async () => {
       const table = await db.tables.findUnique({
         where: {
           id: existingReservation.tableId,
+          tableReservation: {
+            none: {
+              status: "Confirmed",
+            },
+          },
         },
         select: {
           tableId: true,

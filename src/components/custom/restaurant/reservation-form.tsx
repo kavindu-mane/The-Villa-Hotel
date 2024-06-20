@@ -154,7 +154,7 @@ export const RestaurantReservationForm: FC<{
           {/* back button */}
           <Button
             onClick={() => setCurrentStep(1)}
-            className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2 border border-primary bg-transparent text-primary hover:text-white"
+            className="flex h-10 w-full max-w-48 items-center justify-center gap-x-2 border border-primary bg-transparent text-primary hover:text-white"
           >
             Previous
           </Button>
@@ -162,7 +162,7 @@ export const RestaurantReservationForm: FC<{
           <Button
             type="submit"
             disabled={isLoading}
-            className="flex h-10 w-full max-w-40 items-center justify-center gap-x-2"
+            className="flex h-10 w-full max-w-48 items-center justify-center gap-x-2"
           >
             {isLoading && <ClipLoader size={20} color="#fff" />} Reserve Table
           </Button>

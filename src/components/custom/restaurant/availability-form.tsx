@@ -23,7 +23,7 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { BiTime } from "react-icons/bi";
 import { IoCalendarSharp } from "react-icons/io5";
 import { format } from "date-fns";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { SubmitHandler, UseFormReturn } from "react-hook-form";
 import { errorTypes } from "@/types";
 import { ClipLoader } from "react-magic-spinners";
@@ -143,7 +143,7 @@ export const AvailabilityForm: FC<{
           <Button
             type="submit"
             disabled={isLoading}
-            className="flex h-10 w-full max-w-44 items-center justify-center gap-x-2"
+            className="flex h-10 w-full max-w-48 items-center justify-center gap-x-2"
           >
             {isLoading && <ClipLoader size={20} color="#fff" />} Check
             Availability
