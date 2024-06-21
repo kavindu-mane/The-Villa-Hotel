@@ -24,6 +24,8 @@ import {
   updateFoodReservationTotals,
 } from "./utils/foods";
 import { tzConvertor } from "./utils/timezone-convertor";
+import { getUserByEmail } from "./utils/user";
+import { increaseCoins } from "./utils/coins";
 
 /**
  * Create action for table booking form
@@ -169,9 +171,14 @@ export const createPendingTableReservation = async (
       if (existingReservation && existingReservation.status === "Ongoing")
         await deleteTableReservation(reservation.value, "Ongoing");
     }
+
+    // get user by email
+    const user = await getUserByEmail(email);
+
     // create new pending reservation
     const newTableReservation = await createTableReservation({
       tableId: tableDetails.id,
+      userId: user ? user.id : null,
       date,
       timeSlot,
       offerDiscount: 0,
@@ -234,6 +241,9 @@ export const completeTableReservation = async (offerID?: string) => {
     };
   }
 
+  // sub total
+  let subTotal = existingReservation.total;
+
   // check if reservation status is pending
   if (existingReservation.status !== "Ongoing") {
     return {
@@ -252,6 +262,7 @@ export const completeTableReservation = async (offerID?: string) => {
 
     // calculate total after discount
     const total = (existingReservation.total * (100 - offer.discount)) / 100;
+    subTotal = total;
 
     // update reservation with offer details
     await updateTableReservation(existingReservation.id, {
@@ -260,6 +271,7 @@ export const completeTableReservation = async (offerID?: string) => {
     });
 
     if (existingReservation.foodReservation[0]) {
+      const menu = existingReservation.foodReservation[0].foodReservationItems;
       // food array
       const foodArray: {
         foodId: string;
@@ -268,11 +280,11 @@ export const completeTableReservation = async (offerID?: string) => {
         offerId: string;
         offerDiscount: number;
       }[] = [];
-      const menu = existingReservation.foodReservation[0].foodReservationItems;
 
       // loop through menu and create food array
       menu.forEach(async (item) => {
         const total = (item.total * (100 - offer.discount)) / 100;
+        subTotal += total;
         foodArray.push({
           foodId: item.foodId,
           quantity: item.quantity,
@@ -294,6 +306,15 @@ export const completeTableReservation = async (offerID?: string) => {
         };
       }
     }
+  } else {
+    // calculate total if no offer
+    if (existingReservation.foodReservation[0]) {
+      const menu = existingReservation.foodReservation[0].foodReservationItems;
+
+      menu.forEach((item) => {
+        subTotal += item.total;
+      });
+    }
   }
 
   // update reservation status to confirm
@@ -306,6 +327,14 @@ export const completeTableReservation = async (offerID?: string) => {
       existingReservation.foodReservation[0].id,
       "Confirmed",
     );
+  }
+
+  // if user authenticated, increase coins
+  if (existingReservation.userId) {
+    // get bottom int value of subTotal
+    const coins = Math.floor(subTotal);
+    // increase coins
+    await increaseCoins(existingReservation.userId, coins);
   }
 
   // delete pending_reservation cookie

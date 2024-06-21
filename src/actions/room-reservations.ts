@@ -26,6 +26,7 @@ import { getUserByEmail } from "./utils/user";
 import { addPaymentRecord } from "./utils/payments";
 import { roomReservationConfirmEmailTemplate } from "@/templates/room-reservation-confirm-email";
 import { sendEmails } from "./utils/email";
+import { increaseCoins } from "./utils/coins";
 
 /**
  * Server action for room booking form
@@ -322,21 +323,19 @@ export const generatePaymentKeys = async (
   const user = await getUserByEmail(email);
 
   // update reservation with user details
-  const updatedReservation = await updateReservation(
-    {
-      id: existingReservation.id,
-      roomId: existingReservation.roomId,
-      bed: beds,
-      name,
-      email,
-      phone,
-      checkIn: existingReservation.checkIn,
-      checkOut: existingReservation.checkOut,
-      total: existingReservation.total,
-      offerId: offer,
-      userId: user ? user.id : null,
-    }
-  );
+  const updatedReservation = await updateReservation({
+    id: existingReservation.id,
+    roomId: existingReservation.roomId,
+    bed: beds,
+    name,
+    email,
+    phone,
+    checkIn: existingReservation.checkIn,
+    checkOut: existingReservation.checkOut,
+    total: existingReservation.total,
+    offerId: offer,
+    userId: user ? user.id : null,
+  });
 
   // if update unsuccessful
   if (!updatedReservation) {
@@ -404,6 +403,13 @@ export const completePayment = async (order_id: number, payment: number) => {
     return {
       error: "Failed to confirm reservation",
     };
+  }
+  // if user authenticated, increase coins
+  if (updatedReservation.userId) {
+    // get bottom int value of subTotal
+    const coins = Math.floor(updatedReservation.total);
+    // increase coins
+    await increaseCoins(updatedReservation.userId, coins);
   }
 
   // add payment record to database
