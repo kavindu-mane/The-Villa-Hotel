@@ -83,8 +83,6 @@ export const addOrUpdateTableReservation = async (
     // get user from email
     const user = await getUserByEmail(email!!);
 
-    console.log(tableDetails.tableId, tableDate, timeSlot);
-
     // check if table is available or not
     const tableAvailability = await checkTableAvailability(
       tableDetails.id,

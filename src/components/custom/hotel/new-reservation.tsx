@@ -168,7 +168,6 @@ export const NewReservations: FC = () => {
         }
 
         if (res.payment) {
-          console.log(res.payment);
           // pop up payment gateway
           await popUpPaymentGateway(res.payment);
         }

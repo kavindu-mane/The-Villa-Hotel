@@ -161,19 +161,6 @@ export const RestaurantAvailabilitySchema = z.object({
   timeSlot: z.string().min(1, {
     message: "Please select a time slot",
   }),
-  // .refine((value) => {
-  //   const timeSlots = [
-  //     "Morning (9:00 AM - 12:00 PM)",
-  //     "Afternoon (12:00 PM - 3:00 PM)",
-  //     "Evening (3:00 PM - 6:00 PM)",
-  //     "Night (6:00 PM - 9:00 PM)",
-  //   ];
-  //   if (value && !timeSlots.includes(value)) {
-  //     return {
-  //       message: "Please select a valid time slot",
-  //     };
-  //   }
-  // }),
 });
 
 // form schema for restaurant reservation validation
@@ -190,16 +177,11 @@ export const RestaurantReservationSchema = z.object({
     .string()
     .min(10, { message: "Phone number must be at least 10 characters." })
     .max(15, { message: "Phone number should contain maximum 15 characters." }),
-  table: z.coerce.string({ invalid_type_error: "Please select a table" }),
-  /*.refine((val) => val !== undefined, {
+  table: z
+    .string({ required_error: "Please select a table" })
+    .refine((val) => val !== undefined, {
       message: "Table field has to be filled.",
-    })
-    .refine((val) => !isNaN(val), {
-      message: "Table must be a number",
-    })
-    .refine((val) => val >= 1 && val <= 20, {
-      message: "Table number must be between 1 and 20",
-    })*/
+    }),
 });
 
 // form schema for restaurant menu selection validation

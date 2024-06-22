@@ -7,6 +7,9 @@ export const getPromotionByCode = async (code: string) => {
   try {
     const offer = await db.offer.findUnique({
       where: {
+        validTo: {
+          gte: new Date(),
+        },
         code,
       },
     });
@@ -49,6 +52,11 @@ export const getPromotions = async (
     const offers = await db.offer.findMany({
       skip: (page - 1) * limit,
       take: limit,
+      where: {
+        validTo: {
+          gte: new Date(),
+        },
+      },
       select: {
         id: select?.id || true,
         code: select?.code || true,

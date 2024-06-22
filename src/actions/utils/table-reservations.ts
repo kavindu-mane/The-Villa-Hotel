@@ -54,6 +54,12 @@ export const getTableReservationById = async (id: string) => {
         id,
       },
       include: {
+        table: {
+          select: {
+            tableId: true,
+            tableType: true,
+          },
+        },
         foodReservation: {
           include: {
             foodReservationItems: {
@@ -61,6 +67,11 @@ export const getTableReservationById = async (id: string) => {
                 foodId: true,
                 quantity: true,
                 total: true,
+                food: {
+                  select: {
+                    name: true,
+                  },
+                },
               },
             },
           },
@@ -171,11 +182,11 @@ export const getTableReservationDetails = async (id: string) => {
             specialRequirement: true,
             foodReservationItems: {
               select: {
-                foodId: true,
                 quantity: true,
                 total: true,
                 food: {
                   select: {
+                    foodId: true,
                     name: true,
                   },
                 },
@@ -204,6 +215,7 @@ export const updateTableReservation = async (
     status?: Status;
     offerDiscount?: number;
     offerId?: string;
+    foodReservation?: any;
   },
 ) => {
   try {

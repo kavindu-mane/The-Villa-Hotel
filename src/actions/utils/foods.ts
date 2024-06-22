@@ -46,6 +46,7 @@ export const createFoodReservation = async (
         },
       },
     });
+
     return foodReservation;
   } catch (e) {
     return null;
@@ -60,6 +61,7 @@ export const getFoodDetailsById = async (foodId: string) => {
         foodId,
       },
       select: {
+        id: true,
         name: true,
         description: true,
         price: true,
@@ -76,18 +78,35 @@ export const getFoodDetailsById = async (foodId: string) => {
 // update food reservation status by ID
 export const updateFoodReservationTotals = async (
   id: string,
-  foods: { foodId: string; quantity: number; total: number }[],
+  foods: {
+    foodId: string;
+    quantity: number;
+    foodReservationId: string;
+    total: number;
+    offerDiscount: number;
+    offerId: string;
+  }[],
 ) => {
   try {
+    const mappedFoods = foods.map((food) => ({
+      where: {
+        foodReservationId: food.foodReservationId,
+        foodId: food.foodId,
+      },
+      data: {
+        quantity: food.quantity,
+        total: food.total,
+        offerDiscount: food.offerDiscount,
+        offerId: food.offerId,
+      },
+    }));
     const foodReservation = await db.foodReservation.update({
       where: {
         id,
       },
       data: {
         foodReservationItems: {
-          createMany: {
-            data: { ...foods },
-          },
+          updateMany: mappedFoods,
         },
       },
     });

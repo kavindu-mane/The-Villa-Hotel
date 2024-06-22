@@ -45,44 +45,6 @@ const errorDefault: errorTypes = {
   message: "",
 };
 
-// dummy table reservation summery for testing
-const dummyOrderSummary: tableReservationOrderSummery = {
-  date: new Date(),
-  coins: 0,
-  name: "John Doe",
-  email: "abcd1234@gmail.com",
-  phone: "1234567890",
-  total: 10,
-  timeSlot: "Morning (9:00 AM - 12:00 PM)",
-  table: {
-    tableId: "A1",
-    tableType: "Four_Seat",
-  },
-  foodReservation: [
-    {
-      specialRequirement: "No",
-      foodReservationItems: [
-        {
-          foodId: "1",
-          quantity: 1,
-          total: 10,
-          food: {
-            name: "Burger",
-          },
-        },
-        {
-          foodId: "2",
-          quantity: 1,
-          total: 20,
-          food: {
-            name: "Pizza",
-          },
-        },
-      ],
-    },
-  ],
-};
-
 export const RestaurantForm: FC = () => {
   // is loading state
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +57,7 @@ export const RestaurantForm: FC = () => {
     minimalTableData[] | null
   >(null);
   const [orderSummary, setOrderSummary] =
-    useState<tableReservationOrderSummery | null>(dummyOrderSummary);
+    useState<tableReservationOrderSummery | null>(null);
   const [offers, setOffers] = useState<offerDataTypes[] | null>(null);
   const { toast } = useToast();
 
@@ -293,7 +255,6 @@ export const RestaurantForm: FC = () => {
       };
       selectedMenuCopy.push(menuItem);
     }
-
     // add menuItem to selected menu
     menuSelectionForm.setValue("menu", selectedMenuCopy);
   };

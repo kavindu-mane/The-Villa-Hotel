@@ -50,23 +50,37 @@ export const createPendingFoodReservation = async (
   // check if reservation exists
   const existingReservation = await getTableReservationById(reservation.value);
 
+  // if reservation does not exist
+  if (!existingReservation) {
+    return { error: "Reservation not found" };
+  }
+
+  // remove existing food reservations
+  await updateTableReservation(existingReservation?.id!, {
+    foodReservation: {
+      deleteMany: {},
+    },
+  });
+
   if (menu.length > 0) {
     // food array
-    const foodArray: {
-      foodId: string;
-      quantity: number;
-      total: number;
-    }[] = [];
+    // const foodArray: {
+    //   foodId: string;
+    //   quantity: number;
+    //   total: number;
+    // }[] = [];
 
     // loop through menu and create food array
-    menu.forEach(async (item) => {
+    const foodPromise = menu.map(async (item) => {
       const foods = await getFoodDetailsById(item.id);
-      foodArray.push({
-        foodId: item.id,
+      return {
+        foodId: foods?.id || "",
         quantity: item.quantity,
         total: (foods?.price || 0) * item.quantity,
-      });
+      };
     });
+
+    const foodArray = await Promise.all(foodPromise);
 
     // create pending food reservation
     const foodReservation = await createFoodReservation(

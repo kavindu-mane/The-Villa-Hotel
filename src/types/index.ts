@@ -210,9 +210,9 @@ export type tableReservationOrderSummery = {
     specialRequirement: string | null;
     foodReservationItems: {
       total: number;
-      foodId: string;
       quantity: number;
       food: {
+        foodId: string;
         name: string;
       };
     }[];
