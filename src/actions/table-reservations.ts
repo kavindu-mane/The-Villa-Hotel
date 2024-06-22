@@ -26,6 +26,8 @@ import {
 import { tzConvertor } from "./utils/timezone-convertor";
 import { getUserByEmail } from "./utils/user";
 import { increaseCoins } from "./utils/coins";
+import { tableReservationConfirmEmailTemplate } from "@/templates/table-reservation-confirm-email";
+import { sendEmails } from "./utils/email";
 
 /**
  * Create action for table booking form
@@ -243,6 +245,7 @@ export const completeTableReservation = async (offerID?: string) => {
 
   // sub total
   let subTotal = existingReservation.total;
+  let offerAmount = 0;
 
   // check if reservation status is pending
   if (existingReservation.status !== "Ongoing") {
@@ -263,11 +266,13 @@ export const completeTableReservation = async (offerID?: string) => {
     // calculate total after discount
     const total = (existingReservation.total * (100 - offer.discount)) / 100;
     subTotal = total;
+    offerAmount = existingReservation.total - total;
 
     // update reservation with offer details
     await updateTableReservation(existingReservation.id, {
       offerDiscount: offer.discount,
       total,
+      offerId: offer.id,
     });
 
     if (existingReservation.foodReservation[0]) {
@@ -276,6 +281,7 @@ export const completeTableReservation = async (offerID?: string) => {
       const foodArray: {
         foodId: string;
         quantity: number;
+        foodReservationId: string;
         total: number;
         offerId: string;
         offerDiscount: number;
@@ -285,12 +291,14 @@ export const completeTableReservation = async (offerID?: string) => {
       menu.forEach(async (item) => {
         const total = (item.total * (100 - offer.discount)) / 100;
         subTotal += total;
+        offerAmount += item.total - total;
         foodArray.push({
+          foodReservationId: existingReservation.foodReservation[0].id,
           foodId: item.foodId,
           quantity: item.quantity,
           total: total,
-          offerId: offer.id,
           offerDiscount: offer.discount,
+          offerId: offer.id,
         });
       });
 
@@ -302,7 +310,7 @@ export const completeTableReservation = async (offerID?: string) => {
 
       if (!updatedFoodReservation) {
         return {
-          error: "Error updating food reservation",
+          error: "Error adding food reservation",
         };
       }
     }
@@ -339,6 +347,41 @@ export const completeTableReservation = async (offerID?: string) => {
 
   // delete pending_reservation cookie
   cookieStore.delete("pending_table_reservation");
+
+  // setup email template
+  const template = tableReservationConfirmEmailTemplate(
+    existingReservation.name || "",
+    existingReservation.reservationNo,
+    existingReservation.date.toDateString(),
+    existingReservation.timeSlot,
+    (offerAmount + subTotal).toFixed(2),
+    offerAmount.toFixed(2),
+    subTotal.toFixed(2),
+    `${process.env.WEBSITE_URL}/view-reservations/tables/${existingReservation.id}`,
+    existingReservation.table.tableType,
+    existingReservation.table.tableId,
+    existingReservation.total.toFixed(2),
+    existingReservation.foodReservation[0]
+      ? existingReservation.foodReservation[0].foodReservationItems
+      : [],
+  );
+
+  //get reply to email from env
+  const replyTo = process.env.CONTACT_US_EMAIL;
+
+  const isSend = await sendEmails({
+    to: existingReservation.email!!,
+    replyTo,
+    subject: "Reservation Confirmation - The Villa Hotel",
+    body: template,
+  });
+
+  // if email not sent
+  if (!isSend) {
+    return {
+      error: "Order confirmed but email not sent",
+    };
+  }
 
   return {
     success: true,
