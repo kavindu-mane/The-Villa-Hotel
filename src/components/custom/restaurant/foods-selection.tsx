@@ -36,7 +36,7 @@ export const FoodsSelections: FC<{
   onMenuItemRemove,
   setCurrentStep,
   errors,
-  isLoading
+  isLoading,
 }) => {
   // State to store the menu items
   const [menuItems, setMenuItems] = useState<minimalFoodData[]>([]);
@@ -67,7 +67,7 @@ export const FoodsSelections: FC<{
             key={menu.foodId}
             className="flex w-80 flex-col items-center justify-between gap-3 rounded-md border border-gray-200 bg-white p-3 shadow-lg drop-shadow-lg"
           >
-            <div className="">
+            <div className="w-full">
               <Image
                 src={menu.images?.data[0]}
                 alt={menu.name}
@@ -91,37 +91,38 @@ export const FoodsSelections: FC<{
             {/* Increase and decrease button */}
             <div className="mt-5 flex w-full justify-end">
               <div className="flex">
-                {/* Add button */}
-                <Button
-                  disabled={
-                    menuSelectionForm
-                      .getValues("menu")
-                      .find((m) => m.id === menu.foodId)?.quantity === 5
-                  }
-                  className="h-8 w-8 rounded-e-none rounded-s-lg border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                  onClick={() => onMenuItemAdd(menu.foodId)}
-                  variant="outline"
-                >
-                  +
-                </Button>
-                {/* Quantity */}
-                <p className="flex h-8 w-8 items-center justify-center bg-gray-200 font-medium">
-                  {menuSelectionForm
-                    .getValues("menu")
-                    ?.find((m) => m.id === menu.foodId)?.quantity || 0}
-                </p>
                 {/* Remove button */}
                 <Button
                   disabled={
                     menuSelectionForm
-                      .getValues("menu")
+                      .watch("menu")
                       ?.find((m) => m.id === menu.foodId) === undefined
                   }
-                  className="h-8 w-8 rounded-e-lg rounded-s-none border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                  className="h-8 w-8 rounded-s-lg rounded-e-none border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                   onClick={() => onMenuItemRemove(menu.foodId)}
                   variant="outline"
                 >
                   -
+                </Button>
+                {/* Quantity */}
+                <p className="flex h-8 w-8 items-center justify-center bg-gray-200 font-medium">
+                  {menuSelectionForm
+                    .watch("menu")
+                    ?.find((m) => m.id === menu.foodId)?.quantity || 0}
+                </p>
+
+                {/* Add button */}
+                <Button
+                  disabled={
+                    menuSelectionForm
+                      .watch("menu")
+                      .find((m) => m.id === menu.foodId)?.quantity === 5
+                  }
+                  className="h-8 w-8 rounded-s-none rounded-e-lg border-none bg-primary text-xl !text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                  onClick={() => onMenuItemAdd(menu.foodId)}
+                  variant="outline"
+                >
+                  +
                 </Button>
               </div>
             </div>

@@ -128,9 +128,12 @@ export const getTableFromCookie = async () => {
         where: {
           id: existingReservation.tableId,
           tableReservation: {
-            none: {
-              status: "Confirmed",
-            },
+            some: {
+              id: existingReservation.id,
+              NOT: {
+                status: "Confirmed",
+              }
+            }
           },
         },
         select: {
