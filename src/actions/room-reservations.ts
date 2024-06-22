@@ -444,9 +444,7 @@ export const completePayment = async (order_id: number, payment: number) => {
     offerValue.toFixed(2),
     payment.toFixed(2),
     (updatedReservation.total - payment).toFixed(2),
-    process.env.WEBSITE_URL +
-      "/view-reservations/" +
-      updatedReservation.reservationNo,
+    `${process.env.WEBSITE_URL}"/view-reservations/rooms/"${updatedReservation.reservationNo}`,
     updatedReservation.room.type,
     updatedReservation.room.number,
   );

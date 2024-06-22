@@ -137,7 +137,7 @@ export const OrderSummary: FC<{
                 >
                   <div className="">
                     <p className="text-sm italic text-gray-500">
-                      {item.foodId}
+                      {item?.food?.foodId}
                     </p>
                     <p className="text-gray-500">{item.food.name}</p>
                   </div>

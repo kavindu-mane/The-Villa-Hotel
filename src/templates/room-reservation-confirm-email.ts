@@ -67,7 +67,7 @@ export const roomReservationConfirmEmailTemplate = (
             <td style="font-size: 16px; color: #333">Total Amount:</td>
             <td style="font-size: 16px; color: #333">$${totalAmount}</td>
           </tr>
-                    <tr>
+          <tr>
             <td style="font-size: 16px; color: #333">Offer Amount:</td>
             <td style="font-size: 16px; color: #333">$${offerAmount}</td>
           </tr>

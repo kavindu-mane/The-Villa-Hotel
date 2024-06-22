@@ -48,7 +48,6 @@ export const sendEmails = async ({
     return false;
   } catch (e) {
     // if error
-    console.log(e);
     return false;
   }
 };
