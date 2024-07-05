@@ -137,7 +137,7 @@ export const createPendingReservation = async (
     discount: true,
   });
 
-  if (roomAvailability) {
+  if (roomAvailability && roomAvailability?.length > 0) {
     // if reservation cookie not exists
     if (!reservation) {
       return {
