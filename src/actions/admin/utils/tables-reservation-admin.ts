@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { BookingType, Status } from "@prisma/client";
 
 // update reservation
 export const updateTableReservation = async (data: {
