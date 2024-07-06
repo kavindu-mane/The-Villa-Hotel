@@ -42,7 +42,11 @@ import { useEdgeStore } from "@/lib/edgestore";
 import Image from "next/image";
 import { ClipLoader } from "react-magic-spinners";
 import { useToast } from "@/components/ui/use-toast";
-import { addOrUpdateRoom, deleteRoomsImages } from "@/actions/admin/rooms-crud";
+import {
+  addOrUpdateRoom,
+  deleteRoom360Images,
+  deleteRoomsImages,
+} from "@/actions/admin/rooms-crud";
 import { transferZodErrors } from "@/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { AdminState } from "@/states/stores";
@@ -59,6 +63,7 @@ const errorDefault: errorTypes = {
   persons: [],
   price: [],
   images: [],
+  images360: [],
   message: "",
 };
 
@@ -66,6 +71,7 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
   isPending,
 }) => {
   const [fileStates, setFileStates] = useState<FileState[]>([]);
+  const [file360States, setFile360States] = useState<FileState[]>([]);
   const { edgestore } = useEdgeStore();
   // error state
   const [errors, setErrors] = useState(errorDefault);
@@ -80,6 +86,23 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
   // file state update handler
   const updateFileProgress = (key: string, progress: FileState["progress"]) => {
     setFileStates((fileStates) => {
+      const newFileStates = structuredClone(fileStates);
+      const fileState = newFileStates.find(
+        (fileState) => fileState.key === key,
+      );
+      if (fileState) {
+        fileState.progress = progress;
+      }
+      return newFileStates;
+    });
+  };
+
+  // file 360 state update handler
+  const updateFile360Progress = (
+    key: string,
+    progress: FileState["progress"],
+  ) => {
+    setFile360States((fileStates) => {
       const newFileStates = structuredClone(fileStates);
       const fileState = newFileStates.find(
         (fileState) => fileState.key === key,
@@ -113,6 +136,37 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
     setIsLoading(true);
 
     await deleteRoomsImages(roomId, images, pageNumber)
+      .then(async (res) => {
+        dispatch(setCurrentRoom(res.room));
+        dispatch(setAllRooms(res.rooms));
+
+        await edgestore.publicFiles.delete({
+          url: image,
+        });
+      })
+      .then(() => {
+        toast({
+          title: "Image deleted successfully!",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-green-500 border-primary rounded-md text-white",
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Failed to delete image!",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => setIsLoading(false));
+  };
+
+  const delete360Images = async (image: string) => {
+    const roomId = rooms.current?.id || "";
+    const pageNumber = isNaN(Number(page)) ? 1 : Number(page);
+    setIsLoading(true);
+
+    await deleteRoom360Images(roomId, pageNumber)
       .then(async (res) => {
         dispatch(setCurrentRoom(res.room));
         dispatch(setAllRooms(res.rooms));
@@ -202,6 +256,7 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
       form.setValue("features", rooms.current.features.data);
       form.setValue("beds", rooms.current.beds.data);
       form.setValue("images", rooms.current.images.data);
+      form.setValue("images360", rooms.current.images360);
     } else {
       form.reset();
     }
@@ -581,6 +636,136 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
                             </DeleteAlert>
                           </div>
                         ))}
+                      </div>
+                    </>
+                  )}
+
+                {/* 360 image upload */}
+                <FormField
+                  control={form.control}
+                  name="images360"
+                  render={() => (
+                    <FormItem>
+                      <div className="mb-4">
+                        <FormLabel className="text-base">
+                          Upload 360 Images (Optional)
+                        </FormLabel>
+                        <FormDescription className="">
+                          You can upload a 360 image. (Max size: 1MB)
+                        </FormDescription>
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="images360"
+                        render={({ field }) => {
+                          return (
+                            <div className="w-full">
+                              <MultiFileDropzone
+                                value={file360States}
+                                onChange={(files) => {
+                                  setFile360States(files);
+                                }}
+                                dropzoneOptions={{
+                                  maxSize: 1024 * 1024 * 1,
+                                  maxFiles: 1,
+                                  accept: {
+                                    "image/*": [
+                                      ".jpeg",
+                                      ".jpg",
+                                      ".png",
+                                      ".webp",
+                                    ],
+                                  },
+                                }}
+                                onFilesAdded={async (addedFiles) => {
+                                  setFile360States([
+                                    ...fileStates,
+                                    ...addedFiles,
+                                  ]);
+                                  await Promise.all(
+                                    addedFiles.map(async (addedFileState) => {
+                                      try {
+                                        const res =
+                                          await edgestore.publicFiles.upload({
+                                            file: addedFileState.file,
+                                            options: {
+                                              temporary: true,
+                                            },
+                                            input: { type: "room" },
+                                            onProgressChange: async (
+                                              progress,
+                                            ) => {
+                                              updateFile360Progress(
+                                                addedFileState.key,
+                                                progress,
+                                              );
+                                              if (progress === 100) {
+                                                // wait 1 second to set it to complete
+                                                // so that the user can see the progress bar at 100%
+                                                await new Promise((resolve) =>
+                                                  setTimeout(resolve, 1000),
+                                                );
+                                                updateFile360Progress(
+                                                  addedFileState.key,
+                                                  "COMPLETE",
+                                                );
+                                              }
+                                            },
+                                          });
+                                        form.setValue("images360", res.url);
+                                      } catch (err) {
+                                        updateFileProgress(
+                                          addedFileState.key,
+                                          "ERROR",
+                                        );
+                                      }
+                                    }),
+                                  );
+                                }}
+                              />
+
+                              <FormMessage>
+                                {errors?.images360 && errors?.images360[0]}
+                              </FormMessage>
+                            </div>
+                          );
+                        }}
+                      />
+                    </FormItem>
+                  )}
+                />
+
+                {/* show uploaded 360 images */}
+                {rooms.current?.images360 &&
+                  rooms.current?.images360 !== undefined && (
+                    <>
+                      <div className="">
+                        {rooms.current?.images && (
+                          <FormLabel className="pt-10 text-[0.9rem] text-base">
+                            Current 360 Images
+                          </FormLabel>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap justify-center gap-2 ">
+                        <div className="relative flex flex-col">
+                          <Image
+                            width={200}
+                            height={200}
+                            src={rooms.current.images360}
+                            className="h-32 w-32 rounded-md bg-gray-300 object-cover"
+                            alt="room image"
+                          />
+
+                          <DeleteAlert
+                            yesAction={() =>
+                              delete360Images(rooms.current?.images360!!)
+                            }
+                          >
+                            <div className="absolute right-1 top-1 z-50 flex h-8 w-8 items-center justify-center rounded-lg border border-red-400 bg-transparent p-0 text-red-500 hover:bg-slate-900/10 hover:text-red-600">
+                              <MdDelete className="h-5 w-5 text-2xl" />
+                            </div>
+                          </DeleteAlert>
+                        </div>
                       </div>
                     </>
                   )}

@@ -135,6 +135,7 @@ model Rooms {
   beds            Json
   features        Json
   images          Json
+  images360       String?
   roomReservation RoomReservation[]
 
   createdAt DateTime @default(now())
@@ -245,7 +246,7 @@ model FoodReservationItem {
   id                String  @id @default(cuid())
   foodId            String
   offerId           String?
-  offerDiscount     Float  @default(0)
+  offerDiscount     Float   @default(0)
   foodReservationId String
   quantity          Int
   total             Float

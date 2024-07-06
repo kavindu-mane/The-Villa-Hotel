@@ -38,6 +38,7 @@ export const RoomFormSchema = z.object({
   images: z.array(z.string()).refine((val) => val.length > 0, {
     message: "Please select at least one image",
   }),
+  images360: z.optional(z.string()),
 });
 
 // form schema for add and edit food validation

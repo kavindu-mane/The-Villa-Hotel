@@ -56,8 +56,16 @@ export const addOrUpdateRoom = async (
       };
     }
     // destructure data from validated fields
-    const { beds, features, images, number, persons, price, room_type } =
-      validatedFields.data;
+    const {
+      beds,
+      features,
+      images,
+      number,
+      persons,
+      price,
+      room_type,
+      images360,
+    } = validatedFields.data;
 
     // check room number is available or not
     const room = await getRoomByNumber(number);
@@ -80,6 +88,7 @@ export const addOrUpdateRoom = async (
           beds,
           images,
           features,
+          images360 || null,
         );
       }
     } else {
@@ -92,6 +101,7 @@ export const addOrUpdateRoom = async (
         beds,
         images,
         features,
+        images360 || null,
       );
     }
 
@@ -159,7 +169,55 @@ export const deleteRoomsImages = async (
     return {
       success: "Images deleted successfully",
       room: updatedRoom,
-      rooms : rooms?.rooms || [],
+      rooms: rooms?.rooms || [],
+    };
+  } catch (error) {
+    return {
+      error: "Failed to delete images",
+    };
+  }
+};
+
+export const deleteRoom360Images = async (
+  roomId: string,
+  page: number,
+) => {
+  try {
+    // get room by id
+    const room = await getRoomById(roomId);
+
+    // if failed to get room
+    if (!room) {
+      return {
+        error: "Failed to delete images",
+      };
+    }
+
+    // delete images from the room
+    const updatedRoom = await db.rooms.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        images360: null,
+      },
+    });
+
+    // get all updated rooms
+    const rooms = await getRooms(page, DEFAULT_PAGINATION_SIZE);
+
+    // if failed to update room images
+    if (!updatedRoom) {
+      return {
+        error: "Failed to delete images",
+      };
+    }
+
+    // return success message
+    return {
+      success: "Images deleted successfully",
+      room: updatedRoom,
+      rooms: rooms?.rooms || [],
     };
   } catch (error) {
     return {

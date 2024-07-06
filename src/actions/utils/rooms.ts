@@ -37,6 +37,7 @@ export const getAvailableRooms = async (
         features: true,
         persons: true,
         images: true,
+        images360: true,
         _count: true,
       },
     });
@@ -85,6 +86,7 @@ export const getOtherAvailableRooms = async (
         persons: true,
         features: true,
         images: true,
+        images360: true,
         _count: true,
       },
     });
@@ -119,6 +121,7 @@ export const getRoomFromCookie = async () => {
           features: true,
           persons: true,
           images: true,
+          images360: true,
           _count: true,
         },
       });
