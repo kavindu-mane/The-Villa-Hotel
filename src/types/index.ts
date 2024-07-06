@@ -31,6 +31,7 @@ export type errorTypes = {
   validFrom?: string[];
   validTo?: string[];
   discount?: string[];
+  images360?: string[];
 };
 
 // types for menu selection
@@ -55,6 +56,7 @@ export type roomsDataTypes = {
   images: {
     data: string[];
   };
+  images360: string | undefined;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -151,6 +153,7 @@ export type minimalRoomReservationData = {
   type: RoomType;
   price: number;
   persons: number;
+  images360: string | null;
   images: {
     data: string[];
   };

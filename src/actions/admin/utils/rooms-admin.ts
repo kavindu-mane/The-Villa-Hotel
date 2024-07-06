@@ -12,6 +12,7 @@ export const createRoom = async (
   beds: string[],
   images: string[],
   features: string[],
+  images360: string | null,
 ) => {
   try {
     const room = await db.rooms.create({
@@ -20,6 +21,7 @@ export const createRoom = async (
         type,
         price,
         persons,
+        images360,
         images: {
           data: images,
         },
@@ -46,6 +48,7 @@ export const updateRoom = async (
   beds: string[],
   images: string[],
   features: string[],
+  images360: string | null,
 ) => {
   try {
     const room = await db.rooms.update({
@@ -56,6 +59,7 @@ export const updateRoom = async (
         type,
         price,
         persons,
+        images360,
         beds: {
           data: beds,
         },
@@ -94,7 +98,7 @@ export const getRooms = async (page: number, limit: number) => {
       skip: (page - 1) * limit,
       take: limit,
     });
-    return {rooms , pages, page};
+    return { rooms, pages, page };
   } catch (e) {
     return null;
   }

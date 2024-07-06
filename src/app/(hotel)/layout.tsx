@@ -5,6 +5,7 @@ import { BackToTop, Footer, NavigationWrapper } from "@/components";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 import Loading from "./loading";
+import Script from "next/script";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -31,6 +32,13 @@ async function RootLayout({
             {children}
             <Toaster />
           </main>
+          <Script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1" />
+          <df-messenger
+            intent="WELCOME"
+            chat-title="Villa-chatbot-Tour-Guide"
+            agent-id="d7a12815-c933-44d2-a464-512f9360da65"
+            language-code="en"
+          ></df-messenger>
         </Suspense>
         <Footer />
         <BackToTop />

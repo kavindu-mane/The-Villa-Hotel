@@ -29,6 +29,10 @@ import { cn } from "@/lib/utils";
 export const Rooms: FC = () => {
   // is structure button state
   const [isStructureShow, setIsStructureShow] = useState(false);
+  // is 360 image show state
+  const [is360Show, setIs360Show] = useState(false);
+  // 360 image url
+  const [room360Url, setRoom360Url] = useState<string | null>(null);
   // get use search params
   const searchParams = useSearchParams();
   // status of available rooms
@@ -174,6 +178,7 @@ export const Rooms: FC = () => {
                 room={room}
                 from={new Date(searchParams.get("from")!!)}
                 to={new Date(searchParams.get("to")!!)}
+                setRoom360Url={setRoom360Url}
               />
             ))}
             {/* show error message */}
@@ -193,6 +198,7 @@ export const Rooms: FC = () => {
                 room={room}
                 from={new Date(searchParams.get("from")!!)}
                 to={new Date(searchParams.get("to")!!)}
+                setRoom360Url={setRoom360Url}
               />
             ))}
           </div>
@@ -206,6 +212,11 @@ export const Rooms: FC = () => {
       {/* show  structure*/}
       {isStructureShow && (
         <RoomsLocation setIsStructureShow={setIsStructureShow} />
+      )}
+
+      {/* room 360 popup */}
+      {is360Show && (
+        <Room360Popup setIs360Show={setIs360Show} room360Url={room360Url} />
       )}
     </section>
   );
@@ -237,10 +248,12 @@ const RoomCard = ({
   room,
   from,
   to,
+  setRoom360Url,
 }: {
   room: minimalRoomReservationData;
   from: Date;
   to: Date;
+  setRoom360Url: (value: string | null) => void;
 }) => {
   // router hook
   const router = useRouter();
@@ -278,9 +291,15 @@ const RoomCard = ({
         <div className="flex items-center justify-between">
           <p className="text-lg font-semibold">${room.price}</p>
           <div className="flex items-center gap-x-1">
-            <Button variant={"ghost"}>
-              <TbView360Number className="h-6 w-6" />
-            </Button>
+            {/* show 360 button if 360 url is available */}
+            {room.images360 && (
+              <Button
+                variant={"ghost"}
+                onClick={() => setRoom360Url(room.images360)}
+              >
+                <TbView360Number className="h-6 w-6" />
+              </Button>
+            )}
             <Button
               onClick={submitHandler}
               className="bg-gradient-to-r from-fuchsia-600 to-cyan-700 px-5 shadow-md drop-shadow-lg hover:from-cyan-700 hover:to-fuchsia-500"
@@ -322,5 +341,32 @@ const RoomCardSkeleton = ({ className }: { className?: string }) => {
         </div>
       </div>
     </Card>
+  );
+};
+
+const Room360Popup = ({
+  setIs360Show,
+  room360Url,
+}: {
+  setIs360Show: (value: boolean) => void;
+  room360Url: string | null;
+}) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+      <div className="relative h-full w-full max-w-3xl">
+        <Image
+          src={room360Url || "/images/room-360.jpg"}
+          layout="fill"
+          objectFit="contain"
+          alt="room 360"
+        />
+        <Button
+          onClick={() => setIs360Show(false)}
+          className="absolute right-5 top-5 bg-white/50 text-white"
+        >
+          Close
+        </Button>
+      </div>
+    </div>
   );
 };
