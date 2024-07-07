@@ -66,7 +66,7 @@ export const updateFood = async (
 // return foods with pagination
 export const getFoods = async (page: number, limit: number) => {
   // get pages count in the database
-  let pages = (await db.rooms.count()) / limit;
+  let pages = (await db.foods.count()) / limit;
   // convert to near upper integer
   pages = Math.ceil(pages);
   // if page is greater than pages, set page to pages

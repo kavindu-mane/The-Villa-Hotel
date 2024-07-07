@@ -26,6 +26,7 @@ export const getFoodsData = async (page: number) => {
         foods: null,
       };
     }
+   
 
     // return foods data
     return {
