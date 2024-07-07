@@ -19,34 +19,26 @@ export const TablePlacement: FC<{
     <PresentationControls speed={1.5} polar={[0, 0]}>
       <Stage environment={"city"} intensity={0.3} shadows={false}>
         {/* models */}
-        <Suspense
-          fallback={
-            <Html>
-              <GridLoader color="#10b981" />
-            </Html>
-          }
-        >
-          <TableModel
-            setIsTopView={setIsTopView}
-            isTopView={isTopView}
-            setRoomId={setRoomId}
-          />
-        </Suspense>
+        <TableModel
+          setIsTopView={setIsTopView}
+          isTopView={isTopView}
+          setRoomId={setRoomId}
+        />
       </Stage>
-      <mesh rotation={[-Math.PI / 2 + 0.02, 0, 0.36]} position={[0, -3.75, 0]}>
+      <mesh rotation={[-Math.PI / 2 + 0.02, 0, 0.36]} position={[0, -13, 0]}>
         <planeGeometry args={[100, 100]} />
         <MeshReflectorMaterial
-          color="#101010"
+          color="#974d13"
           mirror={0}
           resolution={1024}
-          blur={[300, 200]}
-          mixBlur={2}
-          mixStrength={15}
-          roughness={0.4}
-          depthScale={1.2}
-          minDepthThreshold={0.4}
-          maxDepthThreshold={1}
-          metalness={1.5}
+          blur={[200, 100]}
+          mixBlur={1}
+          mixStrength={10}
+          roughness={1}
+          depthScale={0.6}
+          minDepthThreshold={0.3}
+          maxDepthThreshold={0.9}
+          metalness={0}
         />
       </mesh>
     </PresentationControls>
