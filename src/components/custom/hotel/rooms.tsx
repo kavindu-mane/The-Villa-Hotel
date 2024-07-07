@@ -179,6 +179,7 @@ export const Rooms: FC = () => {
                 from={new Date(searchParams.get("from")!!)}
                 to={new Date(searchParams.get("to")!!)}
                 setRoom360Url={setRoom360Url}
+                setIs360Show={setIs360Show}
               />
             ))}
             {/* show error message */}
@@ -199,6 +200,7 @@ export const Rooms: FC = () => {
                 from={new Date(searchParams.get("from")!!)}
                 to={new Date(searchParams.get("to")!!)}
                 setRoom360Url={setRoom360Url}
+                setIs360Show={setIs360Show}
               />
             ))}
           </div>
@@ -249,11 +251,13 @@ const RoomCard = ({
   from,
   to,
   setRoom360Url,
+  setIs360Show,
 }: {
   room: minimalRoomReservationData;
   from: Date;
   to: Date;
   setRoom360Url: (value: string | null) => void;
+  setIs360Show: (value: boolean) => void;
 }) => {
   // router hook
   const router = useRouter();
@@ -295,7 +299,10 @@ const RoomCard = ({
             {room.images360 && (
               <Button
                 variant={"ghost"}
-                onClick={() => setRoom360Url(room.images360)}
+                onClick={() => {
+                  setRoom360Url(room.images360);
+                  setIs360Show(true);
+                }}
               >
                 <TbView360Number className="h-6 w-6" />
               </Button>
@@ -352,7 +359,7 @@ const Room360Popup = ({
   room360Url: string | null;
 }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="relative h-full w-full max-w-3xl">
         <Image
           src={room360Url || "/images/room-360.jpg"}

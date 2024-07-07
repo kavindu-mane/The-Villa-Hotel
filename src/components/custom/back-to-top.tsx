@@ -30,7 +30,7 @@ export const BackToTop: FC = () => {
 
   return (
     <button
-      className={`fixed bottom-4 right-4 z-[999] flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white outline-none duration-200 ease-in ${
+      className={`fixed bottom-16 right-4 z-[999] flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white outline-none duration-200 ease-in ${
         isVisible ? "scale-100" : "scale-0"
       }`}
       onClick={scrollToTop}
