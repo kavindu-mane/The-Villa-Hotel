@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { minimalFoodData } from "@/types";
 import { Status } from "@prisma/client";
 
 // get available menu items
@@ -18,8 +19,23 @@ export const getAvailableMenuItems = async () => {
       },
     });
 
+    const categorizedMenuItems = menuItems.reduce(
+      (acc: { type: string; items: minimalFoodData[] }[], item) => {
+        const existingType = acc.find((type) => type.type === item.foodType);
+        if (existingType) {
+          // If the type exists, push the current item to its items array
+          existingType.items.push(item as minimalFoodData);
+        } else {
+          // If the type does not exist, create a new category with the item
+          acc.push({ type: item.foodType, items: [item as minimalFoodData] });
+        }
+        return acc;
+      },
+      [],
+    );
+
     // return success response with menu items
-    return menuItems;
+    return categorizedMenuItems;
   } catch (error) {
     return null;
   }

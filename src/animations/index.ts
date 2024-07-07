@@ -7,3 +7,8 @@ export const roomDetailsAnimation = {
   open: { height: "auto" },
   closed: { height: 0 },
 };
+
+export const ContentWrapperAnimation = {
+  open: { height: "auto" },
+  closed: { height: 0 },
+};
