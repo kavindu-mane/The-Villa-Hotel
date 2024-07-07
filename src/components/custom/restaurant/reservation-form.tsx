@@ -67,11 +67,14 @@ export const RestaurantReservationForm: FC<{
                   {availableTableData?.map((table, i) => {
                     const tableId = table.tableId;
                     const isAvailable = table.isAvailable;
+                    const seats = table.tableType;
                     return (
                       <FormItem key={i} className="flex items-center">
                         <FormLabel
-                          className={`w-28 cursor-pointer rounded-lg py-3 text-center font-normal text-white ${
-                            isAvailable ? "bg-slate-600" : "bg-gray-300 cursor-not-allowed"
+                          className={`w-36 cursor-pointer rounded-lg py-3 text-center font-normal text-white ${
+                            isAvailable
+                              ? "bg-slate-600"
+                              : "cursor-not-allowed bg-gray-300"
                           } ${field.value === tableId ? "bg-primary" : ""}`}
                         >
                           <FormControl>
@@ -82,6 +85,9 @@ export const RestaurantReservationForm: FC<{
                             />
                           </FormControl>
                           Table {tableId}
+                          <span className="mt-1 block text-xs font-medium italic">
+                            {seats.replaceAll("_", " ")} Table
+                          </span>
                         </FormLabel>
                       </FormItem>
                     );
