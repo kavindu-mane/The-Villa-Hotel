@@ -22,9 +22,12 @@ import { DotIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TbView360Number } from "react-icons/tb";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, Suspense, useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Canvas, useLoader } from "@react-three/fiber";
+import * as THREE from "three";
+import { OrbitControls, Preload } from "@react-three/drei";
 
 export const Rooms: FC = () => {
   // is structure button state
@@ -358,21 +361,37 @@ const Room360Popup = ({
   setIs360Show: (value: boolean) => void;
   room360Url: string | null;
 }) => {
+  const maps = useLoader(THREE.TextureLoader, room360Url!);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="relative h-full w-full max-w-3xl">
-        <Image
-          src={room360Url || "/images/room-360.jpg"}
-          layout="fill"
-          objectFit="contain"
-          alt="room 360"
-        />
-        <Button
-          onClick={() => setIs360Show(false)}
-          className="absolute right-5 top-5 bg-white/50 text-white"
-        >
-          Close
-        </Button>
+    <div className="fixed left-0 right-0 top-0 z-50 h-screen min-h-[40rem] w-full p-5">
+      <div className="relative h-full overflow-hidden rounded-lg bg-gray-600">
+        <div className="absolute left-2 right-2 top-2 z-[55] flex items-center justify-end">
+          <Button
+            onClick={() => setIs360Show(false)}
+            className="absolute right-5 top-5 bg-white/50 text-white"
+          >
+            Close
+          </Button>
+        </div>
+        <Canvas frameloop="demand" camera={{ position: [0, 0, 1] }}>
+          <OrbitControls
+            enableZoom={false}
+            enablePan={false}
+            enableDamping
+            dampingFactor={0.2}
+            autoRotate={false}
+            rotateSpeed={-0.5}
+          />
+          <Suspense fallback={null}>
+            <Preload all />
+            <group>
+              <mesh>
+                <sphereGeometry args={[500, 60, 40]} />
+                <meshBasicMaterial map={maps} side={THREE.BackSide} />
+              </mesh>
+            </group>
+          </Suspense>
+        </Canvas>
       </div>
     </div>
   );
