@@ -444,7 +444,7 @@ export const completePayment = async (order_id: number, payment: number) => {
     offerValue.toFixed(2),
     payment.toFixed(2),
     (updatedReservation.total - payment).toFixed(2),
-    `${process.env.WEBSITE_URL}"/view-reservations/rooms/"${updatedReservation.reservationNo}`,
+    `${process.env.DOMAIN}"/view-reservations?room="${updatedReservation.reservationNo}`,
     updatedReservation.room.type,
     updatedReservation.room.number,
   );
@@ -468,5 +468,75 @@ export const completePayment = async (order_id: number, payment: number) => {
 
   return {
     success: true,
+  };
+};
+
+// get reservation details by reservation number
+export const getReservationDetails = async (reservationNo: number) => {
+  // check if reservation number is valid
+  if (!reservationNo) {
+    return {
+      status: 404,
+      error: "Invalid reservation number",
+    };
+  }
+
+  // get reservation by reservation number
+  const reservation = await getReservationByNumber(reservationNo);
+
+  // check if reservation exists
+  if (!reservation) {
+    return {
+      status: 404,
+      error: "Reservation not found",
+    };
+  }
+
+  // calculate sub total
+  let subTotal = reservation.total;
+  let total = reservation.total;
+  let offerAmount = 0;
+  const offerPercentage =
+    reservation.offerDiscount > (reservation.offer?.discount || 0)
+      ? reservation.offerDiscount
+      : reservation.offer?.discount || 0;
+
+  // check if offer exists
+  offerAmount = (reservation.total * offerPercentage) / 100;
+  subTotal = reservation.total - offerAmount;
+
+  // check if food reservation exists
+  if (reservation.foodReservation) {
+    reservation.foodReservation.foodReservationItems.map((item) => {
+      const offer = (item.food.price * item.quantity * offerPercentage) / 100;
+      total += item.food.price * item.quantity;
+      offerAmount += offer;
+      subTotal += item.total;
+    });
+  }
+
+  // return reservation details
+  return {
+    success: true,
+    reservation: {
+      reservationNo: reservation.reservationNo,
+      room: {
+        number: reservation.room.number,
+        type: reservation.room.type,
+      },
+      checkIn: reservation.checkIn,
+      checkOut: reservation.checkOut,
+      name: reservation.name,
+      email: reservation.email,
+      total,
+      roomTotal: reservation.total,
+      offer: offerAmount,
+      offerPercentage,
+      payed: reservation.paidAmount,
+      pending: subTotal - reservation.paidAmount,
+      subTotal,
+      foods: reservation.foodReservation?.foodReservationItems,
+      status: reservation.status,
+    },
   };
 };

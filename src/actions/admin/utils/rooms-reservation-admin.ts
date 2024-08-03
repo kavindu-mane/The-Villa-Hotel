@@ -54,7 +54,7 @@ export const getReservations = async (page: number, limit: number) => {
       take: limit,
       skip: (page - 1) * limit,
       where: {
-        status: "Confirmed"
+        status: "Confirmed",
       },
       orderBy: {
         checkIn: "asc",
@@ -67,6 +67,7 @@ export const getReservations = async (page: number, limit: number) => {
         total: true,
         offer: true,
         offerDiscount: true,
+        paidAmount: true,
         name: true,
         email: true,
         phone: true,

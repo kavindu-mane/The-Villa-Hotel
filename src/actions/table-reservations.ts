@@ -16,6 +16,7 @@ import {
   getTableReservationById,
   createTableReservation,
   updateTableReservation,
+  getTableReservationByNumber,
 } from "@/actions/utils/table-reservations";
 import { cookies } from "next/headers";
 import { getPromotionByCode, getPromotions } from "./utils/promotions";
@@ -275,8 +276,8 @@ export const completeTableReservation = async (offerID?: string) => {
       offerId: offer.id,
     });
 
-    if (existingReservation.foodReservation[0]) {
-      const menu = existingReservation.foodReservation[0].foodReservationItems;
+    if (existingReservation.foodReservation) {
+      const menu = existingReservation.foodReservation.foodReservationItems;
       // food array
       const foodArray: {
         foodId: string;
@@ -293,7 +294,7 @@ export const completeTableReservation = async (offerID?: string) => {
         subTotal += total;
         offerAmount += item.total - total;
         foodArray.push({
-          foodReservationId: existingReservation.foodReservation[0].id,
+          foodReservationId: existingReservation.foodReservation?.id ?? "",
           foodId: item.foodId,
           quantity: item.quantity,
           total: total,
@@ -304,7 +305,7 @@ export const completeTableReservation = async (offerID?: string) => {
 
       // update food reservation with offer details
       const updatedFoodReservation = await updateFoodReservationTotals(
-        existingReservation.foodReservation[0].id,
+        existingReservation.foodReservation.id,
         foodArray,
       );
 
@@ -316,8 +317,8 @@ export const completeTableReservation = async (offerID?: string) => {
     }
   } else {
     // calculate total if no offer
-    if (existingReservation.foodReservation[0]) {
-      const menu = existingReservation.foodReservation[0].foodReservationItems;
+    if (existingReservation.foodReservation) {
+      const menu = existingReservation.foodReservation.foodReservationItems;
 
       menu.forEach((item) => {
         subTotal += item.total;
@@ -330,9 +331,9 @@ export const completeTableReservation = async (offerID?: string) => {
     status: "Confirmed",
   });
   // update food reservation status to confirm
-  if (existingReservation.foodReservation[0]) {
+  if (existingReservation.foodReservation) {
     await updateFoodReservationStatus(
-      existingReservation.foodReservation[0].id,
+      existingReservation.foodReservation.id,
       "Confirmed",
     );
   }
@@ -357,12 +358,12 @@ export const completeTableReservation = async (offerID?: string) => {
     (offerAmount + subTotal).toFixed(2),
     offerAmount.toFixed(2),
     subTotal.toFixed(2),
-    `${process.env.WEBSITE_URL}/view-reservations/tables/${existingReservation.id}`,
+    `${process.env.DOMAIN}/view-reservations?table=${existingReservation.id}`,
     existingReservation.table.tableType,
     existingReservation.table.tableId,
     existingReservation.total.toFixed(2),
-    existingReservation.foodReservation[0]
-      ? existingReservation.foodReservation[0].foodReservationItems
+    existingReservation.foodReservation
+      ? existingReservation.foodReservation.foodReservationItems
       : [],
   );
 
@@ -385,5 +386,70 @@ export const completeTableReservation = async (offerID?: string) => {
 
   return {
     success: true,
+  };
+};
+
+// get table reservation by reservation number
+export const getReservationDetails = async (reservationNo: number) => {
+  // check if reservation number is valid
+  if (!reservationNo) {
+    return {
+      status: 404,
+      error: "Invalid reservation number",
+    };
+  }
+
+  const reservation = await getTableReservationByNumber(reservationNo);
+
+  if (!reservation) {
+    return {
+      status: 404,
+      error: "Reservation not found",
+    };
+  }
+
+  // calculate sub total
+  let subTotal = reservation.total;
+  let total = reservation.total;
+  let offerAmount = 0;
+  const offerPercentage =
+    reservation.offerDiscount > (reservation.offer?.discount || 0)
+      ? reservation.offerDiscount
+      : reservation.offer?.discount || 0;
+
+  // check if offer exists
+  offerAmount = (reservation.total * offerPercentage) / 100;
+  subTotal = reservation.total - offerAmount;
+
+  // check if food reservation exists
+  if (reservation.foodReservation) {
+    reservation.foodReservation.foodReservationItems.map((item) => {
+      const offer = (item.food.price * item.quantity * offerPercentage) / 100;
+      total += item.food.price * item.quantity;
+      offerAmount += offer;
+      subTotal += item.total;
+    });
+  }
+
+  return {
+    success: true,
+    reservation: {
+      reservationNo: reservation.reservationNo,
+      date: reservation.date,
+      timeSlot: reservation.timeSlot,
+      name: reservation.name,
+      email: reservation.email,
+      table: {
+        number: reservation.table.tableId,
+        type: reservation.table.tableType,
+      },
+      total,
+      roomsTotal: reservation.total,
+      offerPercentage,
+      offer: offerAmount,
+      subTotal,
+      foods: reservation.foodReservation?.foodReservationItems,
+      status: reservation.status,
+    },
   };
 };

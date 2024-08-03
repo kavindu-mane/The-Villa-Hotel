@@ -170,8 +170,8 @@ model Tables {
 }
 
 model RoomReservation {
-  id              String            @id @default(cuid())
-  reservationNo   Int               @unique @default(autoincrement())
+  id              String           @id @default(cuid())
+  reservationNo   Int              @unique @default(autoincrement())
   roomId          String
   userId          String?
   offerId         String?
@@ -180,15 +180,15 @@ model RoomReservation {
   phone           String?
   checkIn         DateTime
   checkOut        DateTime
-  total           Float             @default(0)
-  coins           Float             @default(0)
-  paidAmount      Float             @default(0)
-  offerDiscount   Float             @default(0)
-  status          Status            @default(Confirmed)
-  bed             BedTypes?         @default(One_Double_Bed)
-  type            BookingType       @default(Online)
+  total           Float            @default(0)
+  coins           Float            @default(0)
+  paidAmount      Float            @default(0)
+  offerDiscount   Float            @default(0)
+  status          Status           @default(Confirmed)
+  bed             BedTypes?        @default(One_Double_Bed)
+  type            BookingType      @default(Online)
   Payments        Payments[]
-  foodReservation FoodReservation[]
+  foodReservation FoodReservation?
 
   room  Rooms  @relation(fields: [roomId], references: [id])
   user  User?  @relation(fields: [userId], references: [id])
@@ -215,7 +215,7 @@ model TableReservation {
   status        Status      @default(Confirmed)
   type          BookingType @default(Online)
 
-  foodReservation FoodReservation[]
+  foodReservation FoodReservation?
 
   table Tables @relation(fields: [tableId], references: [id])
   user  User?  @relation(fields: [userId], references: [id])
@@ -227,8 +227,8 @@ model TableReservation {
 
 model FoodReservation {
   id                 String      @id @default(cuid())
-  roomReservationId  String?
-  tableReservationId String?
+  roomReservationId  String?     @unique
+  tableReservationId String?     @unique
   specialRequirement String?
   status             Status      @default(Confirmed)
   type               BookingType @default(Online)

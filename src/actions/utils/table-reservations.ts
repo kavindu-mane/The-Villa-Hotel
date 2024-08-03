@@ -39,6 +39,32 @@ export const getTableReservationByNumber = async (reservationNo: number) => {
       where: {
         reservationNo,
       },
+      include: {
+        table: {
+          select: {
+            tableId: true,
+            tableType: true,
+          },
+        },
+        foodReservation: {
+          include: {
+            foodReservationItems: {
+              select: {
+                foodId: true,
+                quantity: true,
+                total: true,
+                food: {
+                  select: {
+                    name: true,
+                    price: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        offer: true,
+      },
     });
     return tableReservation;
   } catch (e) {

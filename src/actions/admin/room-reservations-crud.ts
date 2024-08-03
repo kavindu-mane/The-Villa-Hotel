@@ -120,9 +120,6 @@ export const addOrUpdateRoomReservation = async (
       }
     }
 
-    const finalizedTotal =
-      ((100 - (commonOffer?.discount || offer || 0)) * total) / 100;
-
     // if update reservation
     if (isUpdate) {
       if (!reservationNo) {
@@ -149,7 +146,7 @@ export const addOrUpdateRoomReservation = async (
         phone: phone || "",
         checkIn: fromDate,
         checkOut: toDate,
-        total: finalizedTotal,
+        total,
       });
     } else {
       reservation = await createReservation({
@@ -162,7 +159,7 @@ export const addOrUpdateRoomReservation = async (
         phone: phone || null,
         checkIn: fromDate,
         checkOut: toDate,
-        total: finalizedTotal,
+        total,
         status: "Confirmed",
         type: "Offline",
         offerId: offerID || null,

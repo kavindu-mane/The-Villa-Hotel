@@ -30,8 +30,10 @@ async function RootLayout({
           {/*  side bar */}
           <AdminSidebar />
           <div className="admin-content-area flex w-full overflow-y-auto sm:p-3">
-            <div className="h-fit w-full rounded-lg border p-3">
+            <div className="flex h-full w-full flex-col rounded-lg border p-3 justify-between">
               <EdgeStoreProvider> {children}</EdgeStoreProvider>
+              {/* flex grow for filling white spaces*/}
+              <div className="flex flex-grow flex-col" />
               {/* copyright */}
               <CopyRight className="mt-8 border-t-0 text-gray-500" />
             </div>
