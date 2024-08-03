@@ -44,7 +44,7 @@ export const OrderSummary: FC<{
   // function to calculate total cost
   const calculateTotalCost = useCallback(() => {
     let total = 0;
-    orderSummary?.foodReservation[0]?.foodReservationItems?.forEach((item) => {
+    orderSummary?.foodReservation?.foodReservationItems?.forEach((item) => {
       total += item.total;
     });
     total += orderSummary?.total || 0;
@@ -116,20 +116,15 @@ export const OrderSummary: FC<{
           {/* items details */}
           <div className="mb-3 flex w-full flex-col items-start justify-start gap-2">
             {/* topic for foods */}
-            {orderSummary?.foodReservation[0]?.foodReservationItems && (
+            {orderSummary?.foodReservation?.foodReservationItems && (
               <div className="mb-3 flex w-full items-center justify-between gap-2 text-slate-900">
                 <p className="">Foods</p>
                 <p className="">
-                  (
-                  {
-                    orderSummary?.foodReservation[0]?.foodReservationItems
-                      .length
-                  }
-                  )
+                  ({orderSummary?.foodReservation?.foodReservationItems.length})
                 </p>
               </div>
             )}
-            {orderSummary?.foodReservation[0]?.foodReservationItems?.map(
+            {orderSummary?.foodReservation?.foodReservationItems?.map(
               (item, index) => (
                 <div
                   key={index}

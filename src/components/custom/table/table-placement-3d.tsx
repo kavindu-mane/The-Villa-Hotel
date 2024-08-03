@@ -2,13 +2,11 @@
 
 import { TableModel } from "@/components";
 import {
-  Html,
   MeshReflectorMaterial,
   PresentationControls,
   Stage,
 } from "@react-three/drei";
-import { FC, Suspense } from "react";
-import { GridLoader } from "react-magic-spinners";
+import { FC } from "react";
 
 export const TablePlacement: FC<{
   isTopView: boolean;

@@ -77,6 +77,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [availableBedTypes, setAvailableBedTypes] = useState<BedTypes[]>([]);
   const [roomDetails, setRoomDetails] = useState<roomsDataTypes[] | null>(null);
+  const [offer, setOffer] = useState<number>(0);
   const { toast } = useToast();
   // dispatcher
   const dispatch = useDispatch();
@@ -159,17 +160,23 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
 
   // update if data have values
   useEffect(() => {
-    if (reservation.current) {
-      form.setValue("room", reservation.current.room.number);
-      form.setValue("beds", reservation.current.bed as BedTypes);
-      form.setValue("offer", reservation.current.offerDiscount);
-      form.setValue("name", reservation.current.name || "");
-      form.setValue("email", reservation.current.email || "");
-      form.setValue("phone", reservation.current.phone || "");
+    const res = reservation.current;
+    if (res) {
+      form.setValue("room", res.room.number);
+      form.setValue("beds", res.bed as BedTypes);
+      form.setValue("offer", res.offerDiscount);
+      form.setValue("name", res.name || "");
+      form.setValue("email", res.email || "");
+      form.setValue("phone", res.phone || "");
       form.setValue("date", {
-        from: new Date(reservation.current.checkIn),
-        to: new Date(reservation.current.checkOut),
+        from: new Date(res.checkIn),
+        to: new Date(res.checkOut),
       });
+      const offer =
+        res.offerDiscount > (res.offer?.discount || 0)
+          ? res.offerDiscount
+          : res.offer?.discount || 0;
+      setOffer(offer);
     } else {
       form.reset();
     }
@@ -213,6 +220,10 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
     {
       title: "Total",
       value: `$ ${reservation.current?.total}`,
+    },
+    {
+      title: "Offer",
+      value: `$ ${((reservation.current?.total || 0) * offer) / 100}`,
     },
     {
       title: "Pending Balance",

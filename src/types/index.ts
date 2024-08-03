@@ -1,4 +1,10 @@
-import { RoomType, FoodType, BedTypes, TableType } from "@prisma/client";
+import {
+  RoomType,
+  FoodType,
+  BedTypes,
+  TableType,
+  Status,
+} from "@prisma/client";
 
 // types for validation error
 export type errorTypes = {
@@ -219,11 +225,48 @@ export type tableReservationOrderSummery = {
         name: string;
       };
     }[];
-  }[];
+  };
   total: number;
   timeSlot: string;
   table: {
     tableId: string;
     tableType: TableType;
   };
+};
+
+// type for view reservation
+export type ReservationData = {
+  reservationNo: number;
+  date?: Date;
+  checkIn?: Date;
+  checkOut?: Date;
+  timeSlot?: string;
+  name: string | null;
+  email: string | null;
+  table?: {
+    number: string;
+    type: TableType;
+  };
+  room?: {
+    number: number;
+    type: RoomType;
+  };
+  total: number;
+  roomTotal?: number;
+  foodsTotal?: number;
+  offer: number;
+  offerPercentage: number;
+  subTotal: number;
+  payed?: number;
+  pending?: number;
+  foods?: {
+    foodId: string;
+    quantity: number;
+    total: number;
+    food: {
+      name: string;
+      price: number;
+    };
+  }[];
+  status: Status;
 };
