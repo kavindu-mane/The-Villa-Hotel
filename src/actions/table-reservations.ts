@@ -410,7 +410,7 @@ export const getReservationDetails = async (reservationNo: number) => {
 
   // calculate sub total
   let subTotal = reservation.total;
-  let total = reservation.total;
+  let total = reservation.table.price;
   let offerAmount = 0;
   const offerPercentage =
     reservation.offerDiscount > (reservation.offer?.discount || 0)
@@ -418,8 +418,7 @@ export const getReservationDetails = async (reservationNo: number) => {
       : reservation.offer?.discount || 0;
 
   // check if offer exists
-  offerAmount = (reservation.total * offerPercentage) / 100;
-  subTotal = reservation.total - offerAmount;
+  offerAmount = (total * offerPercentage) / 100;
 
   // check if food reservation exists
   if (reservation.foodReservation) {
@@ -444,7 +443,7 @@ export const getReservationDetails = async (reservationNo: number) => {
         type: reservation.table.tableType,
       },
       total,
-      roomsTotal: reservation.total,
+      tablesTotal: reservation.table.price,
       offerPercentage,
       offer: offerAmount,
       subTotal,

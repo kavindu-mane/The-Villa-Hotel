@@ -135,6 +135,20 @@ const RoomReservation: FC<{ reservation: ReservationData }> = ({
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
               <span className="">{reservation.room?.type ?? "N/A"}</span>
             </p>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Status:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span className="capitalize">
+                {reservation.status.toLowerCase()}
+              </span>
+            </p>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Status:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span className="capitalize">
+                {reservation.status.toLowerCase()}
+              </span>
+            </p>
             {reservation.foods && (
               <div className="my-3 bg-emerald-500/50 py-3 text-slate-950">
                 <p className="w-full text-center">Additional Foods</p>
@@ -146,7 +160,7 @@ const RoomReservation: FC<{ reservation: ReservationData }> = ({
                   <span className="font-semibold">{food.food.name}</span>
                   <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
                   <span className="">
-                    {food.quantity ?? "N/A"} x {food.food.price ?? "N/A"}
+                    {food.quantity ?? "N/A"} x ${food.food.price ?? "N/A"}
                   </span>
                 </p>
               );
@@ -156,6 +170,21 @@ const RoomReservation: FC<{ reservation: ReservationData }> = ({
             <div className="my-3 bg-emerald-500/50 py-3 text-slate-950">
               <p className="w-full text-center">Billing Information</p>
             </div>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Room:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span>${reservation.roomTotal?.toFixed(2)}</span>
+            </p>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Foods:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span>
+                $
+                {(reservation.total - (reservation.roomTotal || 0)).toFixed(
+                  2,
+                )}
+              </span>
+            </p>
             <p className="flex w-full items-center">
               <span className="font-semibold">Total:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
@@ -225,18 +254,16 @@ const TableReservation: FC<{ reservation: ReservationData }> = ({
               <span className="">{reservation.email ?? "N/A"}</span>
             </p>
             <p className="flex w-full items-center">
-              <span className="font-semibold">Check In:</span>
+              <span className="font-semibold">Date:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
               <span className="">
-                {reservation.checkIn?.toDateString() ?? "N/A"}
+                {reservation.date?.toDateString() ?? "N/A"}
               </span>
             </p>
             <p className="flex w-full items-center">
-              <span className="font-semibold">Check Out:</span>
+              <span className="font-semibold">Time slot:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
-              <span className="">
-                {reservation.checkOut?.toDateString() ?? "N/A"}
-              </span>
+              <span className="">{reservation.timeSlot ?? "N/A"}</span>
             </p>
             <p className="flex w-full items-center">
               <span className="font-semibold">Table Number:</span>
@@ -246,11 +273,21 @@ const TableReservation: FC<{ reservation: ReservationData }> = ({
             <p className="flex w-full items-center">
               <span className="font-semibold">Table Type:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
-              <span className="">{reservation.table?.type ?? "N/A"}</span>
+              <span className="capitalize">
+                {reservation.table?.type.replaceAll("_", " ").toLowerCase() ??
+                  "N/A"}
+              </span>
+            </p>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Status:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span className="capitalize">
+                {reservation.status.toLowerCase()}
+              </span>
             </p>
             {reservation.foods && (
               <div className="my-3 bg-emerald-500/50 py-3 text-slate-950">
-                <p className="w-full text-center">Additional Foods</p>
+                <p className="w-full text-center">Foods</p>
               </div>
             )}
             {reservation.foods?.map((food, index) => {
@@ -259,7 +296,7 @@ const TableReservation: FC<{ reservation: ReservationData }> = ({
                   <span className="font-semibold">{food.food.name}</span>
                   <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
                   <span className="">
-                    {food.quantity ?? "N/A"} x {food.food.price ?? "N/A"}
+                    {food.quantity ?? "N/A"} x ${food.food.price ?? "N/A"}
                   </span>
                 </p>
               );
@@ -269,6 +306,21 @@ const TableReservation: FC<{ reservation: ReservationData }> = ({
             <div className="my-3 bg-emerald-500/50 py-3 text-slate-950">
               <p className="w-full text-center">Billing Information</p>
             </div>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Table:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span>${reservation.tablesTotal?.toFixed(2)}</span>
+            </p>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Foods:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span>
+                $
+                {(reservation.total - (reservation.tablesTotal || 0)).toFixed(
+                  2,
+                )}
+              </span>
+            </p>
             <p className="flex w-full items-center">
               <span className="font-semibold">Total:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
@@ -283,16 +335,6 @@ const TableReservation: FC<{ reservation: ReservationData }> = ({
               <span className="font-semibold">Offer:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
               <span>${reservation.offer.toFixed(2)}</span>
-            </p>
-            <p className="flex w-full items-center">
-              <span className="font-semibold">Payed:</span>
-              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
-              <span>${reservation.payed?.toFixed(2)}</span>
-            </p>
-            <p className="flex w-full items-center">
-              <span className="font-semibold">Pending Balance:</span>
-              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
-              <span>${reservation.pending?.toFixed(2)}</span>
             </p>
             <div className="my-3 border-y-2 border-dashed border-slate-900 py-3 text-slate-900">
               <p className="flex w-full items-center">

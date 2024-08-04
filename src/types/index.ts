@@ -253,7 +253,7 @@ export type ReservationData = {
   };
   total: number;
   roomTotal?: number;
-  foodsTotal?: number;
+  tablesTotal?: number;
   offer: number;
   offerPercentage: number;
   subTotal: number;
