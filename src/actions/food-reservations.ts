@@ -63,12 +63,6 @@ export const createPendingFoodReservation = async (
   });
 
   if (menu.length > 0) {
-    // food array
-    // const foodArray: {
-    //   foodId: string;
-    //   quantity: number;
-    //   total: number;
-    // }[] = [];
 
     // loop through menu and create food array
     const foodPromise = menu.map(async (item) => {

@@ -44,6 +44,7 @@ export const getTableReservationByNumber = async (reservationNo: number) => {
           select: {
             tableId: true,
             tableType: true,
+            price: true,
           },
         },
         foodReservation: {

@@ -493,8 +493,12 @@ export const getReservationDetails = async (reservationNo: number) => {
   }
 
   // calculate sub total
+  const duration = Math.ceil(
+          (reservation.checkOut.getTime() - reservation.checkIn.getTime()) /
+            (1000 * 3600 * 24),
+        );
   let subTotal = reservation.total;
-  let total = reservation.total;
+  let total = reservation.room.price * duration;
   let offerAmount = 0;
   const offerPercentage =
     reservation.offerDiscount > (reservation.offer?.discount || 0)
@@ -502,8 +506,7 @@ export const getReservationDetails = async (reservationNo: number) => {
       : reservation.offer?.discount || 0;
 
   // check if offer exists
-  offerAmount = (reservation.total * offerPercentage) / 100;
-  subTotal = reservation.total - offerAmount;
+  offerAmount = (total * offerPercentage) / 100;
 
   // check if food reservation exists
   if (reservation.foodReservation) {
@@ -529,7 +532,8 @@ export const getReservationDetails = async (reservationNo: number) => {
       name: reservation.name,
       email: reservation.email,
       total,
-      roomTotal: reservation.total,
+      roomTotal:
+        reservation.room.price * duration,
       offer: offerAmount,
       offerPercentage,
       payed: reservation.paidAmount,

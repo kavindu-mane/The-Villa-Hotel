@@ -73,6 +73,7 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
   const [tableDetails, setTableDetails] = useState<tablesDataTypes[] | null>(
     null,
   );
+  const [offer, setOffer] = useState<number>(0);
   const { toast } = useToast();
   // dispatcher
   const dispatch = useDispatch();
@@ -152,15 +153,22 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
 
   // update if data have values
   useEffect(() => {
-    if (reservation.current) {
-      form.setValue("tableId", reservation.current.table.tableId);
-      form.setValue("date", reservation.current.date);
-      form.setValue("timeSlot", reservation.current.timeSlot);
-      form.setValue("name", reservation.current.name);
-      form.setValue("phone", reservation.current.phone);
-      form.setValue("email", reservation.current.email);
-      form.setValue("offer", reservation.current.offerDiscount);
+    const res = reservation.current;
+    if (res) {
+      form.setValue("tableId", res.table.tableId);
+      form.setValue("date", res.date);
+      form.setValue("timeSlot", res.timeSlot);
+      form.setValue("name", res.name);
+      form.setValue("phone", res.phone);
+      form.setValue("email", res.email);
+      form.setValue("offer", res.offerDiscount);
+      const offer =
+        res.offerDiscount > (res.offer?.discount || 0)
+          ? res.offerDiscount
+          : res.offer?.discount || 0;
+      setOffer(offer);
     } else {
+      setOffer(0);
       form.reset();
     }
   }, [form, reservation]);
@@ -187,6 +195,10 @@ export const AdminTablesReservationDetailsForm: FC<{ isPending: boolean }> = ({
     {
       title: "Total",
       value: `$ ${reservation.current?.total}`,
+    },
+    {
+      title: "Offer",
+      value: `$ ${((reservation.current?.total || 0) * offer) / 100}`,
     },
   ];
 

@@ -178,6 +178,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
           : res.offer?.discount || 0;
       setOffer(offer);
     } else {
+      setOffer(0);
       form.reset();
     }
   }, [form, reservation]);
