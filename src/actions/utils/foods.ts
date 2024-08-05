@@ -100,7 +100,8 @@ export const updateFoodReservationTotals = async (
     foodReservationId: string;
     total: number;
     offerDiscount: number;
-    offerId: string;
+    offerId: string | null;
+    coins: number;
   }[],
 ) => {
   try {
@@ -114,6 +115,7 @@ export const updateFoodReservationTotals = async (
         total: food.total,
         offerDiscount: food.offerDiscount,
         offerId: food.offerId,
+        coins: food.coins,
       },
     }));
     const foodReservation = await db.foodReservation.update({

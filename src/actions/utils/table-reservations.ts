@@ -54,6 +54,7 @@ export const getTableReservationByNumber = async (reservationNo: number) => {
                 foodId: true,
                 quantity: true,
                 total: true,
+                coins: true,
                 food: {
                   select: {
                     name: true,
@@ -242,6 +243,7 @@ export const updateTableReservation = async (
     status?: Status;
     offerDiscount?: number;
     offerId?: string;
+    coins?: number;
     foodReservation?: any;
   },
 ) => {

@@ -5,9 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { RiCloseLine, RiMenu3Line } from "react-icons/ri";
-import { navigationAnimation } from "../../animations";
-import { Brand } from "./brand";
-import { Button } from "..";
+import { navigationAnimation } from "@/animations";
+import { Button, Brand } from "@/components";
 import { cn } from "@/lib/utils";
 
 export const NavigationBar: FC<{ children?: React.ReactNode }> = ({

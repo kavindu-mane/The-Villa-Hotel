@@ -14,11 +14,13 @@ import {
 } from "./utils/table-reservations";
 import { cookies } from "next/headers";
 import { getPromotions } from "./utils/promotions";
+import { DEFAULT_MAX_COIN_PERCENTAGE } from "@/constants";
+import getSession from "@/lib/getSession";
+import { getUserByEmail } from "./utils/user";
 
 export const getAllAvailableFoods = async () => {
   // fetch all menu items from the database
   const foods = await getAvailableMenuItems();
-
   // return success response with menu items
   return foods;
 };
@@ -28,8 +30,12 @@ export const createPendingFoodReservation = async (
 ) => {
   // get cookies
   const cookieStore = cookies();
+  //session
+  const session = await getSession();
   // validate data in backend
   const validatedFields = RestaurantMenuSchema.safeParse(data);
+  // initialize coins
+  let coins = 0;
 
   // check if validation failed and return errors
   if (!validatedFields.success) {
@@ -61,9 +67,10 @@ export const createPendingFoodReservation = async (
       deleteMany: {},
     },
   });
+  // update coins
+  coins = Math.floor(existingReservation.total * DEFAULT_MAX_COIN_PERCENTAGE);
 
   if (menu.length > 0) {
-
     // loop through menu and create food array
     const foodPromise = menu.map(async (item) => {
       const foods = await getFoodDetailsById(item.id);
@@ -97,7 +104,10 @@ export const createPendingFoodReservation = async (
       await updateTableReservation(existingReservation?.id!, {
         total: 0,
       });
+      coins = 0;
     }
+    // update coins
+    coins += sumOfTotal;
   }
   const reservationDetails = await getTableReservationDetails(
     existingReservation?.id!,
@@ -108,7 +118,21 @@ export const createPendingFoodReservation = async (
     return { error: "Failed to get reservation details" };
   }
 
-  // get offers from the database
+  // calculate coins
+  coins *= DEFAULT_MAX_COIN_PERCENTAGE;
+  // get authenticated user
+  if (session?.user?.email) {
+    const user = await getUserByEmail(session?.user?.email);
+    // get user coins
+    const maximumCoinsAllowed = user?.coins || 0;
+    // if user's coins are less than order total coins
+    if (coins > maximumCoinsAllowed) {
+      coins = maximumCoinsAllowed;
+    }
+  } else {
+    coins = 0;
+  }
+
   // get available offers
   const offers = await getPromotions(1, 5, {
     code: true,
@@ -121,5 +145,10 @@ export const createPendingFoodReservation = async (
     updatedAt: false,
   });
 
-  return { success: true, data: reservationDetails, offers: offers?.offers };
+  return {
+    success: true,
+    data: reservationDetails,
+    offers: offers?.offers,
+    coins: Math.floor(coins),
+  };
 };

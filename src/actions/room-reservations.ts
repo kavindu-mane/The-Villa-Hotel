@@ -30,11 +30,13 @@ import { getUserByEmail } from "./utils/user";
 import { addPaymentRecord } from "./utils/payments";
 import { roomReservationConfirmEmailTemplate } from "@/templates/room-reservation-confirm-email";
 import { sendEmails } from "./utils/email";
-import { increaseCoins } from "./utils/coins";
+import { decreaseCoins, increaseCoins } from "./utils/coins";
 import { getReservationCancelToken } from "./utils/tokens";
 import { reservationCancellationTemplate } from "@/templates/reservation-cancellation";
 import { getReservationCancelTokenByToken } from "./utils/reservation-cancellation-token";
 import { db } from "@/lib/db";
+import getSession from "@/lib/getSession";
+import { DEFAULT_MAX_COIN_PERCENTAGE } from "@/constants";
 
 /**
  * Server action for room booking form
@@ -105,6 +107,8 @@ export const createPendingReservation = async (
 ) => {
   // get cookies
   const cookieStore = cookies();
+  // session
+  const session = await getSession();
   // check if room number is valid
   if (roomNumber === null) {
     return {
@@ -144,6 +148,14 @@ export const createPendingReservation = async (
     description: true,
     discount: true,
   });
+  let coins = 0;
+
+  // get authenticated user
+  if (session?.user?.email) {
+    const user = await getUserByEmail(session?.user?.email);
+    // get user coins
+    coins = user?.coins || 0;
+  }
 
   if (roomAvailability && roomAvailability?.length > 0) {
     // if reservation cookie not exists
@@ -177,6 +189,14 @@ export const createPendingReservation = async (
       };
     }
 
+    // calculate maximum coins
+    const maximumCoinsAllowed =
+      Math.floor(existingReservation.total) * DEFAULT_MAX_COIN_PERCENTAGE;
+    // if user's coins are grater than maximum coins allowed update coins to maximum coins allowed
+    if (coins > maximumCoinsAllowed) {
+      coins = maximumCoinsAllowed;
+    }
+
     return {
       success: true,
       reservation: {
@@ -186,6 +206,7 @@ export const createPendingReservation = async (
         },
         amount: existingReservation.total,
         offers: offers?.offers || [],
+        coins,
       },
     };
   } else {
@@ -230,6 +251,14 @@ export const createPendingReservation = async (
         expires: new Date(Date.now() + 15 * 60 * 1000),
       });
 
+      // calculate maximum coins
+      const maximumCoinsAllowed =
+        Math.floor(totalAmount) * DEFAULT_MAX_COIN_PERCENTAGE;
+      // if user's coins are grater than maximum coins allowed update coins to maximum coins allowed
+      if (coins > maximumCoinsAllowed) {
+        coins = maximumCoinsAllowed;
+      }
+
       return {
         success: true,
         reservation: {
@@ -239,6 +268,7 @@ export const createPendingReservation = async (
           },
           amount: newReservation.total,
           offers: offers?.offers || [],
+          coins,
         },
       };
     } else {
@@ -255,6 +285,8 @@ export const generatePaymentKeys = async (
 ) => {
   // get cookies
   const cookieStore = cookies();
+  // session
+  const session = await getSession();
   // validate data in backend
   const validatedFields = RoomReservationFormSchema.safeParse(values);
 
@@ -327,8 +359,30 @@ export const generatePaymentKeys = async (
     offer = promotion.id;
   }
 
-  // get user by email
-  const user = await getUserByEmail(email);
+  let user = null;
+  let coins = 0;
+
+  // get authenticated user
+  if (session?.user?.email) {
+    user = await getUserByEmail(session?.user?.email);
+    // get user coins
+    coins = user?.coins || 0;
+    // get maximum coins allowed
+    const maximumCoinsAllowed = Math.floor(
+      existingReservation.total * DEFAULT_MAX_COIN_PERCENTAGE,
+    );
+    // if user's coins are grater than maximum coins allowed update coins to maximum coins allowed
+    if (coins > maximumCoinsAllowed) {
+      coins = maximumCoinsAllowed;
+    }
+  }
+
+  // calculate total amount
+  let totalAmount =
+    existingReservation.total -
+    coins / 100 -
+    (offerPercentage * existingReservation.total) / 100;
+  totalAmount = Math.round(totalAmount * 100) / 100;
 
   // update reservation with user details
   const updatedReservation = await updateReservation({
@@ -340,7 +394,8 @@ export const generatePaymentKeys = async (
     phone,
     checkIn: existingReservation.checkIn,
     checkOut: existingReservation.checkOut,
-    total: existingReservation.total,
+    total: totalAmount,
+    coins,
     offerId: offer,
     userId: user ? user.id : null,
   });
@@ -356,7 +411,7 @@ export const generatePaymentKeys = async (
   const hash = md5(
     process.env.PAYHERE_MERCHANT_ID!! +
       updatedReservation.reservationNo +
-      (updatedReservation.total * 0.1).toFixed(2) +
+      (totalAmount * 0.1).toFixed(2) +
       "USD" +
       md5(process.env.PAYHERE_SECRET!!).toUpperCase(),
   ).toUpperCase();
@@ -371,7 +426,7 @@ export const generatePaymentKeys = async (
       order_id: updatedReservation.reservationNo,
       items: "Room Reservation - " + updatedReservation.reservationNo,
       currency: "USD",
-      amount: (updatedReservation.total * 0.1).toFixed(2),
+      amount: (totalAmount * 0.1).toFixed(2),
       first_name: name,
       last_name: "",
       email: email,
@@ -414,6 +469,8 @@ export const completePayment = async (order_id: number, payment: number) => {
   }
   // if user authenticated, increase coins
   if (updatedReservation.userId) {
+    // decrease coins from user
+    await decreaseCoins(updatedReservation.userId, updatedReservation.coins);
     // get bottom int value of subTotal
     const coins = Math.floor(updatedReservation.total);
     // increase coins
@@ -439,8 +496,9 @@ export const completePayment = async (order_id: number, payment: number) => {
 
   // calculate offer value
   const offerValue =
-    (updatedReservation.total * (updatedReservation.offer?.discount || 0)) /
-    100;
+    (reservation.total * (updatedReservation.offer?.discount || 0)) / 100;
+  // calculate coin value
+  const coinValue = updatedReservation.coins / 100;
 
   // setup email template
   const template = roomReservationConfirmEmailTemplate(
@@ -450,9 +508,10 @@ export const completePayment = async (order_id: number, payment: number) => {
     updatedReservation.checkOut.toDateString(),
     updatedReservation.total.toFixed(2),
     offerValue.toFixed(2),
+    coinValue.toFixed(2),
     payment.toFixed(2),
     (updatedReservation.total - payment).toFixed(2),
-    `${process.env.DOMAIN}"/view-reservations?room="${updatedReservation.reservationNo}`,
+    `${process.env.DOMAIN}/view-reservations?room=${updatedReservation.reservationNo}`,
     updatedReservation.room.type,
     updatedReservation.room.number,
   );
@@ -508,20 +567,25 @@ export const getReservationDetails = async (reservationNo: number) => {
   let subTotal = reservation.total;
   let total = reservation.room.price * duration;
   let offerAmount = 0;
+  let coinAmount = 0;
   const offerPercentage =
     reservation.offerDiscount > (reservation.offer?.discount || 0)
       ? reservation.offerDiscount
       : reservation.offer?.discount || 0;
 
-  // check if offer exists
+  // offer amount
   offerAmount = (total * offerPercentage) / 100;
+  // coin amount
+  coinAmount = reservation.coins / 100;
 
   // check if food reservation exists
   if (reservation.foodReservation) {
     reservation.foodReservation.foodReservationItems.map((item) => {
       const offer = (item.food.price * item.quantity * offerPercentage) / 100;
+      const coin = item.coins / 100;
       total += item.food.price * item.quantity;
       offerAmount += offer;
+      coinAmount += coin;
       subTotal += item.total;
     });
   }
@@ -543,6 +607,7 @@ export const getReservationDetails = async (reservationNo: number) => {
       roomTotal: reservation.room.price * duration,
       offer: offerAmount,
       offerPercentage,
+      coin: coinAmount,
       payed: reservation.paidAmount,
       pending: subTotal - reservation.paidAmount,
       subTotal,

@@ -246,6 +246,11 @@ export const NewReservations: FC = () => {
     checkDateValidity();
   }, [checkDateValidity]);
 
+  const amount =
+    reservation?.amount!! -
+    (reservation?.amount!! * form.watch("offer")! || 0) / 100 -
+    (reservation?.coins || 0) / 100;
+
   if (loading) {
     return (
       <section className="flex h-screen w-full items-center justify-center">
@@ -327,7 +332,7 @@ export const NewReservations: FC = () => {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <p className="text-gray-800">0</p>
+              <p className="text-gray-800">{reservation?.coins || 0}</p>
             </div>
 
             {/* available offers */}
@@ -372,16 +377,17 @@ export const NewReservations: FC = () => {
                   </Label>
                 ))}
               </RadioGroup>
+              {(!reservation?.offers || reservation?.offers?.length === 0) && (
+                <div className="flex w-full items-center justify-center gap-2 text-gray-500">
+                  No offers available
+                </div>
+              )}
             </div>
 
             {/* total */}
             <div className="mt-3 flex w-full items-center justify-between gap-2 border-y border-dashed border-gray-500 py-3 text-lg">
               <p className="text-gray-800">Total Amount</p>
-              <p className="text-gray-800">
-                $
-                {reservation?.amount!! -
-                  (reservation?.amount!! * form.watch("offer")! || 0) / 100}
-              </p>
+              <p className="text-gray-800">${Math.round(amount * 100) / 100}</p>
             </div>
           </div>
 

@@ -14,6 +14,7 @@ export const updateReservation = async (data: {
   checkIn: Date;
   checkOut: Date;
   total: number;
+  coins?: number;
   userId?: string | null;
   offerId?: string | null;
 }) => {
