@@ -239,6 +239,11 @@ const RoomReservation: FC<{
               <span>${reservation.offer.toFixed(2)}</span>
             </p>
             <p className="flex w-full items-center">
+              <span className="font-semibold">Coins:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span>${reservation.coin.toFixed(2)}</span>
+            </p>
+            <p className="flex w-full items-center">
               <span className="font-semibold">Payed:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
               <span>${reservation.payed?.toFixed(2)}</span>
@@ -396,6 +401,11 @@ const TableReservation: FC<{
               <span className="font-semibold">Offer:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
               <span>${reservation.offer.toFixed(2)}</span>
+            </p>
+            <p className="flex w-full items-center">
+              <span className="font-semibold">Coins:</span>
+              <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
+              <span>${reservation.coin.toFixed(2)}</span>
             </p>
             <div className="my-3 border-y-2 border-dashed border-slate-900 py-3 text-slate-900">
               <p className="flex w-full items-center">

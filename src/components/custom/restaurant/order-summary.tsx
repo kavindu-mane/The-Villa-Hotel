@@ -31,12 +31,14 @@ export const OrderSummary: FC<{
   offers: offerDataTypes[] | null;
   onCompleteTableReservation: (offerId?: string) => void;
   isLoading: boolean;
+  coins: number;
 }> = ({
   setCurrentStep,
   orderSummary,
   onCompleteTableReservation,
   offers,
   isLoading,
+  coins,
 }) => {
   const [offer, setOffer] = useState<offerDataTypes | null>(null);
   const [total, setTotal] = useState<string>("0");
@@ -54,13 +56,13 @@ export const OrderSummary: FC<{
   // function for calculate sub total
   const calculateSubTotal = useCallback(() => {
     let totalInNum = parseFloat(total);
-    if (!offer) {
-      setSubTotal(total);
-      return;
+    if (offer) {
+      totalInNum -= (totalInNum * offer?.discount) / 100;
     }
-    totalInNum = totalInNum - (totalInNum * offer?.discount) / 100;
+    totalInNum -= coins / 100;
+    totalInNum = Math.round(totalInNum * 100) / 100;
     setSubTotal(totalInNum.toFixed(2));
-  }, [offer, total]);
+  }, [coins, offer, total]);
 
   // calculate sub total
   useEffect(() => {
@@ -176,7 +178,7 @@ export const OrderSummary: FC<{
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <p className="text-gray-800">0</p>
+            <p className="text-gray-800">{coins}</p>
           </div>
 
           {/* available offers */}
@@ -216,6 +218,12 @@ export const OrderSummary: FC<{
                 </Label>
               ))}
             </RadioGroup>
+
+            {(!offers || offers?.length === 0) && (
+              <div className="flex w-full items-center justify-center gap-2 text-gray-500">
+                No offers available
+              </div>
+            )}
           </div>
 
           {/* balance */}

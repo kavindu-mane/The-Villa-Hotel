@@ -46,3 +46,6 @@ export const defaultPaginationData = {
   currentPage: 1,
   totalPages: 1,
 };
+
+// default maximum coin percentage
+export const DEFAULT_MAX_COIN_PERCENTAGE = 20;

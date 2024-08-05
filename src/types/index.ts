@@ -179,6 +179,7 @@ export type pendingReservationResponse = {
   };
   amount: number;
   offers: offerDataTypes[];
+  coins: number;
 };
 
 // types for table reservation data
@@ -257,6 +258,7 @@ export type ReservationData = {
   tablesTotal?: number;
   offer: number;
   offerPercentage: number;
+  coin: number;
   subTotal: number;
   payed?: number;
   pending?: number;

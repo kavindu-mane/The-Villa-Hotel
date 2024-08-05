@@ -27,13 +27,15 @@ import {
 } from "./utils/foods";
 import { tzConvertor } from "./utils/timezone-convertor";
 import { getUserByEmail } from "./utils/user";
-import { increaseCoins } from "./utils/coins";
+import { decreaseCoins, increaseCoins } from "./utils/coins";
 import { tableReservationConfirmEmailTemplate } from "@/templates/table-reservation-confirm-email";
 import { sendEmails } from "./utils/email";
 import { getReservationCancelToken } from "./utils/tokens";
 import { reservationCancellationTemplate } from "@/templates/reservation-cancellation";
 import { getReservationCancelTokenByToken } from "./utils/reservation-cancellation-token";
 import { db } from "@/lib/db";
+import getSession from "@/lib/getSession";
+import { DEFAULT_MAX_COIN_PERCENTAGE } from "@/constants";
 
 /**
  * Create action for table booking form
@@ -231,8 +233,18 @@ export const createPendingTableReservation = async (
 export const completeTableReservation = async (offerID?: string) => {
   // get cookies
   const cookieStore = cookies();
+  // session
+  const session = await getSession();
   // check pending_reservation cookie if exists
   const reservation = cookieStore.get("pending_table_reservation");
+  // offer details
+  let offer = null;
+  // user details
+  let user = null;
+  let coins = 0;
+  let availableCoins = 0;
+  let usedCoins = 0;
+  let maximumCoinsAllowed = 0;
 
   if (!reservation) {
     return {
@@ -262,72 +274,111 @@ export const completeTableReservation = async (offerID?: string) => {
 
   if (offerID) {
     // get offer details by offer ID
-    const offer = await getPromotionByCode(offerID);
+    offer = await getPromotionByCode(offerID);
     if (!offer) {
       return {
         error: "Offer not found",
       };
     }
+  }
 
-    // calculate total after discount
-    const total = (existingReservation.total * (100 - offer.discount)) / 100;
-    subTotal = total;
-    offerAmount = existingReservation.total - total;
+  // get authenticated user
+  if (session?.user?.email) {
+    user = await getUserByEmail(session?.user?.email);
+    // get user coins
+    coins = user?.coins || 0;
+    // set available coins
+    availableCoins = coins;
+    // get maximum coins allowed
+    maximumCoinsAllowed = Math.floor(
+      existingReservation.total * DEFAULT_MAX_COIN_PERCENTAGE,
+    );
+    // if user's coins are grater than maximum coins allowed update coins to maximum coins allowed
+    if (coins > maximumCoinsAllowed) {
+      coins = maximumCoinsAllowed;
+    }
+  }
 
-    // update reservation with offer details
-    await updateTableReservation(existingReservation.id, {
-      offerDiscount: offer.discount,
-      total,
-      offerId: offer.id,
+  // calculate total after discount
+  let total =
+    (existingReservation.total * (100 - (offer?.discount || 0))) / 100 -
+    coins / 100;
+  // total  value rounded to 2 decimal places
+  total = Math.round(total * 100) / 100;
+  subTotal = total;
+  // if offer exists calculate offer amount
+  if (offer) offerAmount = existingReservation.total - total;
+
+  // update reservation with offer details
+  await updateTableReservation(existingReservation.id, {
+    total,
+    offerId: offer?.id,
+    coins,
+  });
+
+  // updated used coins
+  usedCoins += coins;
+  // update available coins
+  availableCoins -= coins;
+
+  if (existingReservation.foodReservation) {
+    const menu = existingReservation.foodReservation.foodReservationItems;
+    // food array
+    const foodArray: {
+      foodId: string;
+      quantity: number;
+      foodReservationId: string;
+      total: number;
+      offerId: string | null;
+      coins: number;
+      offerDiscount: number;
+    }[] = [];
+
+    // loop through menu and create food array
+    menu.forEach(async (item) => {
+      // return if food reservation id undefined
+      if (!existingReservation.foodReservation?.id) {
+        return;
+      }
+      maximumCoinsAllowed = Math.floor(
+        item.total * DEFAULT_MAX_COIN_PERCENTAGE,
+      );
+      coins = availableCoins;
+      // if user's coins are grater than maximum coins allowed update coins to maximum coins allowed
+      if (coins > maximumCoinsAllowed) {
+        coins = maximumCoinsAllowed;
+      }
+      let total =
+        (item.total * (100 - (offer?.discount || 0))) / 100 - coins / 100;
+      total = Math.round(total * 100) / 100;
+      subTotal += total;
+      // update offer amount if offer exists
+      if (offer) offerAmount += item.total * (offer?.discount || 0);
+      foodArray.push({
+        foodReservationId: existingReservation.foodReservation?.id,
+        foodId: item.foodId,
+        quantity: item.quantity,
+        total: total,
+        offerDiscount: offer?.discount || 0,
+        offerId: offer?.id || null,
+        coins,
+      });
+      //  update available coins
+      availableCoins -= coins;
+      // update used coins
+      usedCoins += coins;
     });
 
-    if (existingReservation.foodReservation) {
-      const menu = existingReservation.foodReservation.foodReservationItems;
-      // food array
-      const foodArray: {
-        foodId: string;
-        quantity: number;
-        foodReservationId: string;
-        total: number;
-        offerId: string;
-        offerDiscount: number;
-      }[] = [];
+    // update food reservation with offer details
+    const updatedFoodReservation = await updateFoodReservationTotals(
+      existingReservation.foodReservation.id,
+      foodArray,
+    );
 
-      // loop through menu and create food array
-      menu.forEach(async (item) => {
-        const total = (item.total * (100 - offer.discount)) / 100;
-        subTotal += total;
-        offerAmount += item.total - total;
-        foodArray.push({
-          foodReservationId: existingReservation.foodReservation?.id ?? "",
-          foodId: item.foodId,
-          quantity: item.quantity,
-          total: total,
-          offerDiscount: offer.discount,
-          offerId: offer.id,
-        });
-      });
-
-      // update food reservation with offer details
-      const updatedFoodReservation = await updateFoodReservationTotals(
-        existingReservation.foodReservation.id,
-        foodArray,
-      );
-
-      if (!updatedFoodReservation) {
-        return {
-          error: "Error adding food reservation",
-        };
-      }
-    }
-  } else {
-    // calculate total if no offer
-    if (existingReservation.foodReservation) {
-      const menu = existingReservation.foodReservation.foodReservationItems;
-
-      menu.forEach((item) => {
-        subTotal += item.total;
-      });
+    if (!updatedFoodReservation) {
+      return {
+        error: "Error adding food reservation",
+      };
     }
   }
 
@@ -347,6 +398,8 @@ export const completeTableReservation = async (offerID?: string) => {
   if (existingReservation.userId) {
     // get bottom int value of subTotal
     const coins = Math.floor(subTotal);
+    // decrease coins
+    await decreaseCoins(existingReservation.userId, usedCoins);
     // increase coins
     await increaseCoins(existingReservation.userId, coins);
   }
@@ -354,16 +407,20 @@ export const completeTableReservation = async (offerID?: string) => {
   // delete pending_reservation cookie
   cookieStore.delete("pending_table_reservation");
 
+  // coin value rounded to 2 decimal places
+  const coinValue = usedCoins / 100;
+
   // setup email template
   const template = tableReservationConfirmEmailTemplate(
     existingReservation.name || "",
     existingReservation.reservationNo,
     existingReservation.date.toDateString(),
     existingReservation.timeSlot,
-    (offerAmount + subTotal).toFixed(2),
+    (offerAmount + subTotal + coinValue).toFixed(2),
     offerAmount.toFixed(2),
+    coinValue.toFixed(2),
     subTotal.toFixed(2),
-    `${process.env.DOMAIN}/view-reservations?table=${existingReservation.id}`,
+    `${process.env.DOMAIN}/view-reservations?table=${existingReservation.reservationNo}`,
     existingReservation.table.tableType,
     existingReservation.table.tableId,
     existingReservation.total.toFixed(2),
@@ -415,22 +472,27 @@ export const getReservationDetails = async (reservationNo: number) => {
 
   // calculate sub total
   let subTotal = reservation.total;
-  let total = reservation.table.price;
+  let total = reservation.total === 0 ? 0 : reservation.table.price;
   let offerAmount = 0;
+  let coinAmount = 0;
   const offerPercentage =
     reservation.offerDiscount > (reservation.offer?.discount || 0)
       ? reservation.offerDiscount
       : reservation.offer?.discount || 0;
 
-  // check if offer exists
+  // offer amount
   offerAmount = (total * offerPercentage) / 100;
+  // coin amount
+  coinAmount = reservation.coins / 100;
 
   // check if food reservation exists
   if (reservation.foodReservation) {
     reservation.foodReservation.foodReservationItems.map((item) => {
       const offer = (item.food.price * item.quantity * offerPercentage) / 100;
+      const coin = item.coins / 100;
       total += item.food.price * item.quantity;
       offerAmount += offer;
+      coinAmount += coin;
       subTotal += item.total;
     });
   }
@@ -448,9 +510,10 @@ export const getReservationDetails = async (reservationNo: number) => {
         type: reservation.table.tableType,
       },
       total,
-      tablesTotal: reservation.table.price,
+      tablesTotal: reservation.total === 0 ? 0 : reservation.table.price,
       offerPercentage,
       offer: offerAmount,
+      coin: coinAmount,
       subTotal,
       foods: reservation.foodReservation?.foodReservationItems,
       status: reservation.status,

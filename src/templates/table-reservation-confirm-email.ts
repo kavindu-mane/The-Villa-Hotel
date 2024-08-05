@@ -7,6 +7,7 @@ export const tableReservationConfirmEmailTemplate = (
   timeSlot: string,
   totalAmount: string,
   offerAmount: string,
+  coinAmount: string,
   subTotalAmount: string,
   reservationLink: string,
   tableType: string,
@@ -128,6 +129,12 @@ export const tableReservationConfirmEmailTemplate = (
             <td style="font-size: 16px; color: #333;font-weight:700">Total Amount:</td>
             <td style="font-size: 16px; color: #333;font-weight:700; text-align: end">
               $${totalAmount}
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 16px; color: #333;font-weight:700">Coin Amount:</td>
+            <td style="font-size: 16px; color: #333;font-weight:700; text-align: end">
+              $${coinAmount}
             </td>
           </tr>
          <tr>

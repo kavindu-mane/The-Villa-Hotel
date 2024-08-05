@@ -59,6 +59,7 @@ export const RestaurantForm: FC = () => {
   const [orderSummary, setOrderSummary] =
     useState<tableReservationOrderSummery | null>(null);
   const [offers, setOffers] = useState<offerDataTypes[] | null>(null);
+  const [coins, setCoins] = useState<number | null>(null);
   const { toast } = useToast();
 
   // availability form hook for get availability data
@@ -167,6 +168,9 @@ export const RestaurantForm: FC = () => {
         }
         if (res.offers) {
           setOffers(res.offers);
+        }
+        if (res.coins) {
+          setCoins(res.coins);
         }
         if (res.success) {
           setCurrentStep(4);
@@ -378,6 +382,7 @@ export const RestaurantForm: FC = () => {
           orderSummary={orderSummary}
           onCompleteTableReservation={onCompleteTableReservation}
           offers={offers}
+          coins={coins || 0}
           isLoading={isLoading}
         />
       )}

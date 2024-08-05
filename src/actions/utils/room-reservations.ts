@@ -72,10 +72,11 @@ export const getReservationByNumber = async (number: number) => {
                 foodId: true,
                 quantity: true,
                 total: true,
+                coins: true,
                 food: {
                   select: {
                     name: true,
-                    price:true,
+                    price: true,
                   },
                 },
               },

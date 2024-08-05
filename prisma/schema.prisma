@@ -48,6 +48,7 @@ enum Status {
   Confirmed
   Cancelled
   Ongoing
+  CheckIn
   Finished
 }
 
@@ -263,6 +264,7 @@ model FoodReservationItem {
   foodId            String
   offerId           String?
   offerDiscount     Float   @default(0)
+  coins             Float   @default(0)
   foodReservationId String
   quantity          Int
   total             Float
