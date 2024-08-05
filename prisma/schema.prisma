@@ -126,6 +126,20 @@ model PasswordResetToken {
   @@unique([email, token])
 }
 
+model ReservationCancelToken {
+  id                 String   @id @default(cuid())
+  roomReservationId  String?  @unique
+  tableReservationId String?  @unique
+  token              String
+  expiresAt          DateTime
+
+  roomReservation  RoomReservation?  @relation(fields: [roomReservationId], references: [id])
+  tableReservation TableReservation? @relation(fields: [tableReservationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Rooms {
   id              String            @id @default(cuid())
   number          Int               @unique
@@ -170,25 +184,26 @@ model Tables {
 }
 
 model RoomReservation {
-  id              String           @id @default(cuid())
-  reservationNo   Int              @unique @default(autoincrement())
-  roomId          String
-  userId          String?
-  offerId         String?
-  name            String?
-  email           String?
-  phone           String?
-  checkIn         DateTime
-  checkOut        DateTime
-  total           Float            @default(0)
-  coins           Float            @default(0)
-  paidAmount      Float            @default(0)
-  offerDiscount   Float            @default(0)
-  status          Status           @default(Confirmed)
-  bed             BedTypes?        @default(One_Double_Bed)
-  type            BookingType      @default(Online)
-  Payments        Payments[]
-  foodReservation FoodReservation?
+  id                     String                  @id @default(cuid())
+  reservationNo          Int                     @unique @default(autoincrement())
+  roomId                 String
+  userId                 String?
+  offerId                String?
+  name                   String?
+  email                  String?
+  phone                  String?
+  checkIn                DateTime
+  checkOut               DateTime
+  total                  Float                   @default(0)
+  coins                  Float                   @default(0)
+  paidAmount             Float                   @default(0)
+  offerDiscount          Float                   @default(0)
+  status                 Status                  @default(Confirmed)
+  bed                    BedTypes?               @default(One_Double_Bed)
+  type                   BookingType             @default(Online)
+  Payments               Payments[]
+  foodReservation        FoodReservation?
+  reservationCancelToken ReservationCancelToken?
 
   room  Rooms  @relation(fields: [roomId], references: [id])
   user  User?  @relation(fields: [userId], references: [id])
@@ -215,7 +230,8 @@ model TableReservation {
   status        Status      @default(Confirmed)
   type          BookingType @default(Online)
 
-  foodReservation FoodReservation?
+  foodReservation        FoodReservation?
+  reservationCancelToken ReservationCancelToken?
 
   table Tables @relation(fields: [tableId], references: [id])
   user  User?  @relation(fields: [userId], references: [id])

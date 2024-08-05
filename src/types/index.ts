@@ -194,6 +194,7 @@ export type tableReservationDataTypes = {
   timeSlot: string;
   status: string;
   offerDiscount: number;
+  offer: offerDataTypes;
   total: number;
   table: tablesDataTypes;
   food: foodsReservationDataTypes;

@@ -65,3 +65,21 @@
 .admin-content-area {
   height: calc(100vh - 4.5rem);
 }
+
+/* customize scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded bg-green-500;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-black;
+}

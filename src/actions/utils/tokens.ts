@@ -4,6 +4,7 @@ import { getVerificationTokenByEmail } from "@/actions/utils/verification-token"
 import { v4 as uuid } from "uuid";
 import { db } from "@/lib/db";
 import { getResetPasswordTokenByEmail } from "@/actions/utils/password-reset-token";
+import { getReservationCancelTokenByReservationId } from "./reservation-cancellation-token";
 
 // get verification token
 export const getVerificationToken = async (email: string) => {
@@ -63,4 +64,38 @@ export const getResetPasswordToken = async (email: string) => {
 
   // return password reset token
   return passwordResetToken;
+};
+
+// get reservation cancellation token
+export const getReservationCancelToken = async (
+  reservationId: string,
+  type: "room" | "table",
+) => {
+  // generate token
+  const token = Math.floor(100000 + Math.random() * 900000).toString();
+  // set expiration date
+  const expires = new Date(new Date().getTime() + 1000 * 1800);
+
+  // get existing token
+  const existingToken =
+    await getReservationCancelTokenByReservationId(reservationId);
+
+  // if token exists, delete it
+  if (existingToken) {
+    await db.reservationCancelToken.delete({
+      where: { id: existingToken.id },
+    });
+  }
+
+  // create new reservation cancel token
+  const reservationCancelToken = await db.reservationCancelToken.create({
+    data: {
+      token,
+      [`${type}ReservationId`]: reservationId,
+      expiresAt: expires,
+    },
+  });
+
+  // return reservation cancel token
+  return reservationCancelToken;
 };
