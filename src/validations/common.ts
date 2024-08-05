@@ -274,3 +274,13 @@ export const RoomReservationFormSchema = z.object({
       return date.to <= lastDay;
     }, "Dates must be less than or equal to 1 months from now"),
 });
+
+// form schema for cancel reservation validation
+export const CancelReservationSchema = z.object({
+  reservationNo: z.coerce.number({
+    invalid_type_error: "Invalid reservation ID",
+  }),
+  token: z.string().min(6, {
+    message: "Your one-time password must be 6 characters.",
+  }),
+});

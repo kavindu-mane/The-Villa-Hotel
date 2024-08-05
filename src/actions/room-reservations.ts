@@ -1,6 +1,10 @@
 "use server";
 
-import { ReservationsSchema, RoomReservationFormSchema } from "@/validations";
+import {
+  CancelReservationSchema,
+  ReservationsSchema,
+  RoomReservationFormSchema,
+} from "@/validations";
 import z from "zod";
 import {
   getAllRooms,
@@ -27,6 +31,10 @@ import { addPaymentRecord } from "./utils/payments";
 import { roomReservationConfirmEmailTemplate } from "@/templates/room-reservation-confirm-email";
 import { sendEmails } from "./utils/email";
 import { increaseCoins } from "./utils/coins";
+import { getReservationCancelToken } from "./utils/tokens";
+import { reservationCancellationTemplate } from "@/templates/reservation-cancellation";
+import { getReservationCancelTokenByToken } from "./utils/reservation-cancellation-token";
+import { db } from "@/lib/db";
 
 /**
  * Server action for room booking form
@@ -494,9 +502,9 @@ export const getReservationDetails = async (reservationNo: number) => {
 
   // calculate sub total
   const duration = Math.ceil(
-          (reservation.checkOut.getTime() - reservation.checkIn.getTime()) /
-            (1000 * 3600 * 24),
-        );
+    (reservation.checkOut.getTime() - reservation.checkIn.getTime()) /
+      (1000 * 3600 * 24),
+  );
   let subTotal = reservation.total;
   let total = reservation.room.price * duration;
   let offerAmount = 0;
@@ -532,8 +540,7 @@ export const getReservationDetails = async (reservationNo: number) => {
       name: reservation.name,
       email: reservation.email,
       total,
-      roomTotal:
-        reservation.room.price * duration,
+      roomTotal: reservation.room.price * duration,
       offer: offerAmount,
       offerPercentage,
       payed: reservation.paidAmount,
@@ -542,5 +549,151 @@ export const getReservationDetails = async (reservationNo: number) => {
       foods: reservation.foodReservation?.foodReservationItems,
       status: reservation.status,
     },
+  };
+};
+
+// request room reservation cancellation with otp token
+export const requestRoomReservationCancellation = async (
+  reservationNo: number,
+) => {
+  // check if reservation number is valid
+  if (!reservationNo) {
+    return {
+      status: 404,
+      error: "Invalid reservation number",
+    };
+  }
+
+  const reservation = await getReservationByNumber(reservationNo);
+
+  if (!reservation) {
+    return {
+      status: 404,
+      error: "Reservation not found",
+    };
+  }
+
+  // check if reservation status is pending
+  if (reservation.status !== "Confirmed") {
+    return {
+      error: "Reservation already cancelled",
+    };
+  }
+
+  // generate cancel token
+  const cancelToken = await getReservationCancelToken(reservation.id, "room");
+
+  // if token not generated
+  if (!cancelToken) {
+    return {
+      error: "Error generating token",
+    };
+  }
+
+  // setup email template
+  const template = reservationCancellationTemplate(
+    cancelToken.token,
+    reservation.name || "",
+  );
+
+  //get reply to email from env
+  const replyTo = process.env.CONTACT_US_EMAIL;
+  // send email
+  const isSend = await sendEmails({
+    to: reservation.email!!,
+    replyTo,
+    subject: "Reservation Cancellation - The Villa Hotel",
+    body: template,
+  });
+
+  // if email not sent
+  if (!isSend) {
+    return {
+      error: "Token generated but email not sent",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Token generated and email sent",
+  };
+};
+
+// cancel reservation
+export const cancelRoomReservation = async (
+  data: z.infer<typeof CancelReservationSchema>,
+) => {
+  // validate data in backend
+  const validatedFields = CancelReservationSchema.safeParse(data);
+  //check if validation failed and return errors
+  if (!validatedFields.success) {
+    return { errors: validatedFields.error.errors };
+  }
+
+  //destructure data from validated fields
+  const { reservationNo, token } = validatedFields.data;
+  // check if reservation number is valid
+  if (!reservationNo) {
+    return {
+      error: "Invalid reservation number",
+    };
+  }
+
+  // get reservation by reservation number
+  const reservation = await getReservationByNumber(reservationNo);
+
+  // check if reservation exists
+  if (!reservation) {
+    return {
+      error: "Reservation not found",
+    };
+  }
+
+  // check if reservation status is pending
+  if (reservation.status !== "Confirmed") {
+    return {
+      error: "Reservation already cancelled",
+    };
+  }
+
+  // check if token is valid
+  const tokenValid = await getReservationCancelTokenByToken(
+    token,
+    reservation.id,
+  );
+
+  if (!tokenValid) {
+    return {
+      error: "Invalid token",
+    };
+  }
+
+  // delete token
+  await db.reservationCancelToken.deleteMany({
+    where: {
+      token,
+      roomReservationId: reservation.id,
+    },
+  });
+
+  // update reservation status
+  const updatedReservation = await updateReservationStatus(
+    reservation.id,
+    "Cancelled",
+  );
+
+  // if update unsuccessful
+  if (!updatedReservation) {
+    return {
+      error: "Failed to cancel reservation",
+    };
+  }
+
+  // remove pending_reservation cookie
+  cookies().delete("pending_reservation");
+
+  return {
+    success: true,
+    message: "Reservation cancelled successfully",
   };
 };

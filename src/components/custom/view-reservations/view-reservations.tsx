@@ -1,12 +1,44 @@
 "use client";
 
-import { getReservationDetails as getRoomReservationDetails } from "@/actions/room-reservations";
-import { getReservationDetails as getTableReservationDetails } from "@/actions/table-reservations";
+import {
+  cancelRoomReservation,
+  getReservationDetails as getRoomReservationDetails,
+  requestRoomReservationCancellation,
+} from "@/actions/room-reservations";
+import {
+  cancelTableReservation,
+  getReservationDetails as getTableReservationDetails,
+  requestTableReservationCancellation,
+} from "@/actions/table-reservations";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components";
 import { toast } from "@/components/ui/use-toast";
 import { ReservationData } from "@/types";
+import { CancelReservationSchema } from "@/validations";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { GridLoader } from "react-magic-spinners";
+import { z } from "zod";
 
 type ReservationType = "table" | "room";
 
@@ -24,7 +56,6 @@ export const ViewReservations: FC = () => {
     const table = searchParams.get("table");
     const room = searchParams.get("room");
     setNotFound(!table && !room);
-    setLoading(true);
 
     let reservation = null;
 
@@ -53,6 +84,7 @@ export const ViewReservations: FC = () => {
   }, [searchParams]);
 
   useEffect(() => {
+    setLoading(true);
     loadReservation().finally(() => setLoading(false));
   }, [loadReservation]);
 
@@ -76,15 +108,24 @@ export const ViewReservations: FC = () => {
 
   return (
     <section className="flex flex-col items-center justify-center gap-y-4 pb-2 pt-10 text-gray-700">
-      {reservationType === "room" && <RoomReservation reservation={data} />}
-      {reservationType === "table" && <TableReservation reservation={data} />}
+      {reservationType === "room" && (
+        <RoomReservation reservation={data} loadReservation={loadReservation} />
+      )}
+      {reservationType === "table" && (
+        <TableReservation
+          reservation={data}
+          loadReservation={loadReservation}
+        />
+      )}
     </section>
   );
 };
 
-const RoomReservation: FC<{ reservation: ReservationData }> = ({
-  reservation,
-}) => {
+const RoomReservation: FC<{
+  reservation: ReservationData;
+  loadReservation: () => void;
+}> = ({ reservation, loadReservation }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="flex w-full flex-col gap-y-4 px-2">
       <div className="flex flex-col gap-y-2">
@@ -179,10 +220,7 @@ const RoomReservation: FC<{ reservation: ReservationData }> = ({
               <span className="font-semibold">Foods:</span>
               <span className="mx-3 flex flex-grow border-t-2 border-dashed"></span>
               <span>
-                $
-                {(reservation.total - (reservation.roomTotal || 0)).toFixed(
-                  2,
-                )}
+                ${(reservation.total - (reservation.roomTotal || 0)).toFixed(2)}
               </span>
             </p>
             <p className="flex w-full items-center">
@@ -220,13 +258,36 @@ const RoomReservation: FC<{ reservation: ReservationData }> = ({
           </div>
         </div>
       </div>
+
+      {/* cancel reservation alert*/}
+      <CancelReservation
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        type="room"
+        reservationNo={reservation.reservationNo}
+        loadReservation={loadReservation}
+      />
+
+      {/* cancel reservation button */}
+      {reservation.status === "Confirmed" && (
+        <div className="mt-5 flex justify-center">
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="bg-red-500 text-white hover:bg-red-600"
+          >
+            Cancel Reservation
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
 
-const TableReservation: FC<{ reservation: ReservationData }> = ({
-  reservation,
-}) => {
+const TableReservation: FC<{
+  reservation: ReservationData;
+  loadReservation: () => void;
+}> = ({ reservation, loadReservation }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="flex w-full flex-col gap-y-4 px-2">
       <div className="flex flex-col gap-y-2">
@@ -346,6 +407,198 @@ const TableReservation: FC<{ reservation: ReservationData }> = ({
           </div>
         </div>
       </div>
+
+      {/* cancel reservation alert*/}
+      <CancelReservation
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        type="table"
+        reservationNo={reservation.reservationNo}
+        loadReservation={loadReservation}
+      />
+
+      {/* cancel reservation button */}
+      {reservation.status === "Confirmed" && (
+        <div className="mt-5 flex justify-center">
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="bg-red-500 text-white hover:bg-red-600"
+          >
+            Cancel Reservation
+          </Button>
+        </div>
+      )}
     </div>
+  );
+};
+
+const CancelReservation: FC<{
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  type: ReservationType;
+  reservationNo: number;
+  loadReservation: () => void;
+}> = ({ isOpen, setIsOpen, type, reservationNo, loadReservation }) => {
+  const [loading, setLoading] = useState(false);
+  const [isTokenSent, setIsTokenSent] = useState(false);
+
+  const handleSubmit = async (
+    data: z.infer<typeof CancelReservationSchema>,
+  ) => {
+    let cancelReservation = cancelTableReservation;
+    if (type === "room") {
+      cancelReservation = cancelRoomReservation;
+    }
+    setLoading(true);
+    await cancelReservation(data)
+      .then((res) => {
+        if (res.error) {
+          toast({
+            title: res.error,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-red-500 border-red-600 rounded-md text-white",
+          });
+        }
+        if (res.success) {
+          toast({
+            title: res?.message,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-green-500 border-green-600 rounded-md text-white",
+          });
+          setIsOpen(false);
+        }
+      })
+      .then(() => {
+        loadReservation();
+      })
+      .catch((_) => {
+        toast({
+          title: "An error occurred while canceling the reservation",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const requestCancellation = async () => {
+    setLoading(true);
+    let request = requestRoomReservationCancellation;
+    if (type === "table") {
+      request = requestTableReservationCancellation;
+    }
+    await request(reservationNo)
+      .then((res) => {
+        if (res.error) {
+          toast({
+            title: res.error,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-red-500 border-red-600 rounded-md text-white",
+          });
+        }
+        if (res.success) {
+          toast({
+            title: res?.message,
+            description: new Date().toLocaleTimeString(),
+            className: "bg-green-500 border-green-600 rounded-md text-white",
+          });
+          setIsTokenSent(true);
+        }
+      })
+      .catch((_) => {
+        toast({
+          title: "An error occurred while requesting the cancellation",
+          description: new Date().toLocaleTimeString(),
+          className: "bg-red-500 border-red-600 rounded-md text-white",
+        });
+      })
+      .finally(() => {
+        setIsTokenSent(true);
+        setLoading(false);
+      });
+  };
+
+  const form = useForm<z.infer<typeof CancelReservationSchema>>({
+    resolver: zodResolver(CancelReservationSchema),
+    defaultValues: {
+      token: "",
+      reservationNo: reservationNo,
+    },
+  });
+
+  return (
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently cancel the{" "}
+            {type} reservation. Also no refund will be given.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        {isTokenSent && (
+          <p className="text-xs text-gray-500">
+            A one-time password has been sent to your email address. Please
+            enter the OTP to cancel the reservation.
+          </p>
+        )}
+        {!isTokenSent && (
+          <Button
+            onClick={requestCancellation}
+            className="bg-blue-500 text-white hover:bg-blue-600"
+          >
+            {loading ? "Requesting..." : "Request Cancellation"}
+          </Button>
+        )}
+
+        {/* if token sended */}
+        {isTokenSent && (
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="w-full space-y-6"
+            >
+              <FormField
+                control={form.control}
+                name="token"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>One-Time Password</FormLabel>
+                    <FormControl>
+                      <InputOTP maxLength={6} {...field}>
+                        <InputOTPGroup className="flex w-full justify-center">
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </FormControl>
+                    <FormDescription>
+                      Please enter the one-time password sent to cancel the
+                      reservation.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex w-full justify-end">
+                <Button className="bg-red-500 text-white hover:bg-red-600">
+                  {loading ? "Canceling..." : "Cancel Reservation"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        )}
+
+        <AlertDialogFooter>
+          <AlertDialogCancel className="border-gray-500 text-gray-400 hover:text-gray-500">
+            Close
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };

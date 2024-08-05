@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  CancelReservationSchema,
   RestaurantAvailabilitySchema,
   RestaurantReservationSchema,
 } from "@/validations";
@@ -29,6 +30,10 @@ import { getUserByEmail } from "./utils/user";
 import { increaseCoins } from "./utils/coins";
 import { tableReservationConfirmEmailTemplate } from "@/templates/table-reservation-confirm-email";
 import { sendEmails } from "./utils/email";
+import { getReservationCancelToken } from "./utils/tokens";
+import { reservationCancellationTemplate } from "@/templates/reservation-cancellation";
+import { getReservationCancelTokenByToken } from "./utils/reservation-cancellation-token";
+import { db } from "@/lib/db";
 
 /**
  * Create action for table booking form
@@ -450,5 +455,150 @@ export const getReservationDetails = async (reservationNo: number) => {
       foods: reservation.foodReservation?.foodReservationItems,
       status: reservation.status,
     },
+  };
+};
+
+// request table reservation cancellation with otp token
+export const requestTableReservationCancellation = async (
+  reservationNo: number,
+) => {
+  // check if reservation number is valid
+  if (!reservationNo) {
+    return {
+      status: 404,
+      error: "Invalid reservation number",
+    };
+  }
+
+  const reservation = await getTableReservationByNumber(reservationNo);
+
+  if (!reservation) {
+    return {
+      status: 404,
+      error: "Reservation not found",
+    };
+  }
+
+  // check if reservation status is pending
+  if (reservation.status !== "Confirmed") {
+    return {
+      error: "Reservation already cancelled",
+    };
+  }
+
+  // generate cancel token
+  const cancelToken = await getReservationCancelToken(reservation.id, "table");
+
+  // if token not generated
+  if (!cancelToken) {
+    return {
+      error: "Error generating token",
+    };
+  }
+
+  // setup email template
+  const template = reservationCancellationTemplate(
+    cancelToken.token,
+    reservation.name || "",
+  );
+
+  //get reply to email from env
+  const replyTo = process.env.CONTACT_US_EMAIL;
+  // send email
+  const isSend = await sendEmails({
+    to: reservation.email!!,
+    replyTo,
+    subject: "Reservation Cancellation - The Villa Hotel",
+    body: template,
+  });
+
+  // if email not sent
+  if (!isSend) {
+    return {
+      error: "Token generated but email not sent",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Token generated and email sent",
+  };
+};
+
+// cancel table reservation
+export const cancelTableReservation = async (
+  data: z.infer<typeof CancelReservationSchema>,
+) => {
+  // validate data in backend
+  const validatedFields = CancelReservationSchema.safeParse(data);
+  //check if validation failed and return errors
+  if (!validatedFields.success) {
+    return { errors: validatedFields.error.errors };
+  }
+
+  //destructure data from validated fields
+  const { reservationNo, token } = validatedFields.data;
+
+  // check if reservation number is valid
+  if (!reservationNo) {
+    return {
+      status: 404,
+      error: "Invalid reservation number",
+    };
+  }
+
+  const reservation = await getTableReservationByNumber(reservationNo);
+
+  if (!reservation) {
+    return {
+      status: 404,
+      error: "Reservation not found",
+    };
+  }
+
+  // check if reservation status is pending
+  if (reservation.status !== "Confirmed") {
+    console.log(reservation.status);
+    return {
+      error: "Reservation already cancelled",
+    };
+  }
+
+  // check if token is valid
+  const tokenValid = await getReservationCancelTokenByToken(
+    token,
+    reservation.id,
+  );
+
+  if (!tokenValid) {
+    return {
+      error: "Invalid token",
+    };
+  }
+
+  // delete token
+  await db.reservationCancelToken.deleteMany({
+    where: {
+      token,
+      tableReservationId: reservation.id,
+    },
+  });
+
+  // update reservation status to cancel
+  await updateTableReservation(reservation.id, {
+    status: "Cancelled",
+  });
+
+  // update food reservation status to cancel
+  if (reservation.foodReservation) {
+    await updateFoodReservationStatus(
+      reservation.foodReservation.id,
+      "Cancelled",
+    );
+  }
+
+  return {
+    success: true,
+    message: "Reservation cancelled",
   };
 };
