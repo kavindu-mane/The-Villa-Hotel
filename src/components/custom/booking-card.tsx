@@ -24,7 +24,7 @@ import {
 import { format } from "date-fns";
 import { z } from "zod";
 import { BsBuildingsFill } from "react-icons/bs";
-import { IoPerson, IoCalendarSharp } from "react-icons/io5";
+import { IoCalendarSharp } from "react-icons/io5";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { ReservationsSchema } from "@/validations";
 import { cn } from "@/lib/utils";

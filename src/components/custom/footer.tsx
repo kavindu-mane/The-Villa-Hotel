@@ -126,7 +126,7 @@ export const Footer: FC = () => {
       </div>
 
       {/* copy right */}
-     <CopyRight/>
+      <CopyRight />
 
       {/* waves pattern */}
       <Image
