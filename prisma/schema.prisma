@@ -62,6 +62,11 @@ enum BedTypes {
   One_Double_Bed
 }
 
+enum RoomReservationType {
+  Full_Board
+  Half_Board
+}
+
 model User {
   id               String             @id @default(cuid())
   name             String?
@@ -202,6 +207,7 @@ model RoomReservation {
   status                 Status                  @default(Confirmed)
   bed                    BedTypes?               @default(One_Double_Bed)
   type                   BookingType             @default(Online)
+  roomReservationType    RoomReservationType     @default(Half_Board)
   Payments               Payments[]
   foodReservation        FoodReservation?
   reservationCancelToken ReservationCancelToken?
