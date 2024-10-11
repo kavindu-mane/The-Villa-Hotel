@@ -296,7 +296,21 @@ const RoomCard = ({
         </p>
         {/* price and booking*/}
         <div className="flex items-center justify-between">
-          <p className="text-lg font-semibold">${room.price}</p>
+          <div className="">
+            <p className="text-lg font-semibold">
+              {room.price}$
+              <span className="text-xs font-normal text-gray-600">
+                / Half Board
+              </span>
+            </p>
+            <p className="text-lg font-semibold">
+              {room.price + 30}$
+              <span className="text-xs font-normal text-gray-600">
+                / Full Board
+              </span>
+            </p>
+          </div>
+
           <div className="flex items-center gap-x-1">
             {/* show 360 button if 360 url is available */}
             {room.images360 && (
