@@ -104,6 +104,7 @@ export const createPendingReservation = async (
   roomNumber: number,
   checkIn: Date,
   checkOut: Date,
+  type: "Full_Board" | "Half_Board",
 ) => {
   // get cookies
   const cookieStore = cookies();
@@ -218,9 +219,16 @@ export const createPendingReservation = async (
       if (existingReservation && existingReservation.status === "Ongoing")
         await deleteReservation(reservation.value, "Ongoing");
     }
+
+    let addon = 0;
+    // check type of room reservation
+    if (type === "Full_Board") {
+      addon = 30;
+    }
+
     // calculate total amount
     const totalAmount =
-      roomDetails.price *
+      (roomDetails.price + addon) *
       Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 3600 * 24));
     // create new pending reservation
     const newReservation = await createReservation({
@@ -231,6 +239,7 @@ export const createPendingReservation = async (
       total: totalAmount,
       status: "Pending",
       type: "Online",
+      roomReservationType: type,
     });
 
     if (newReservation) {
@@ -514,6 +523,7 @@ export const completePayment = async (order_id: number, payment: number) => {
     `${process.env.DOMAIN}/view-reservations?room=${updatedReservation.reservationNo}`,
     updatedReservation.room.type,
     updatedReservation.room.number,
+    updatedReservation.roomReservationType.replaceAll("_", " "),
   );
 
   //get reply to email from env
@@ -564,8 +574,15 @@ export const getReservationDetails = async (reservationNo: number) => {
     (reservation.checkOut.getTime() - reservation.checkIn.getTime()) /
       (1000 * 3600 * 24),
   );
+
+  let addon = 0;
+  // if reservation type is full board addons change to 30
+  if (reservation.roomReservationType) {
+    addon = 30;
+  }
+
   let subTotal = reservation.total;
-  let total = reservation.room.price * duration;
+  let total = (reservation.room.price + addon) * duration;
   let offerAmount = 0;
   let coinAmount = 0;
   const offerPercentage =
@@ -604,7 +621,7 @@ export const getReservationDetails = async (reservationNo: number) => {
       name: reservation.name,
       email: reservation.email,
       total,
-      roomTotal: reservation.room.price * duration,
+      roomTotal: (reservation.room.price + addon) * duration,
       offer: offerAmount,
       offerPercentage,
       coin: coinAmount,
