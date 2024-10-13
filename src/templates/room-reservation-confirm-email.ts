@@ -11,6 +11,7 @@ export const roomReservationConfirmEmailTemplate = (
   reservationLink: string,
   roomType: string,
   roomNumber: number,
+  reservationType: string,
 ) => {
   return `
     <!doctype html>
@@ -55,6 +56,10 @@ export const roomReservationConfirmEmailTemplate = (
           <tr>
             <td style="font-size: 16px; color: #333">Check-out Date:</td>
             <td style="font-size: 16px; color: #333">${checkOutDate}</td>
+          </tr>
+          <tr>
+            <td style="font-size: 16px; color: #333">Package:</td>
+            <td style="font-size: 16px; color: #333">${reservationType}</td>
           </tr>
           <tr>
             <td style="font-size: 16px; color: #333">Room Type:</td>

@@ -219,6 +219,13 @@ export const RoomReservationFormSchema = z.object({
       };
     },
   }),
+  type: z.enum(["Full_Board", "Half_Board"], {
+    errorMap: (_, ctx) => {
+      return {
+        message: ctx.defaultError.split(".")[1],
+      };
+    },
+  }),
   offer: z.optional(
     z.coerce
       .number({ invalid_type_error: "Please enter numbers only" })

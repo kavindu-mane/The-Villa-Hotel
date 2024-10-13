@@ -10,6 +10,7 @@ export const createReservation = async (data: {
   checkIn: Date;
   checkOut: Date;
   total: number;
+  roomReservationType?: "Full_Board" | "Half_Board" | undefined;
   userId?: string | null;
   bed?: BedTypes | null;
   name?: string | null;

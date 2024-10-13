@@ -12,6 +12,9 @@ import {
   CarouselNext,
   CarouselPrevious,
   Headings,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
   RoomsLocation,
   Skeleton,
 } from "@/components";
@@ -28,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { Canvas, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { OrbitControls, Preload } from "@react-three/drei";
+import { FaCheck, FaCheckCircle } from "react-icons/fa";
 
 export const Rooms: FC = () => {
   // is structure button state
@@ -178,6 +182,7 @@ export const Rooms: FC = () => {
             {selectedRoom.map((room, index) => (
               <RoomCard
                 key={index}
+                id={index}
                 room={room}
                 from={new Date(searchParams.get("from")!!)}
                 to={new Date(searchParams.get("to")!!)}
@@ -199,6 +204,7 @@ export const Rooms: FC = () => {
             {otherRooms.map((room, index) => (
               <RoomCard
                 key={index}
+                id={index}
                 room={room}
                 from={new Date(searchParams.get("from")!!)}
                 to={new Date(searchParams.get("to")!!)}
@@ -255,18 +261,21 @@ const RoomCard = ({
   to,
   setRoom360Url,
   setIs360Show,
+  id,
 }: {
   room: minimalRoomReservationData;
   from: Date;
   to: Date;
   setRoom360Url: (value: string | null) => void;
   setIs360Show: (value: boolean) => void;
+  id: number;
 }) => {
+  const [type, setType] = useState<string>("Full_Board");
   // router hook
   const router = useRouter();
   const submitHandler = () => {
     router.push(
-      `/reservations?room_number=${room.number}&from=${format(from, "yyyy-MM-dd")}&to=${format(to, "yyyy-MM-dd")}`,
+      `/reservations?room_number=${room.number}&from=${format(from, "yyyy-MM-dd")}&to=${format(to, "yyyy-MM-dd")}&type=${type}`,
     );
   };
 
@@ -297,18 +306,44 @@ const RoomCard = ({
         {/* price and booking*/}
         <div className="flex items-center justify-between">
           <div className="">
-            <p className="text-lg font-semibold">
-              {room.price}$
-              <span className="text-xs font-normal text-gray-600">
-                / Half Board
-              </span>
-            </p>
-            <p className="text-lg font-semibold">
-              {room.price + 30}$
-              <span className="text-xs font-normal text-gray-600">
-                / Full Board
-              </span>
-            </p>
+            <RadioGroup
+              defaultValue="Full_Board"
+              className="gap-y-1"
+              onValueChange={(value) => setType(value)}
+            >
+              <div className="flex items-center">
+                <RadioGroupItem
+                  id={`r1-${id}`}
+                  value="Full_Board"
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor={`r1-${id}`}
+                  className="flex h-7 w-44 cursor-pointer items-center justify-between rounded-lg bg-gray-500 px-3 py-1.5 text-white peer-aria-checked:bg-green-600"
+                >
+                  {room.price + 30}$ Full Board
+                  {type === "Full_Board" && (
+                    <FaCheckCircle className="ms-2 h-4 w-4" />
+                  )}
+                </Label>
+              </div>
+              <div className="flex items-center">
+                <RadioGroupItem
+                  id={`r2-${id}`}
+                  value="Half_Board"
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor={`r2-${id}`}
+                  className="flex h-7 w-44 cursor-pointer items-center justify-between rounded-lg bg-gray-500 px-3 py-1.5 text-white peer-aria-checked:bg-green-600"
+                >
+                  {room.price}$ Half Board
+                  {type === "Half_Board" && (
+                    <FaCheckCircle className="ms-2 h-4 w-4" />
+                  )}
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
 
           <div className="flex items-center gap-x-1">

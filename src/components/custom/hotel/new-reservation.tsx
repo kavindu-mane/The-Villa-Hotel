@@ -40,6 +40,8 @@ declare global {
   }
 }
 
+type ReservationType = "Full_Board" | "Half_Board";
+
 // default value for errors
 const errorDefault: errorTypes = {
   name: [],
@@ -75,6 +77,7 @@ export const NewReservations: FC = () => {
         from: new Date(),
         to: new Date(),
       },
+      type: "Full_Board",
     },
   });
 
@@ -186,8 +189,8 @@ export const NewReservations: FC = () => {
 
   // create pending reservation : this will available for 15 minutes
   const addPendingReservation = useCallback(async () => {
-    const { room, date } = form.getValues();
-    await createPendingReservation(room, date.from, date.to)
+    const { room, date, type } = form.getValues();
+    await createPendingReservation(room, date.from, date.to, type)
       .then((res) => {
         if (res.error) {
           toast({
@@ -215,13 +218,15 @@ export const NewReservations: FC = () => {
     if (
       searchParams.has("room_number") &&
       searchParams.has("from") &&
-      searchParams.has("to")
+      searchParams.has("to") &&
+      searchParams.has("type")
     ) {
       form.setValue("room", Number(searchParams.get("room_number")));
       form.setValue("date", {
         from: new Date(searchParams.get("from")!!),
         to: new Date(searchParams.get("to")!!),
       });
+      form.setValue("type", searchParams.get("type") as ReservationType);
       const validatedData = RoomReservationFormSchema.safeParse(
         form.getValues(),
       );
