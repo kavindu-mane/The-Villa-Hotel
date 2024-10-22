@@ -69,7 +69,7 @@ const DropDown: FC<{ session: Session }> = ({ session }) => {
             <DropdownMenuItem>
               <Link
                 href={
-                  session.user.role === Role.ADMIN ? "/admin" : "/dashboard"
+                  session.user.role === Role.ADMIN ? "/admin" : "/user"
                 }
                 className="flex w-full items-center gap-x-2"
               >
