@@ -20,3 +20,4 @@ export * from "./delete-alert";
 export * from "./user-dropdown";
 export * from "./content-wrapper";
 export * from "./view-reservations";
+export * from "./user";
