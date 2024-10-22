@@ -33,7 +33,7 @@ export const NavigationBar: FC<{ children?: React.ReactNode }> = ({
     <nav
       className={cn(
         "relative z-[2] flex w-full items-center justify-between px-2 py-4 lg:px-5",
-        pathname === "/admin" ? "border-b bg-white" : "",
+        ["/admin", "/user"].includes(pathname) ? "border-b bg-white" : "",
       )}
     >
       <div className="text-2xl">

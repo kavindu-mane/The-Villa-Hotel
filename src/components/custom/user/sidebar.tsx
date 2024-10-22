@@ -33,7 +33,7 @@ export const UserSidebar: FC = () => {
   const fullPath = usePathname();
 
   return (
-    <div className="">
+    <div className="h-screen">
       {/* sheet for small devices */}
       <div className="absolute start-0 top-3 z-50 lg:hidden">
         <Sheet>
@@ -50,7 +50,7 @@ export const UserSidebar: FC = () => {
       </div>
 
       {/* dropdown menu for large devices */}
-      <div className="user-content-area hidden w-64 overflow-hidden border-r bg-white lg:block">
+      <div className="user-content-area hidden h-screen w-64 overflow-hidden border-r bg-white lg:block">
         {/* content area */}
         <UserSidebarItem fullPath={fullPath} />
       </div>

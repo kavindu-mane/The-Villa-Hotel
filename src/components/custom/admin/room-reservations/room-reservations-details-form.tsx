@@ -55,6 +55,7 @@ import { addOrUpdateRoomReservation } from "@/actions/admin/room-reservations-cr
 import { setAllRoomReservations } from "@/states/admin";
 import { BedTypes } from "@prisma/client";
 import { getRoomsDetails } from "@/actions/room-reservations";
+import { BiCategory } from "react-icons/bi";
 
 // default value for errors
 const errorDefault: errorTypes = {
@@ -95,6 +96,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
       name: "",
       email: "",
       phone: "",
+      type: "Half_Board",
       date: {
         from: today(),
         to: tomorrow(),
@@ -172,6 +174,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
         from: new Date(res.checkIn),
         to: new Date(res.checkOut),
       });
+      form.setValue("type", res.type as "Full_Board" | "Half_Board");
       const offer =
         res.offerDiscount > (res.offer?.discount || 0)
           ? res.offerDiscount
@@ -358,6 +361,43 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                               className="capitalize"
                             >
                               {bed.replaceAll("_", " ")}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage>
+                        {errors?.beds && errors?.beds[0]}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
+
+                {/* category */}
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel className="flex items-center gap-2">
+                        <BiCategory /> Category
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="capitalize">
+                            <SelectValue placeholder={field.value} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {["Full_Board", "Half_Board"]?.map((category) => (
+                            <SelectItem
+                              key={category}
+                              value={category}
+                              className="capitalize"
+                            >
+                              {category.replaceAll("_", " ")}
                             </SelectItem>
                           ))}
                         </SelectContent>
