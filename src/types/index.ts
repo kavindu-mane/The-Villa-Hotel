@@ -4,6 +4,7 @@ import {
   BedTypes,
   TableType,
   Status,
+  RoomReservationType,
 } from "@prisma/client";
 
 // types for validation error
@@ -151,6 +152,7 @@ export type roomReservationDataTypes = {
   checkIn: Date;
   checkOut: Date;
   room: roomsDataTypes;
+  roomReservationType: RoomReservationType;
 };
 
 // minimal room reservation data
@@ -169,6 +171,7 @@ export type minimalRoomReservationData = {
   _count: {
     roomReservation: number;
   };
+  roomReservationType?: RoomReservationType;
 };
 
 // pending reservation response data

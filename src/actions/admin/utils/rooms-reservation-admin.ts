@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { BedTypes } from "@prisma/client";
+import { BedTypes, RoomReservationType } from "@prisma/client";
 
 // update reservation
 export const updateReservation = async (data: {
@@ -17,6 +17,7 @@ export const updateReservation = async (data: {
   coins?: number;
   userId?: string | null;
   offerId?: string | null;
+  roomReservationType?: RoomReservationType;
 }) => {
   const { id } = data;
   try {
@@ -76,6 +77,7 @@ export const getReservations = async (page: number, limit: number) => {
         checkIn: true,
         checkOut: true,
         type: true,
+        roomReservationType: true,
       },
     });
     return { reservations, pages, page };

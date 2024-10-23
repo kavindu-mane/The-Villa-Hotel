@@ -291,3 +291,16 @@ export const CancelReservationSchema = z.object({
     message: "Your one-time password must be 6 characters.",
   }),
 });
+
+// form schema for add review validation
+export const AddReviewSchema = z.object({
+  feedback: z
+    .string()
+    .min(1, { message: "Review field has to be filled." })
+    .max(500, { message: "Review should contain maximum 500 characters." }),
+  rating: z.coerce
+    .number({ invalid_type_error: "Please select a rating" })
+    .refine((val) => val >= 1 && val <= 5, {
+      message: "Rating must be between 1 and 5",
+    }),
+});

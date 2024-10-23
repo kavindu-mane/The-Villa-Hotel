@@ -174,7 +174,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
         from: new Date(res.checkIn),
         to: new Date(res.checkOut),
       });
-      form.setValue("type", res.type as "Full_Board" | "Half_Board");
+      form.setValue("type", res.roomReservationType);
       const offer =
         res.offerDiscount > (res.offer?.discount || 0)
           ? res.offerDiscount
@@ -384,6 +384,7 @@ export const AdminRoomsReservationDetailsForm: FC<{ isPending: boolean }> = ({
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
+                        disabled={reservation.current ? true : false}
                       >
                         <FormControl>
                           <SelectTrigger className="capitalize">
