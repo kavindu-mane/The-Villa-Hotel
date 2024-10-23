@@ -26,3 +26,4 @@ export * from "./checkbox";
 export * from "./multi-file-dropzone";
 export * from "./tooltip";
 export * from "./input-otp";
+export * from "./dialog";

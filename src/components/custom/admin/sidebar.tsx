@@ -47,16 +47,6 @@ export const adminPaths = [
     path: "/admin/promotions",
     icon: <MdOutlineDiscount className="h-4 w-4" />,
   },
-  {
-    name: "Users",
-    path: "/admin/users",
-    icon: <FaUsers className="h-4 w-4" />,
-  },
-  {
-    name: "Settings",
-    path: "/admin/settings",
-    icon: <IoSettings className="h-4 w-4" />,
-  },
 ];
 
 export const AdminSidebar: FC = () => {

@@ -1,4 +1,4 @@
-import { UserDashboard } from "@/components";
+import { Reservations, UserDashboard } from "@/components";
 import getSession from "@/lib/getSession";
 import { Role } from "@prisma/client";
 
@@ -20,7 +20,7 @@ const UserDashboardPage = async () => {
 
   return (
     <section className="">
-      <UserDashboard session={session} />
+      <Reservations />
     </section>
   );
 };

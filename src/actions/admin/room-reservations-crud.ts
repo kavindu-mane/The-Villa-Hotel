@@ -63,7 +63,7 @@ export const addOrUpdateRoomReservation = async (
     }
 
     // destructure data from validated fields
-    const { room, beds, offer, name, email, phone, date, offerID } =
+    const { room, beds, offer, name, email, phone, date, offerID, type } =
       validatedFields.data;
 
     const fromDate = await tzConvertor(date.from);
@@ -89,7 +89,7 @@ export const addOrUpdateRoomReservation = async (
     );
 
     if (
-      (roomAvailability && !isUpdate) ||
+      (roomAvailability && roomAvailability.length > 1 && !isUpdate) ||
       (roomAvailability && roomAvailability.length > 1) ||
       (isUpdate &&
         roomAvailability &&
@@ -150,6 +150,7 @@ export const addOrUpdateRoomReservation = async (
         checkIn: fromDate,
         checkOut: toDate,
         total: finalizedTotal,
+        roomReservationType: type,
       });
     } else {
       reservation = await createReservation({
@@ -166,6 +167,7 @@ export const addOrUpdateRoomReservation = async (
         status: "Confirmed",
         type: "Offline",
         offerId: offerID || null,
+        roomReservationType: type,
       });
     }
 

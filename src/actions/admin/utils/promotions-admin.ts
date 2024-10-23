@@ -22,6 +22,7 @@ export const createPromotion = async (
     });
     return offer;
   } catch (e) {
+    console.log(e)
     return null;
   }
 };
@@ -50,6 +51,7 @@ export const updatePromotion = async (
     });
     return offer;
   } catch (e) {
+    console.log(e)
     return null;
   }
 };

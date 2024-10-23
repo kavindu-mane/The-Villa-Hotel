@@ -83,6 +83,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  Feedbacks Feedbacks[]
 }
 
 model Account {
@@ -218,6 +220,8 @@ model RoomReservation {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  feedbacks Feedbacks[]
 }
 
 model TableReservation {
@@ -246,6 +250,8 @@ model TableReservation {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  feedbacks Feedbacks[]
 }
 
 model FoodReservation {
@@ -305,6 +311,22 @@ model Payments {
   paymentType   BookingType
 
   roomreservation RoomReservation @relation(fields: [reservationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Feedbacks {
+  id          String   @id @default(cuid())
+  userId      String
+  feedback    String
+  rating      Int
+  roomReservationId String?
+  tableReservationId String?
+
+  user User @relation(fields: [userId], references: [id])
+  roomReservation RoomReservation? @relation(fields: [roomReservationId], references: [id])
+  tableReservation TableReservation? @relation(fields: [tableReservationId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
