@@ -78,6 +78,8 @@ export const getReservations = async (page: number, limit: number) => {
         checkOut: true,
         type: true,
         roomReservationType: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
     return { reservations, pages, page };

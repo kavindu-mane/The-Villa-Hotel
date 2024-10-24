@@ -69,6 +69,8 @@ export const getTableReservations = async (page: number, limit: number) => {
         offerDiscount: true,
         status: true,
         foodReservation: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
     return {tableReservations , pages, page};

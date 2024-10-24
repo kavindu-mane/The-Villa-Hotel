@@ -79,7 +79,7 @@ const DropDown: FC<{ session: Session }> = ({ session }) => {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => logout()}
-              className="flex w-full items-center gap-x-2 text-red-600 hover:!bg-red-100 hover:!text-red-700"
+              className="flex w-full items-center cursor-pointer gap-x-2 text-red-600 hover:!bg-red-100 hover:!text-red-700"
             >
               <MdLogout className="h-4 w-4" />
               Logout
