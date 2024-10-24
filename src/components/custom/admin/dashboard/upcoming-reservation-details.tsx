@@ -16,80 +16,119 @@ import {
 import { FC } from "react";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { FaCopy } from "react-icons/fa";
+import { format } from "date-fns";
 
-export const UpcomingReservationDetails: FC = () => {
+export const UpcomingReservationDetails: FC<{
+  selectedReservation: any;
+  selectedReservationType: "room" | "table";
+}> = ({ selectedReservation, selectedReservationType }) => {
   return (
     <div>
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-start bg-muted/50">
           <div className="grid gap-0.5">
             <CardTitle className="group flex items-center gap-2 text-lg">
-              Order Oe31b70H
+              Reservation ID:{" "}
+              {selectedReservation?.reservationNo.toString().padStart(4, "0") ||
+                "****"}
               <Button
                 size="icon"
                 variant="outline"
                 className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    selectedReservation?.reservationNo
+                      .toString()
+                      .padStart(4, "0"),
+                  );
+                }}
               >
                 <FaCopy className="h-3 w-3" />
-                <span className="sr-only">Copy Order ID</span>
+                <span className="sr-only">Copy Reservation ID</span>
               </Button>
             </CardTitle>
-            <CardDescription>Date: November 23, 2023</CardDescription>
+            <CardDescription>
+              Date:
+              {(selectedReservation?.createdAt &&
+                format(selectedReservation?.createdAt, "LLL dd, y")) ||
+                "N/A"}
+            </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="p-6 text-sm">
           <div className="grid gap-3">
-            <div className="font-semibold">Order Details</div>
-            <ul className="grid gap-3">
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  Glimmer Lamps x <span>2</span>
-                </span>
-                <span>$250.00</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  Aqua Filters x <span>1</span>
-                </span>
-                <span>$49.00</span>
-              </li>
-            </ul>
+            <div className="font-semibold">Reservation Details</div>
+            {selectedReservationType === "room" && (
+              <ul className="grid gap-3">
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Room Number</span>
+                  <span>{selectedReservation?.room?.number || "N/A"}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Room Type</span>
+                  <span>{selectedReservation?.room?.type || "N/A"}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Bed Type</span>
+                  <span>
+                    {selectedReservation?.bed.replaceAll("_", " ") || "N/A"}
+                  </span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Check-in</span>
+                  <span>
+                    {(selectedReservation?.checkIn &&
+                      format(selectedReservation?.checkIn, "LLL dd, y")) ||
+                      "N/A"}
+                  </span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Check-out</span>
+                  <span>
+                    {(selectedReservation?.checkOut &&
+                      format(selectedReservation?.checkOut, "LLL dd, y")) ||
+                      "N/A"}
+                  </span>
+                </li>
+              </ul>
+            )}
+
+            {selectedReservationType === "table" && (
+              <ul className="grid gap-3">
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Table Id</span>
+                  <span>{selectedReservation?.table?.tableId}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Table Type</span>
+                  <span>{selectedReservation?.table?.tableType} Persons</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Date</span>
+                  <span>
+                    {selectedReservation?.date &&
+                      format(selectedReservation?.date, "LLL dd, y")}
+                  </span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Time Slot</span>
+                  <span>
+                    {selectedReservation?.timeSlot?.replaceAll("_", " ")}
+                  </span>
+                </li>
+              </ul>
+            )}
+
             <Separator className="my-2" />
             <ul className="grid gap-3">
               <li className="flex items-center justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>$299.00</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Shipping</span>
-                <span>$5.00</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span>$25.00</span>
-              </li>
-              <li className="flex items-center justify-between font-semibold">
-                <span className="text-muted-foreground">Total</span>
-                <span>$329.00</span>
+                <span>
+                  {selectedReservation?.total &&
+                    `$${selectedReservation?.total?.toFixed(2) || 0}`}
+                </span>
               </li>
             </ul>
-          </div>
-          <Separator className="my-4" />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-3">
-              <div className="font-semibold">Shipping Information</div>
-              <address className="grid gap-0.5 not-italic text-muted-foreground">
-                <span>Liam Johnson</span>
-                <span>1234 Main St.</span>
-                <span>Anytown, CA 12345</span>
-              </address>
-            </div>
-            <div className="grid auto-rows-max gap-3">
-              <div className="font-semibold">Billing Information</div>
-              <div className="text-muted-foreground">
-                Same as shipping address
-              </div>
-            </div>
           </div>
           <Separator className="my-4" />
           <div className="grid gap-3">
@@ -97,18 +136,18 @@ export const UpcomingReservationDetails: FC = () => {
             <dl className="grid gap-3">
               <div className="flex items-center justify-between">
                 <dt className="text-muted-foreground">Customer</dt>
-                <dd>Liam Johnson</dd>
+                <dd>{selectedReservation?.name || "N/A"}</dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-muted-foreground">Email</dt>
                 <dd>
-                  <a href="mailto:">liam@acme.com</a>
+                  <a href="mailto:">{selectedReservation?.email || "N/A"}</a>
                 </dd>
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-muted-foreground">Phone</dt>
                 <dd>
-                  <a href="tel:">+1 234 567 890</a>
+                  <a href="tel:">{selectedReservation?.phone || "N/A"}</a>
                 </dd>
               </div>
             </dl>
@@ -119,33 +158,22 @@ export const UpcomingReservationDetails: FC = () => {
             <dl className="grid gap-3">
               <div className="flex items-center justify-between">
                 <dt className="flex items-center gap-1 text-muted-foreground">
-                  Visa
+                  Payment via
                 </dt>
-                <dd>**** **** **** 4532</dd>
+                <dd>{selectedReservation?.type || "Cash on Arrival"}</dd>
               </div>
             </dl>
           </div>
         </CardContent>
         <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
           <div className="text-xs text-muted-foreground">
-            Updated <time dateTime="2023-11-23">November 23, 2023</time>
+            Updated{" "}
+            <span>
+              {(selectedReservation?.updatedAt &&
+                format(selectedReservation?.updatedAt, "LLL dd yyyy")) ||
+                "N/A"}
+            </span>
           </div>
-          <Pagination className="ml-auto mr-0 w-auto">
-            <PaginationContent>
-              <PaginationItem>
-                <Button size="icon" variant="outline" className="h-6 w-6">
-                  <MdKeyboardArrowLeft className="h-3.5 w-3.5" />
-                  <span className="sr-only">Previous Order</span>
-                </Button>
-              </PaginationItem>
-              <PaginationItem>
-                <Button size="icon" variant="outline" className="h-6 w-6">
-                  <MdKeyboardArrowRight className="h-3.5 w-3.5" />
-                  <span className="sr-only">Next Order</span>
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </CardFooter>
       </Card>
     </div>
