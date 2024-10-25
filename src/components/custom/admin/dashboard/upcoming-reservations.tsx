@@ -175,7 +175,7 @@ export const UpcomingReservations: FC<{
       <TabsContent value="rooms">
         <Card>
           <CardHeader className="px-5">
-            <CardTitle>Upcoming Reservations</CardTitle>
+            <CardTitle>Recent Reservations</CardTitle>
             <CardDescription>
               Recent reservations from The Villa Hotel.
             </CardDescription>
@@ -256,7 +256,7 @@ export const UpcomingReservations: FC<{
       <TabsContent value="tables">
         <Card>
           <CardHeader className="px-5">
-            <CardTitle>Upcoming Reservations</CardTitle>
+            <CardTitle>Recent Reservations</CardTitle>
             <CardDescription>
               Recent reservations from The Villa Hotel.
             </CardDescription>
