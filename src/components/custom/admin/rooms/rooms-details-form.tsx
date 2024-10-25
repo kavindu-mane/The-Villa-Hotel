@@ -256,7 +256,8 @@ export const AdminRoomsDetailsForm: FC<{ isPending: boolean }> = ({
       form.setValue("features", rooms.current.features.data);
       form.setValue("beds", rooms.current.beds.data);
       form.setValue("images", rooms.current.images.data);
-      form.setValue("images360", rooms.current.images360);
+      if (rooms.current.images360)
+        form.setValue("images360", rooms.current.images360);
     } else {
       form.reset();
     }
